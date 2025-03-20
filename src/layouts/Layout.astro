@@ -1,0 +1,66 @@
+---
+import '@fontsource/orbitron';
+import '@fontsource/inter';
+
+import Navbar               from '../components/Navbar.astro';
+import ParticleBackground   from '../components/ParticleBackground.tsx';
+import Background           from '../components/Background.astro';
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="GuardianApi - Secure Authentication Solution" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+    </head>
+
+    <body class="bg-space-blue min-h-screen text-white">
+        <ParticleBackground client:load />
+
+        <Background />
+
+        <Navbar />
+
+        <main class="relative z-10">
+            <slot />
+        </main>
+    </body>
+</html>
+
+<style is:global>
+    :root {
+        --accent: 136, 58, 234;
+        --accent-light: 224, 204, 250;
+        --accent-dark: 49, 10, 101;
+        --accent-gradient: linear-gradient(
+        45deg,
+        rgb(var(--accent)),
+        rgb(var(--accent-light)) 30%,
+        white 60%
+        );
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Orbitron', sans-serif;
+    }
+</style>
