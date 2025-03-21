@@ -1,62 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro';
-
-const plans = [
-  {
-    name: "Starter",
-    price: "$29",
-    period: "per month",
-    description: "Perfect for small projects and individual developers",
-    features: [
-      "Up to 1,000 monthly active users",
-      "Basic authentication flows",
-      "Email support",
-      "Standard security features",
-      "1 project"
-    ],
-    highlighted: false
-  },
-  {
-    name: "Pro",
-    price: "$79",
-    period: "per month",
-    description: "Ideal for growing businesses and teams",
-    features: [
-      "Up to 10,000 monthly active users",
-      "Advanced authentication flows",
-      "Priority email support",
-      "Enhanced security features",
-      "5 projects",
-      "Custom branding",
-      "Analytics dashboard"
-    ],
-    highlighted: true
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "contact us",
-    description: "For large-scale applications and organizations",
-    features: [
-      "Unlimited monthly active users",
-      "Custom authentication flows",
-      "24/7 dedicated support",
-      "Advanced security features",
-      "Unlimited projects",
-      "Custom integrations",
-      "SLA guarantee",
-      "Dedicated account manager"
-    ],
-    highlighted: false
-  }
-];
+import Layout     from "../layouts/Layout.astro";
+import { plans }  from "../lib/data/plans-data";
 ---
 
 <Layout title="Pricing - GuardianApi">
   <div class="min-h-screen pt-24 px-4 md:px-8">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-16 animate-fade-in">
-        <h1 class="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-neon-blue to-cyber-blue text-transparent bg-clip-text mb-4">
+        <h1
+          class="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-neon-blue to-cyber-blue text-transparent bg-clip-text mb-4"
+        >
           Simple, Transparent Pricing
         </h1>
         <p class="text-xl text-gray-300">
@@ -64,35 +17,55 @@ const plans = [
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8 animate-slide-up">
-        {plans.map((plan) => (
-          <div class={`relative bg-dark-blue/50 rounded-2xl p-8 border transition-all duration-300 hover:transform hover:scale-105 ${plan.highlighted ? 'border-neon-blue shadow-lg shadow-neon-blue/20' : 'border-neon-blue/20'}`}>
-            {plan.highlighted && (
-              <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-neon-blue text-dark-blue text-sm font-bold px-4 py-1 rounded-full">
-                Most Popular
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up">
+        {
+          plans.map((plan) => (
+            <div
+              class={`relative bg-dark-blue/50 rounded-2xl p-8 border transition-all duration-300 hover:transform hover:scale-105 ${plan.highlighted ? "border-neon-blue shadow-2xl shadow-neon-blue/50" : "border-neon-blue"}`}
+            >
+              {plan.highlighted && (
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-neon-blue text-dark-blue text-sm font-bold px-4 py-1 rounded-full">
+                  Most Popular
+                </div>
+              )}
+              <div class="text-center mb-8">
+                <h2 class="text-2xl font-orbitron text-neon-blue mb-2">
+                  {plan.name}
+                </h2>
+                <div class="text-4xl font-bold text-white mb-2">
+                  {plan.price}
+                </div>
+                <div class="text-gray-400">{plan.period}</div>
               </div>
-            )}
-            <div class="text-center mb-8">
-              <h2 class="text-2xl font-orbitron text-neon-blue mb-2">{plan.name}</h2>
-              <div class="text-4xl font-bold text-white mb-2">{plan.price}</div>
-              <div class="text-gray-400">{plan.period}</div>
+              <p class="text-gray-300 text-center mb-8">{plan.description}</p>
+              <ul class="space-y-4 mb-8">
+                {plan.features.map((feature) => (
+                  <li class="flex items-center text-gray-300">
+                    <svg
+                      class="w-5 h-5 text-neon-blue mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <button
+                class={`w-full py-3 rounded-lg font-bold transition-all duration-300 ${plan.highlighted ? "bg-neon-blue text-dark-blue hover:bg-opacity-80" : "border-2 border-neon-blue text-neon-blue hover:bg-neon-blue/10"}`}
+              >
+                Get Started
+              </button>
             </div>
-            <p class="text-gray-300 text-center mb-8">{plan.description}</p>
-            <ul class="space-y-4 mb-8">
-              {plan.features.map((feature) => (
-                <li class="flex items-center text-gray-300">
-                  <svg class="w-5 h-5 text-neon-blue mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <button class={`w-full py-3 rounded-lg font-bold transition-all duration-300 ${plan.highlighted ? 'bg-neon-blue text-dark-blue hover:bg-opacity-80' : 'border-2 border-neon-blue text-neon-blue hover:bg-neon-blue/10'}`}>
-              Get Started
-            </button>
-          </div>
-        ))}
+          ))
+        }
       </div>
     </div>
   </div>
