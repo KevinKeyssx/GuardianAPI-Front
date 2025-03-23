@@ -5,6 +5,7 @@ import '@fontsource/inter';
 import Navbar               from '../components/Navbar.astro';
 import ParticleBackground   from '../components/ParticleBackground.tsx';
 import Background           from '../components/Background.astro';
+import Footer from '../components/Footer.astro';
 
 interface Props {
     title: string;
@@ -34,6 +35,8 @@ const { title } = Astro.props;
         <main class="relative z-10">
             <slot />
         </main>
+
+        <Footer />
     </body>
 </html>
 
