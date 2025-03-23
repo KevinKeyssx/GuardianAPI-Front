@@ -1,11 +1,12 @@
 ---
 import '@fontsource/orbitron';
 import '@fontsource/inter';
+import { ViewTransitions } from 'astro:transitions';
 
 import Navbar               from '../components/Navbar.astro';
 import ParticleBackground   from '../components/ParticleBackground.tsx';
 import Background           from '../components/Background.astro';
-import Footer from '../components/Footer.astro';
+import Footer               from '../components/Footer.astro';
 
 interface Props {
     title: string;
@@ -23,10 +24,13 @@ const { title } = Astro.props;
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
+        <ViewTransitions />
     </head>
 
     <body class="bg-space-blue min-h-screen text-white">
-        <ParticleBackground client:load />
+        <div transition:persist>
+            <ParticleBackground client:only="react" />
+        </div>
 
         <Background />
 
@@ -46,13 +50,13 @@ const { title } = Astro.props;
         --accent-light: 224, 204, 250;
         --accent-dark: 49, 10, 101;
         --accent-gradient: linear-gradient(
-        45deg,
-        rgb(var(--accent)),
-        rgb(var(--accent-light)) 30%,
-        white 60%
+            45deg,
+            rgb(var(--accent)),
+            rgb(var(--accent-light)) 30%,
+            white 60%
         );
     }
-    
+
     * {
         margin: 0;
         padding: 0;
@@ -66,4 +70,37 @@ const { title } = Astro.props;
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Orbitron', sans-serif;
     }
+
+    ::selection {
+        background: #00ebff;
+        color: #000;
+    }
+
+
+    /* Estilos para navegadores WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra de desplazamiento */
+  height: 8px; /* Altura de la barra de desplazamiento (para scroll horizontal) */
+}
+
+::-webkit-scrollbar-track {
+  background: #010316; /* Color de fondo de la pista */
+  border-radius: 55px; /* Bordes redondeados */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0a3474; /* Color azul neón oscuro */
+  border-radius: 55px; /* Bordes redondeados */
+  border: 2px solid #1a1a1a; /* Borde para un efecto moderno */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0a3474; /* Color azul neón oscuro más claro al pasar el mouse */
+}
+
+/* Estilos para Firefox */
+* {
+  scrollbar-width: thin; /* Hace la barra más delgada */
+  scrollbar-color: #0a3474 #010316; /* Color del thumb y del track */
+}
 </style>
