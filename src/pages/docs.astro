@@ -1,149 +1,155 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Filter       from '../components/inputs/Filter.astro';
+import Layout       from '../layouts/Layout.astro';
 import { sections } from '../lib/data/docs-data';
 ---
 
-<Layout title="Documentation - GuardianApi">
-  <div class="min-h-screen pt-16">
-    <div class="flex">
-      <!-- Sidebar Navigation -->
-      <aside class="w-64 fixed h-[calc(100vh-4rem)] bg-dark-blue/50 border-r border-neon-blue/20 overflow-y-auto">
-        <nav class="p-4">
-          <h2 class="text-neon-blue font-orbitron text-xl mb-6">Documentation</h2>
-          <ul class="space-y-2">
-            {sections.map((section) => (
-              <li>
-                <a
-                  href={`#${section.id}`}
-                  class="block py-2 px-4 text-gray-300 hover:text-neon-blue hover:bg-neon-blue/10 rounded-lg transition-all duration-300"
-                  data-section={section.id}
-                >
-                  {section.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </aside>
+<script>
+    function showSection(sectionId: string | null) {
+        if ( !sectionId ) return
 
-      <!-- Main Content -->
-      <main class="ml-64 flex-1 p-8">
-        <div class="max-w-4xl mx-auto">
-          {sections.map((section) => (
-            <section
-              id={section.id}
-              class="section-content hidden opacity-0 transform translate-y-4 transition-all duration-500"
-            >
-              <h1 class="text-4xl font-orbitron font-bold text-neon-blue mb-8">
-                {section.title}
-              </h1>
-              <div class="prose prose-invert max-w-none">
-                <div class="space-y-6 text-gray-300">
-                  {section.content}
+        document.querySelectorAll( '.section-content' ).forEach(section => {
+            section.classList.add( 'hidden', 'opacity-0', 'translate-y-4' );
+        });
+
+        const targetSection = document.getElementById( sectionId );
+
+        if ( !targetSection ) return;
+
+        targetSection.classList.remove( 'hidden' );
+        targetSection.offsetHeight;
+        targetSection.classList.remove( 'opacity-0', 'translate-y-4' );
+    }
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const firstSection = document.querySelector( '.section-content' );
+
+        if ( !firstSection ) return;
+
+        showSection( firstSection.id );
+    });
+
+
+    document.querySelectorAll('a[data-section]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sectionId = link.getAttribute( 'data-section' );
+            showSection( sectionId );
+
+            // Update active state
+            document.querySelectorAll( 'a[data-section]' ).forEach(el => {
+                el.classList.remove( 'text-neon-blue', 'bg-neon-blue/10' );
+            });
+
+            link.classList.add( 'text-neon-blue', 'bg-neon-blue/10' );
+        });
+    });
+
+    // Handle hash changes
+    window.addEventListener( 'hashchange', () => {
+        const sectionId = window.location.hash.slice( 1 );
+        if ( !sectionId ) return;
+        showSection( sectionId );
+    });
+</script>
+
+<Layout title="Documentation - GuardianApi">
+    <div class="min-h-screen pt-16">
+        <div class="flex">
+        <!-- Sidebar Navigation -->
+            <aside class="w-96 fixed h-[calc(100vh-4rem)] bg-dark-blue/50 border-r border-neon-blue/20 overflow-y-auto">
+                <nav class="p-4">
+                    <h2 class="text-neon-blue font-orbitron text-xl mb-6 ml-4">Documentation</h2>
+
+                    <Filter />
+
+                    <ul class="space-y-2 mt-5">
+                        {sections.map((section) => (
+                            <li>
+                                <a
+                                    href={`#${section.id}`}
+                                    class="block py-2 px-4 text-gray-300 hover:text-neon-blue hover:bg-neon-blue/10 rounded-lg transition-all duration-300"
+                                    data-section={section.id}
+                                >
+                                    {section.title}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="ml-64 flex-1 p-8 z-10">
+                <div class="max-w-4xl mx-auto">
+                    {sections.map((section) => (
+                        <section
+                            id={section.id}
+                            class="section-content hidden opacity-0 transform translate-y-4 transition-all duration-500"
+                        >
+                            <h1 class="text-4xl font-orbitron font-bold text-neon-blue mb-8">
+                                {section.title}
+                            </h1>
+
+                            <div class="prose prose-invert max-w-none">
+                                <div class="space-y-6 text-gray-300">
+                                    {section.content}
+                                </div>
+                            </div>
+                        </section>
+                    ))}
                 </div>
-              </div>
-            </section>
-          ))}
+            </main>
         </div>
-      </main>
     </div>
-  </div>
 </Layout>
 
-<script>
-  function showSection(sectionId: string | null) {
-    // Hide all sections
-    if ( !sectionId ) return
-    document.querySelectorAll('.section-content').forEach(section => {
-      section.classList.add('hidden', 'opacity-0', 'translate-y-4');
-    });
-
-    // Show and animate the selected section
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-      targetSection.classList.remove('hidden');
-      // Force a reflow
-      targetSection.offsetHeight;
-      targetSection.classList.remove('opacity-0', 'translate-y-4');
-    }
-  }
-
-  // Show initial section
-  window.addEventListener('DOMContentLoaded', () => {
-    const firstSection = document.querySelector('.section-content');
-    if (firstSection) {
-      showSection(firstSection.id);
-    }
-  });
-
-  // Handle navigation clicks
-  document.querySelectorAll('a[data-section]').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const sectionId = link.getAttribute('data-section');
-      showSection(sectionId);
-
-      // Update active state
-      document.querySelectorAll('a[data-section]').forEach(el => {
-        el.classList.remove('text-neon-blue', 'bg-neon-blue/10');
-      });
-      link.classList.add('text-neon-blue', 'bg-neon-blue/10');
-    });
-  });
-
-  // Handle hash changes
-  window.addEventListener('hashchange', () => {
-    const sectionId = window.location.hash.slice(1);
-    if (sectionId) {
-      showSection(sectionId);
-    }
-  });
-</script>
 
 <style>
   /* Style for code blocks */
-  .prose pre {
-    background-color: rgba(1, 1, 43, 0.5);
-    border: 1px solid rgba(0, 243, 255, 0.1);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin: 1rem 0;
-    overflow-x: auto;
-  }
+    .prose pre {
+        background-color: rgba(1, 1, 43, 0.5);
+        border: 1px solid rgba(0, 243, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+    }
 
-  .prose code {
-    color: #00f3ff;
-    font-family: monospace;
-  }
+    .prose code {
+        color: #00f3ff;
+        font-family: monospace;
+    }
 
-  /* Style for headings */
-  .prose h2 {
-    color: #00f3ff;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.5rem;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-  }
+    /* Style for headings */
+    .prose h2 {
+        color: #00f3ff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
 
-  /* Style for paragraphs */
-  .prose p {
-    margin: 1rem 0;
-    line-height: 1.7;
-  }
+    /* Style for paragraphs */
+    .prose p {
+        margin: 1rem 0;
+        line-height: 1.7;
+    }
 
-  /* Style for lists */
-  .prose ul {
-    list-style-type: disc;
-    padding-left: 1.5rem;
-    margin: 1rem 0;
-  }
+    /* Style for lists */
+    .prose ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin: 1rem 0;
+    }
 
-  .prose li {
-    margin: 0.5rem 0;
-  }
+    .prose li {
+        margin: 0.5rem 0;
+    }
 
-  /* Smooth transition for sections */
-  .section-content {
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-  }
+    /* Smooth transition for sections */
+    .section-content {
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
 </style>
