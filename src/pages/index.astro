@@ -1,6 +1,7 @@
 ---
+import CodeCard from '../components/cards/CodeCard.astro';
 import Layout from '../layouts/Layout.astro';
-import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
+// import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
 
 
 // const features = [
@@ -113,12 +114,13 @@ import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
       
     </div>
 
-    <section class="py-24 bg-black/50 relative">
+    <!-- Integration -->
+    <section class="py-24 bg-neon-blue/5 relative">
         <div class="container mx-auto px-4 relative ">
           <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div class="space-y-6 reveal ">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-sm">
-                <Code class="h-4 w-4" />
+                <!-- <Code class="h-4 w-4" /> -->
                 Simple Integration
               </div>
               <h2 class="text-3xl md:text-4xl font-bold">Integrate with just a few lines of code</h2>
@@ -128,7 +130,7 @@ import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
               </p>
               <div class="space-y-4">
                 <div class="flex items-start gap-3">
-                  <CheckCircle2 class="h-5 w-5 text-primary mt-0.5" />
+                  <!-- <CheckCircle2 class="h-5 w-5 text-primary mt-0.5" /> -->
                   <div>
                     <h4 class="font-medium">Easy to implement</h4>
                     <p class="text-muted-foreground">
@@ -137,7 +139,7 @@ import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
                   </div>
                 </div>
                 <div class="flex items-start gap-3">
-                  <CheckCircle2 class="h-5 w-5 text-primary mt-0.5" />
+                  <!-- <CheckCircle2 class="h-5 w-5 text-primary mt-0.5" /> -->
                   <div>
                     <h4 class="font-medium">Framework agnostic</h4>
                     <p class="text-muted-foreground">
@@ -146,7 +148,7 @@ import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
                   </div>
                 </div>
                 <div class="flex items-start gap-3">
-                  <CheckCircle2 class="h-5 w-5 text-primary mt-0.5" />
+                  <!-- <CheckCircle2 class="h-5 w-5 text-primary mt-0.5" /> -->
                   <div>
                     <h4 class="font-medium">Customizable flows</h4>
                     <p class="text-muted-foreground">
@@ -155,85 +157,10 @@ import { CheckCircle2, Code, ChevronRight} from 'lucide-astro';
                   </div>
                 </div>
               </div>
-              <!-- <Link href="/docs"> -->
-                <!-- <Button class="bg-secondary hover:bg-secondary/90 text-secondary-foreground"> -->
-                  View Documentation <ChevronRight class="ml-2 h-4 w-4" />
-                <!-- </Button> -->
-              <!-- </Link> -->
+                  View Documentation
+                  <!-- <ChevronRight class="ml-2 h-4 w-4" /> -->
             </div>
-
-            <div class="relative mx-auto lg:mx-0 w-full max-w-md reveal ">
-              <div class="absolute inset-0 bg-gradient-to-r from-secondary/20 to-primary/20 rounded-lg blur-xl animate-pulse-slow"></div>
-              <div class="relative bg-black/80 backdrop-blur-sm border border-white/10 rounded-lg p-1 shadow-2xl">
-                <div class="rounded-md overflow-hidden border border-white/10">
-                  <div class="bg-black/80 p-2 flex items-center gap-2">
-                    <div class="flex gap-1.5">
-                      <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                      <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
-                    <div class="text-xs text-center w-full text-muted-foreground">auth.js</div>
-                  </div>
-                  <div class="bg-black p-4 font-mono text-sm">
-                    <div>
-                      <span class="text-blue-400">import</span>{" "}
-                      <span class="text-green-400">
-                        {"{"} GuardianAuth {"}"}
-                      </span>{" "}
-                      <span class="text-blue-400">from</span>{" "}
-                      <span class="text-yellow-300">&apos;@guardian-api/auth&apos;</span>
-                      <span class="text-muted-foreground">;</span>
-                    </div>
-
-                    <div class="mt-4">
-                      <span class="text-green-400">// Initialize the client</span>
-                    </div>
-                    <div class="mt-2">
-                      <span class="text-blue-400">const</span> auth <span class="text-muted-foreground">=</span>{" "}
-                      <span class="text-blue-400">new</span> GuardianAuth
-                      <span class="text-muted-foreground">({"{"})</span>
-                    </div>
-                    <div class="ml-4 text-muted-foreground">
-                      apiKey: <span class="text-yellow-300">&apos;your_api_key&apos;</span>,
-                    </div>
-                    <div class="ml-4 text-muted-foreground">
-                      redirectUrl: <span class="text-yellow-300">&apos;https://yourapp.com/callback&apos;</span>
-                    </div>
-                    <div class="text-muted-foreground">{"}"});</div>
-
-                    <div class="mt-4">
-                      <span class="text-green-400">// Sign up a new user</span>
-                    </div>
-                    <div class="text-blue-400">
-                      auth<span class="text-muted-foreground">.</span>signUp
-                      <span class="text-muted-foreground">({"{"})</span>
-                    </div>
-                    <div class="ml-4 text-muted-foreground">
-                      email: <span class="text-yellow-300">&apos;user@example.com&apos;</span>,
-                    </div>
-                    <div class="ml-4 text-muted-foreground">
-                      password: <span class="text-yellow-300">&apos;secure_password&apos;</span>,
-                    </div>
-                    <div class="ml-4 text-muted-foreground">
-                      name: <span class="text-yellow-300">&apos;John Doe&apos;</span>
-                    </div>
-                    <div class="text-muted-foreground">{"}"});</div>
-
-                    <div class="mt-4">
-                      <span class="text-green-400">// Handle the response</span>
-                    </div>
-                    <div class="text-muted-foreground">
-                      {" "}
-                      .<span class="text-blue-400">then</span>((response) =&gt; {"{"}
-                    </div>
-                    <div class="ml-4 text-muted-foreground">
-                      console.<span class="text-blue-400">log</span>(response);
-                    </div>
-                    <div class="text-muted-foreground">{"}"});</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <CodeCard />
           </div>
         </div>
       </section>
