@@ -1,0 +1,76 @@
+---
+import NeonButton       from "../buttons/NeonButton.astro";
+import ShinyButton      from "../buttons/ShinyButton.astro";
+import VariationCard    from "../cards/VariationCard.astro";
+---
+
+<section class="min-h-screen flex flex-col items-center justify-center px-4 py-24">
+    <div class="text-center max-w-4xl mx-auto space-y-8 animate-fade-in relative">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon-blue/10 border border-neon-blue/20 text-neon-blue text-sm animate-pulse-slow">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-blue opacity-75"></span>
+
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-neon-blue"></span>
+            </span>
+
+            Now in public beta
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-orbitron font-bold bg-gradient-to-r from-neon-blue to-cyber-blue text-transparent bg-clip-text">
+            Guardian<span class="text-white">Api</span>
+        </h1>
+
+        <div class="mx-auto flex justify-center">
+            <VariationCard />
+        </div>
+
+        <p class="text-xl md:text-2xl text-gray-300 font-inter">
+            Secure Authentication Solutions for the Modern Web
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8 ">
+            <!-- <SpaceButton />-->
+            <ShinyButton/>
+
+            <NeonButton title='Documentation'/>
+        </div>
+
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 space-y-5 ">
+            <span>
+                Everything you need for{" "}
+            </span>
+
+            <span class="bg-clip-text text-neon-blue bg-gradient-to-r from-primary to-secondary ">
+                Authentication
+            </span>
+        </h2>
+
+        <!-- <p class="text-muted-foreground text-lg">
+            GuardianApi provides a complete suite of authentication tools to secure your application and manage user
+            identities.
+        </p> -->
+
+        <div class="flex justify-center bottom-0 left-1/2 -translate-x-1/2 animate-bounce">
+            <div class="w-6 h-10 rounded-full border-2 border-neon-blue flex justify-center items-start p-1">
+            <div class="w-1 h-2 bg-neon-blue rounded-full"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
