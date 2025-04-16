@@ -3,16 +3,13 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Sign In - GuardianApi">
-   
-
     <script>
-        // Importamos el módulo usando import dinámico para asegurarnos de que se ejecute en el cliente
         async function setupAuth() {
             try {
                 const { createAuthClient } = await import('better-auth/client');
                 const authClient = createAuthClient();
                 const githubButton = document.getElementById('github-signin');
-                
+
                 if (githubButton) {
                     githubButton.addEventListener('click', async () => {
                         try {
@@ -29,8 +26,7 @@ import Layout from '../layouts/Layout.astro';
                 console.error('Error setting up auth:', error);
             }
         }
-        
-        // Ejecutamos la función cuando el DOM esté listo
+
         document.addEventListener('DOMContentLoaded', setupAuth);
     </script>
 
