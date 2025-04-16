@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { ENV } from "./env";
 
 export const auth = betterAuth({
     secret  : ENV.BETTER_AUTH_SECRET,
