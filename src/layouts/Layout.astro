@@ -1,7 +1,8 @@
 ---
 import '@fontsource/orbitron';
 import '@fontsource/inter';
-import { ViewTransitions } from 'astro:transitions';
+
+import { ClientRouter } from 'astro:transitions';
 
 import Navbar               from '../components/Navbar.astro';
 import ParticleBackground   from '../components/ParticleBackground.tsx';
@@ -16,7 +17,7 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="description" content="GuardianApi - Secure Authentication Solution" />
@@ -24,7 +25,7 @@ const { title } = Astro.props;
         <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
-        <ViewTransitions />
+        <ClientRouter />
     </head>
 
     <body class="bg-space-blue min-h-screen text-white">
@@ -76,31 +77,30 @@ const { title } = Astro.props;
         color: #000;
     }
 
-
     /* Estilos para navegadores WebKit (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
-  width: 8px; /* Ancho de la barra de desplazamiento */
-  height: 8px; /* Altura de la barra de desplazamiento (para scroll horizontal) */
-}
+    ::-webkit-scrollbar {
+        width: 8px; /* Ancho de la barra de desplazamiento */
+        height: 8px; /* Altura de la barra de desplazamiento (para scroll horizontal) */
+    }
 
-::-webkit-scrollbar-track {
-  background: #010316; /* Color de fondo de la pista */
-  border-radius: 55px; /* Bordes redondeados */
-}
+    ::-webkit-scrollbar-track {
+        background: #010316; /* Color de fondo de la pista */
+        border-radius: 55px; /* Bordes redondeados */
+    }
 
-::-webkit-scrollbar-thumb {
-  background: #0a3474; /* Color azul neón oscuro */
-  border-radius: 55px; /* Bordes redondeados */
-  border: 2px solid #1a1a1a; /* Borde para un efecto moderno */
-}
+    ::-webkit-scrollbar-thumb {
+        background: #0a3474; /* Color azul neón oscuro */
+        border-radius: 55px; /* Bordes redondeados */
+        border: 2px solid #1a1a1a; /* Borde para un efecto moderno */
+    }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #0a3474; /* Color azul neón oscuro más claro al pasar el mouse */
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: #0a3474; /* Color azul neón oscuro más claro al pasar el mouse */
+    }
 
-/* Estilos para Firefox */
-* {
-  scrollbar-width: thin; /* Hace la barra más delgada */
-  scrollbar-color: #0a3474 #010316; /* Color del thumb y del track */
-}
+    /* Estilos para Firefox */
+    * {
+        scrollbar-width: thin; /* Hace la barra más delgada */
+        scrollbar-color: #0a3474 #010316; /* Color del thumb y del track */
+    }
 </style>
