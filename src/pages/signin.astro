@@ -1,76 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SigninForm from '../components/signin/SigninForm.svelte';
+
+
+const { session } = Astro.locals;
+console.log('🚀 ~ file: signin.astro:7 ~ session:', session)
+
+// Solo redireccionar si hay sesión, dejar que se muestre la página si no hay sesión
+if (session) {
+    console.log('Hay sesión, redirigiendo a /dashboard');
+    return Astro.redirect('/dashboard');
+}
+// No redireccionar a ningún lado si no hay sesión
 ---
 
 <Layout title="Sign In - GuardianApi">
-    <script>
-        async function setupAuth() {
-            try {
-                const { createAuthClient } = await import('better-auth/client');
-                const authClient = createAuthClient();
-                const githubButton = document.getElementById('github-signin');
-
-                if (githubButton) {
-                    githubButton.addEventListener('click', async () => {
-                        try {
-                            const data = await authClient.signIn.social({
-                                provider: "github"
-                            });
-                            console.log('Sign in successful:', data);
-                        } catch (error) {
-                            console.error('Sign in failed:', error);
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Error setting up auth:', error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', setupAuth);
-    </script>
-
     <div class="min-h-screen mx-auto flex items-center justify-center px-4 py-24">
         <div class="w-full mx-auto max-w-md bg-dark-blue/50 p-8 rounded-lg border border-neon-blue/20 animate-fade-in">
-            <h2 class="text-3xl font-orbitron text-neon-blue text-center mb-8">Sign In</h2>
+            <h2 class="text-3xl font-orbitron text-neon-blue text-center mb-8 flex items-center gap-2 justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="36" stroke-dashoffset="36" d="M13 4l7 0c0.55 0 1 0.45 1 1v14c0 0.55 -0.45 1 -1 1h-7"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="36;0"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M3 12h11.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="14;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M14.5 12l-3.5 -3.5M14.5 12l-3.5 3.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.8s" dur="0.2s" values="6;0"/></path></g></svg>
+                Sign In
+            </h2>
 
-            <form class="space-y-6">
-                <button
-                id="github-signin"
-                type="button"
-                class="w-full bg-neon-blue text-dark-blue font-bold py-3 rounded-lg hover:bg-opacity-80 transition-all duration-300"
-            >
-                Sign In with GitHub
-            </button>
-                <div>
-                    <label class="block text-gray-300 mb-2" for="email">Email</label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label class="block text-gray-300 mb-2" for="password">Password</label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white"
-                        required
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    class="w-full bg-neon-blue text-dark-blue font-bold py-3 rounded-lg hover:bg-opacity-80 transition-all duration-300"
-                >
-                    Sign In
-                </button>
-            </form>
+            <SigninForm client:load />
 
             <p class="text-center mt-6 text-gray-400">
                 Don't have an account?
@@ -80,20 +32,3 @@ import Layout from '../layouts/Layout.astro';
         </div>
     </div>
 </Layout>
-
-<style>
-    .animate-fade-in {
-        animation: fadeIn 0.6s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
