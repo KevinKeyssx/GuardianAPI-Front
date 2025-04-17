@@ -5,8 +5,11 @@ import react            from '@astrojs/react';
 
 import dotenv from 'dotenv';
 
+import svelte from '@astrojs/svelte';
+
+
 dotenv.config();
 // https://astro.build/config
 export default defineConfig({
-    integrations: [tailwind(), react()]
+    integrations: [tailwind(), react(), svelte()],
 });

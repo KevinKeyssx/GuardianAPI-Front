@@ -10,15 +10,17 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.2.1",
+    "@astrojs/svelte": "^7.0.10",
     "@fontsource/inter": "^5.2.5",
     "@fontsource/orbitron": "^5.2.5",
     "astro": "^5.5.3",
     "better-auth": "^1.2.7",
     "dotenv": "^16.5.0",
     "framer-motion": "^12.5.0",
-    "lucide-astro": "^0.483.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "svelte": "^5.27.0",
+    "typescript": "^5.8.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
