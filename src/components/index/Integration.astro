@@ -3,8 +3,8 @@ import NeonButton   from "../buttons/NeonButton.astro";
 import CodeCard     from "../cards/CodeCard.astro";
 ---
 
-<section class="py-24  relative">
-    <div class="container mx-auto px-4 relative ">
+<section class="py-24 bg-neon-blue/5 relative">
+    <div class="max-w-6xl mx-auto px-4 relative ">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div class="space-y-6 reveal ">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-neon-blue text-secondary text-sm">
@@ -56,7 +56,11 @@ import CodeCard     from "../cards/CodeCard.astro";
                     </div>
                 </div>
 
-                <NeonButton title='Documentation'/>
+                <div class="w-64">
+                    <NeonButton href="/docs">
+                        Documentation
+                    </NeonButton>
+                </div>
             </div>
 
             <CodeCard />
