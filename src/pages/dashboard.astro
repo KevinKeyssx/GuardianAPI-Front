@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const { session } = Astro.locals;
+console.log('🚀 ~ file: signin.astro:7 ~ session:', session)
+
+// Solo redireccionar si hay sesión, dejar que se muestre la página si no hay sesión
+if ( !session ) {
+    console.log('Hay sesión, redirigiendo a /dashboard');
+    return Astro.redirect('/signin');
+}
+---
+<Layout title="Documentation - GuardianApi">
+
+    <h1>Dashboard</h1>
+</Layout>
