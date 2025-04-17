@@ -1,58 +1,14 @@
 ---
-interface Props {
-    title: string;
+export interface Props {
+    href?: string;
 }
 
-const { title } = Astro.props as Props;
+const { href } = Astro.props;
 ---
 
-<button class="hover:scale-105 rounded-lg font-semibold">
-    {title}
-</button>
-
-<style>
-    button {
-        width: 10em;
-        position: relative;
-        height: 3.5em;
-        border: 3px ridge #00c4d6;
-        outline: none;
-        background-color: transparent;
-        color: #00c4d6;
-        transition: 1s;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    button::after {
-        content: "";
-        position: absolute;
-        top: -10px;
-        left: 3%;
-        width: 95%;
-        height: 40%;
-        background-color: transparent;
-        transition: 0.5s;
-        transform-origin: center;
-    }
-
-    button::before {
-        content: "";
-        transform-origin: center;
-        position: absolute;
-        top: 80%;
-        left: 3%;
-        width: 95%;
-        height: 40%;
-        background-color: transparent;
-        transition: 0.5s;
-    }
-
-    button:hover::before, button:hover::after {
-        transform: scale(0)
-    }
-
-    button:hover {
-        box-shadow: inset 0px 0px 25px #00c4d6;
-    }
-</style>
+<a
+    href={href}
+    class="neon_button hover:scale-105 rounded-lg font-semibold flex items-center gap-2 justify-center"
+>
+    <slot/>
+</a>

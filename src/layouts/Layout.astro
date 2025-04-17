@@ -103,4 +103,64 @@ const { title } = Astro.props;
         scrollbar-width: thin; /* Hace la barra más delgada */
         scrollbar-color: #0a3474 #010316; /* Color del thumb y del track */
     }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .neon_button {
+        width: 100%;
+        position: relative;
+        height: 3.5em;
+        border: 3px ridge #00c4d6;
+        outline: none;
+        background-color: transparent;
+        color: #00c4d6;
+        transition: 1s;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .neon_button::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: transparent;
+        transition: 0.5s;
+        transform-origin: center;
+    }
+
+    .neon_button::before {
+        content: "";
+        transform-origin: center;
+        position: absolute;
+        top: 80%;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: transparent;
+        transition: 0.5s;
+    }
+
+    .neon_button:hover::before, .neon_button:hover::after {
+        transform: scale(0)
+    }
+
+    .neon_button:hover {
+        box-shadow: inset 0px 0px 25px #00c4d6;
+    }
 </style>
