@@ -1,35 +1,48 @@
 ---
+const session = () => {
+    if (Astro.locals.session) {
+        console.log('🚀 ~ #### TENGO LA SESION:')
+        
+        return Astro.locals.session;
+    } else {
+        console.log('🚀 ~ #### NO TENGO LA SESION:')
+    }
+}
+
 const navItems = [
-  { name: 'Home', path: '/' },
-  { name: 'Documentation', path: '/docs' },
-  { name: 'Pricing', path: '/pricing' },
-  { name: 'Sign In', path: '/signin' },
-  { name: 'Sign Up', path: '/signup' },
+    { name: 'Home',             path: '/' },
+    { name: 'Documentation',    path: '/docs' },
+    { name: 'Pricing',          path: '/pricing' },
+    { name: 'Sign In',          path: '/signin', hidden: session() },
+    { name: 'Sign Up',          path: '/signup', hidden: session() },
 ];
 ---
 
 <nav class="fixed w-full z-50 bg-dark-blue/80 backdrop-blur-md">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center">
-        <a href="/" class="text-neon-blue font-orbitron text-2xl font-bold">
-          GuardianApi
-        </a>
-      </div>
-      <div class="hidden md:block">
-        <div class="ml-10 flex items-baseline space-x-4">
-          {
-            navItems.map((item) => (
-              <a
-                href={item.path}
-                class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
-              >
-                {item.name}
-              </a>
-            ))
-          }
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="text-neon-blue font-orbitron text-2xl font-bold flex items-center gap-2">
+                    GuardianApi
+                </a>
+            </div>
+
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                {
+                    navItems.map((item) => (
+                        // (
+                            <a
+                                href={item.path}
+                                class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                            >
+                                {item.name}
+                            </a>
+                        // )
+                    ))
+                }
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </nav>
