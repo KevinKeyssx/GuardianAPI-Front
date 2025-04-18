@@ -1,15 +1,21 @@
 // @ts-check
+import auth             from 'auth-astro';
 import { defineConfig } from 'astro/config';
 import tailwind         from '@astrojs/tailwind';
 import react            from '@astrojs/react';
-
-import dotenv from 'dotenv';
-
-import svelte from '@astrojs/svelte';
-
+import svelte           from '@astrojs/svelte';
+import node             from '@astrojs/node';
+import dotenv           from 'dotenv';
 
 dotenv.config();
-// https://astro.build/config
+
 export default defineConfig({
-    integrations: [tailwind(), react(), svelte()],
+    output: 'server',
+    integrations: [tailwind(), react(), svelte(), auth()],
+    adapter: node({
+        mode: 'standalone',
+    }),
+    experimental: {
+        session: true
+    }
 });
