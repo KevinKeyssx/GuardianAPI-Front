@@ -1,16 +1,541 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from '@/layouts/Layout.astro';
+import { getSession } from 'auth-astro/server';
 
-const { session } = Astro.locals;
-console.log('🚀 ~ file: signin.astro:7 ~ session:', session)
+const session = await getSession(Astro.request);
 
-// Solo redireccionar si hay sesión, dejar que se muestre la página si no hay sesión
-if ( !session ) {
-    console.log('Hay sesión, redirigiendo a /dashboard');
+if (!session) {
     return Astro.redirect('/signin');
 }
----
-<Layout title="Documentation - GuardianApi">
 
-    <h1>Dashboard</h1>
+// Sección activa por defecto
+const activeSection = Astro.url.searchParams.get('section') || 'overview';
+
+// Elementos del sidebar
+const sidebarItems = [
+    { id: 'overview', name: 'Overview', icon: 'dashboard' },
+    { id: 'users', name: 'Users', icon: 'users' },
+    { id: 'attributes', name: 'User Attributes', icon: 'attributes' },
+    { id: 'secrets', name: 'API Secrets', icon: 'key' },
+    { id: 'roles', name: 'Roles & Permissions', icon: 'shield' },
+];
+
+// Datos de ejemplo para cada sección
+const mockUsers = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', lastLogin: '2025-04-17T15:32:45Z' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Developer', lastLogin: '2025-04-16T09:15:22Z' },
+    { id: 3, name: 'Alex Johnson', email: 'alex@example.com', role: 'User', lastLogin: '2025-04-15T18:45:10Z' },
+];
+
+const mockAttributes = [
+    { id: 1, name: 'phone_number', type: 'string', required: false, description: 'User phone number' },
+    { id: 2, name: 'address', type: 'object', required: false, description: 'User address information' },
+    { id: 3, name: 'preferences', type: 'object', required: false, description: 'User preferences' },
+];
+
+const mockSecrets = [
+    { id: 'sec_123456', name: 'Production API Key', created: '2025-03-15', lastUsed: '2025-04-17' },
+    { id: 'sec_789012', name: 'Development API Key', created: '2025-03-20', lastUsed: '2025-04-16' },
+    { id: 'sec_345678', name: 'Testing API Key', created: '2025-04-01', lastUsed: '2025-04-10' },
+];
+
+const mockRoles = [
+    { id: 1, name: 'Admin', permissions: ['read:all', 'write:all', 'delete:all'], users: 2 },
+    { id: 2, name: 'Developer', permissions: ['read:all', 'write:own'], users: 5 },
+    { id: 3, name: 'User', permissions: ['read:own'], users: 12 },
+];
+---
+
+<Layout title="Dashboard - GuardianApi">
+    <div class="flex h-screen bg-dark-blue/30 overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-dark-blue/70 border-r border-neon-blue/20 flex flex-col mt-12">
+            <div class="p-4 border-b border-neon-blue/20">
+                <h2 class="text-2xl font-orbitron text-neon-blue flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Guardian<span class="text-white">Api</span>
+                </h2>
+            </div>
+            <div class="overflow-y-auto flex-grow">
+                <nav class="mt-4">
+                    <ul>
+                        {sidebarItems.map(item => (
+                            <li class="mb-2">
+                                <a 
+                                    href={`/dashboard?section=${item.id}`}
+                                    class={`flex items-center px-4 py-3 text-sm transition-colors duration-300 ${activeSection === item.id ? 'bg-neon-blue/10 text-neon-blue border-l-2 border-neon-blue' : 'text-gray-300 hover:bg-neon-blue/5 hover:text-neon-blue'}`}
+                                >
+                                    {item.icon === 'dashboard' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                    )}
+                                    {item.icon === 'users' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    )}
+                                    {item.icon === 'attributes' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                                    )}
+                                    {item.icon === 'key' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                                    )}
+                                    {item.icon === 'shield' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                    )}
+                                    {item.name}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-neon-blue/20">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-neon-blue/30 flex items-center justify-center text-white">
+                        {session.user?.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-white truncate">{session.user?.name || 'User'}</p>
+                        <p class="text-xs text-gray-400 truncate">{session.user?.email || ''}</p>
+                    </div>
+                </div>
+                <button id="logout" class="mt-4 w-full flex items-center justify-center px-4 py-2 text-sm text-white bg-dark-blue hover:bg-neon-blue/20 rounded-md transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto mt-14">
+            <div class="p-6">
+                {activeSection === 'overview' && (
+                    <div class="animate-fade-in">
+                        <h1 class="text-2xl font-orbitron text-white mb-6">Dashboard Overview</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <!-- Total Users Card -->
+                            <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 p-6 hover:border-neon-blue/40 transition-colors duration-300">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-blue-900/30 text-neon-blue mr-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 text-sm">Total Users</p>
+                                        <p class="text-3xl font-bold text-white">{mockUsers.length}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="/dashboard?section=users" class="text-neon-blue text-sm hover:underline flex items-center">
+                                        View Details
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Total Roles Card -->
+                            <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 p-6 hover:border-neon-blue/40 transition-colors duration-300">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-purple-900/30 text-neon-blue mr-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 text-sm">Total Roles</p>
+                                        <p class="text-3xl font-bold text-white">{mockRoles.length}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="/dashboard?section=roles" class="text-neon-blue text-sm hover:underline flex items-center">
+                                        View Details
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Total Attributes Card -->
+                            <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 p-6 hover:border-neon-blue/40 transition-colors duration-300">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-green-900/30 text-neon-blue mr-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 text-sm">Total Attributes</p>
+                                        <p class="text-3xl font-bold text-white">{mockAttributes.length}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="/dashboard?section=attributes" class="text-neon-blue text-sm hover:underline flex items-center">
+                                        View Details
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 p-6 mb-8">
+                            <h2 class="text-xl font-orbitron text-white mb-4">Recent Activity</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="h-10 w-10 rounded-full bg-neon-blue/30 flex items-center justify-center text-white mr-3">
+                                        {mockUsers[0].name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <p class="text-white">{mockUsers[0].name} logged in</p>
+                                        <p class="text-gray-400 text-sm">{new Date(mockUsers[0].lastLogin).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-10 w-10 rounded-full bg-red-900/30 flex items-center justify-center text-white mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-white">API Key {mockSecrets[0].id} was used</p>
+                                        <p class="text-gray-400 text-sm">{mockSecrets[0].lastUsed}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-10 w-10 rounded-full bg-green-900/30 flex items-center justify-center text-white mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-white">Role {mockRoles[1].name} was updated</p>
+                                        <p class="text-gray-400 text-sm">Yesterday at 14:35</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Status -->
+                        <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 p-6">
+                            <h2 class="text-xl font-orbitron text-white mb-4">System Status</h2>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">API Status</span>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-300">Operational</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Authentication Service</span>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-300">Operational</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Database</span>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-300">Operational</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Last System Update</span>
+                                    <span class="text-gray-300">2025-04-15 09:30 AM</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="attributes-pagination-info text-sm text-gray-400">
+                                Showing <span class="text-white">1</span> to <span class="text-white">{mockAttributes.length}</span> of <span class="text-white">{mockAttributes.length}</span> attributes
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Previous
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-neon-blue/10 text-neon-blue border border-neon-blue/30">
+                                    1
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                
+                {activeSection === 'users' && (
+                    <div class="animate-fade-in">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-orbitron text-white">Users</h1>
+                            <button class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add User
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="relative w-64">
+                                <input type="text" placeholder="Search users..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="users">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 overflow-hidden">
+                            <table class="attributes-table min-w-full divide-y divide-neon-blue/20">
+                                <thead class="bg-dark-blue/70">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Last Login</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-neon-blue/10">
+                                    {mockUsers.map(user => (
+                                        <tr class="hover:bg-neon-blue/5">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{user.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.email}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class={`px-2 py-1 text-xs rounded-full ${user.role === 'Admin' ? 'bg-red-900/30 text-red-300' : user.role === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
+                                                    {user.role}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{new Date(user.lastLogin).toLocaleString()}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button class="text-neon-blue hover:text-neon-blue/80 mr-3">Edit</button>
+                                                <button class="text-red-400 hover:text-red-300">Delete</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="attributes-pagination-info text-sm text-gray-400">
+                                Showing <span class="text-white">1</span> to <span class="text-white">{mockAttributes.length}</span> of <span class="text-white">{mockAttributes.length}</span> attributes
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Previous
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-neon-blue/10 text-neon-blue border border-neon-blue/30">
+                                    1
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeSection === 'attributes' && (
+                    <div class="animate-fade-in">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-orbitron text-white">User Attributes</h1>
+                            <button class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Attribute
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="relative w-64">
+                                <input type="text" placeholder="Search attributes..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="attributes">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 overflow-hidden">
+                            <table class="attributes-table min-w-full divide-y divide-neon-blue/20">
+                                <thead class="bg-dark-blue/70">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Required</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-neon-blue/10">
+                                    {mockAttributes.map(attr => (
+                                        <tr class="hover:bg-neon-blue/5">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{attr.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class={`px-2 py-1 text-xs rounded-full ${attr.type === 'string' ? 'bg-green-900/30 text-green-300' : attr.type === 'object' ? 'bg-blue-900/30 text-blue-300' : 'bg-purple-900/30 text-purple-300'}`}>
+                                                    {attr.type}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{attr.required ? 'Yes' : 'No'}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{attr.description}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button class="text-neon-blue hover:text-neon-blue/80 mr-3">Edit</button>
+                                                <button class="text-red-400 hover:text-red-300">Delete</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="attributes-pagination-info text-sm text-gray-400">
+                                Showing <span class="text-white">1</span> to <span class="text-white">{mockAttributes.length}</span> of <span class="text-white">{mockAttributes.length}</span> attributes
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Previous
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-neon-blue/10 text-neon-blue border border-neon-blue/30">
+                                    1
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeSection === 'secrets' && (
+                    <div class="animate-fade-in">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-orbitron text-white">API Secrets</h1>
+                            <button class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Generate New Key
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="relative w-64">
+                                <input type="text" placeholder="Search API keys..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="secrets">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 overflow-hidden">
+                            <table class="attributes-table min-w-full divide-y divide-neon-blue/20">
+                                <thead class="bg-dark-blue/70">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Key ID</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Last Used</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-neon-blue/10">
+                                    {mockSecrets.map(secret => (
+                                        <tr class="hover:bg-neon-blue/5">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neon-blue font-mono">{secret.id}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{secret.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{secret.created}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{secret.lastUsed}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button class="text-yellow-400 hover:text-yellow-300 mr-3">Rotate</button>
+                                                <button class="text-red-400 hover:text-red-300">Revoke</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="attributes-pagination-info text-sm text-gray-400">
+                                Showing <span class="text-white">1</span> to <span class="text-white">{mockAttributes.length}</span> of <span class="text-white">{mockAttributes.length}</span> attributes
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Previous
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-neon-blue/10 text-neon-blue border border-neon-blue/30">
+                                    1
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeSection === 'roles' && (
+                    <div class="animate-fade-in">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-orbitron text-white">Roles & Permissions</h1>
+                            <button class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Create Role
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="relative w-64">
+                                <input type="text" placeholder="Search roles..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="roles">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 overflow-hidden">
+                            <table class="attributes-table min-w-full divide-y divide-neon-blue/20">
+                                <thead class="bg-dark-blue/70">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Permissions</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Users</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-neon-blue/10">
+                                    {mockRoles.map(role => (
+                                        <tr class="hover:bg-neon-blue/5">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">{role.name}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-300">
+                                                <div class="flex flex-wrap gap-1">
+                                                    {role.permissions.map(perm => (
+                                                        <span class="px-2 py-1 text-xs rounded-full bg-dark-blue/70 text-neon-blue border border-neon-blue/30">
+                                                            {perm}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{role.users}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button class="text-neon-blue hover:text-neon-blue/80 mr-3">Edit</button>
+                                                <button class="text-red-400 hover:text-red-300">Delete</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="attributes-pagination-info text-sm text-gray-400">
+                                Showing <span class="text-white">1</span> to <span class="text-white">{mockAttributes.length}</span> of <span class="text-white">{mockAttributes.length}</span> attributes
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Previous
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-neon-blue/10 text-neon-blue border border-neon-blue/30">
+                                    1
+                                </button>
+                                <button class="px-3 py-1 rounded-md bg-dark-blue/50 text-gray-400 border border-neon-blue/20 hover:bg-neon-blue/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    </div>
 </Layout>
+
+{/* <script>
+    import { $ } from '@/lib/dom-selector';
+    const { signOut } = await import('auth-astro/client');
+
+    $('#logout-button')?.addEventListener('click', () => {
+        signOut({ callbackUrl: '/' });
+    });
+</script> */}
+
+{/* <script src="/src/scripts/dashboard.js"></script> */}
