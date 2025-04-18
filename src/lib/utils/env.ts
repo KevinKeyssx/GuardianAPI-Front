@@ -3,8 +3,8 @@ import { z } from "zod";
 const envVariables = z.object({
     GITHUB_CLIENT_ID        : z.string(),
     GITHUB_CLIENT_SECRET    : z.string(),
-    BETTER_AUTH_SECRET      : z.string(),
-    BETTER_AUTH_URL         : z.string().url(),
+    AUTH_SECRET             : z.string(),
+    AUTH_TRUST_HOST         : z.string(),
 });
 
 
