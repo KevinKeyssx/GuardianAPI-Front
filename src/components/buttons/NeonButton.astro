@@ -1,14 +1,16 @@
 ---
 export interface Props {
-    href?: string;
+    href?   : string;
+    id?     : string;
 }
 
-const { href } = Astro.props;
+const { href, id } = Astro.props;
 ---
 
 <a
-    href={href}
-    class="neon_button hover:scale-105 rounded-lg font-semibold flex items-center gap-2 justify-center"
+    href    = { href }
+    id      = { id ?? '' }
+    class   = "neon_button hover:scale-105 rounded-lg font-semibold flex items-center gap-2 justify-center"
 >
     <slot/>
 </a>
