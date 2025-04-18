@@ -1,20 +1,14 @@
 ---
-const session = () => {
-    if (Astro.locals.session) {
-        console.log('🚀 ~ #### TENGO LA SESION:')
-        
-        return Astro.locals.session;
-    } else {
-        console.log('🚀 ~ #### NO TENGO LA SESION:')
-    }
-}
+import { getSession }   from 'auth-astro/server';
+
+const session = await getSession( Astro.request );
 
 const navItems = [
     { name: 'Home',             path: '/' },
     { name: 'Documentation',    path: '/docs' },
     { name: 'Pricing',          path: '/pricing' },
-    { name: 'Sign In',          path: '/signin', hidden: session() },
-    { name: 'Sign Up',          path: '/signup', hidden: session() },
+    { name: 'Sign In',          path: '/signin', hidden: session },
+    { name: 'Sign Up',          path: '/signup', hidden: session },
 ];
 ---
 
@@ -23,6 +17,7 @@ const navItems = [
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
                 <a href="/" class="text-neon-blue font-orbitron text-2xl font-bold flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity="0" stroke="currentColor" stroke-dasharray="64" stroke-dashoffset="64" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l-9 3.5v6.5c0 3.5 3.5 9 8 10c4.5 -1 8 -6.5 8 -10v-6.5l-8 -3.5Z"><animate fill="freeze" attributeName="fill-opacity" begin="0.7s" dur="0.15s" values="0;0.3"/><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="64;0"/></path></svg>
                     GuardianApi
                 </a>
             </div>
@@ -31,18 +26,43 @@ const navItems = [
                 <div class="ml-10 flex items-baseline space-x-4">
                 {
                     navItems.map((item) => (
-                        // (
+                        !item.hidden && (
                             <a
                                 href={item.path}
                                 class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
                             >
                                 {item.name}
                             </a>
-                        // )
+                        )
                     ))
                 }
+
+                { session && (
+                    <a
+                        href="/dashboard"
+                        class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                    >
+                        Dashboard
+                    </a>
+
+                    <button
+                        id="logout"
+                        class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                    >
+                        Logout
+                    </button>
+                )}
                 </div>
             </div>
         </div>
     </div>
 </nav>
+
+<script>
+    import { $ } from '../lib/dom-selector'
+
+    const { signOut }   = await import( 'auth-astro/client' );
+    const $logout       = $( '#logout' );
+
+    if ( $logout ) $logout.onclick = () => signOut();
+</script>
