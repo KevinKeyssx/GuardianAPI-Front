@@ -1,5 +1,8 @@
 ---
-import { getSession }   from 'auth-astro/server';
+import { getSession } from 'auth-astro/server';
+
+import Logout from '@/components/auth/Logout.astro';
+
 
 const session = await getSession( Astro.request );
 
@@ -38,31 +41,19 @@ const navItems = [
                 }
 
                 { session && (
-                    <a
-                        href="/dashboard"
-                        class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
-                    >
-                        Dashboard
-                    </a>
+                    <div class="flex items-center">
+                        <a
+                            href="/dashboard"
+                            class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
+                        >
+                            Dashboard
+                        </a>
 
-                    <button
-                        id="logout"
-                        class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
-                    >
-                        Logout
-                    </button>
+                        <Logout class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"/>
+                    </div>
                 )}
                 </div>
             </div>
         </div>
     </div>
 </nav>
-
-<script>
-    import { $ } from '../lib/dom-selector'
-
-    const { signOut }   = await import( 'auth-astro/client' );
-    const $logout       = $( '#logout' );
-
-    if ( $logout ) $logout.onclick = () => signOut();
-</script>
