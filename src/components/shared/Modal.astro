@@ -1,0 +1,332 @@
+---
+export interface Props {
+    id: string;
+    type: 'user' | 'attribute' | 'secret' | 'role';
+    mode?: 'add' | 'edit';
+    buttonText?: string;
+    buttonClass?: string;
+}
+
+const { 
+    id, 
+    type, 
+    mode = 'edit',
+    buttonText = mode === 'add' ? `Add ${type === 'user' ? 'User' : type === 'attribute' ? 'Attribute' : type === 'secret' ? 'Secret' : 'Role'}` : `Edit ${type === 'user' ? 'User' : type === 'attribute' ? 'Attribute' : type === 'secret' ? 'Secret' : 'Role'}`,
+    buttonClass = 'px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center'
+} = Astro.props;
+---
+
+<!-- Botón para abrir el popup -->
+<button id={`open-popup-${id}`} class={`edit-item-btn ${buttonClass}`} data-id={id} data-type={type}>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    {buttonText}
+</button>
+
+<!-- El popup -->
+<div id={`edit-popup-${id}`} class="animate-fade-in fixed inset-0 bg-space-blue/10 backdrop-blur-sm items-center justify-center z-50 hidden opacity-0 transition-all duration-300 ease-in-out" style="display: none;">
+    <div class="bg-dark-blue border border-neon-blue/30 rounded-lg p-6 w-full max-w-md transform scale-95 transition-all duration-300 ease-in-out">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-orbitron text-white px-4 py-2">
+                {mode === 'add' ? 'Add' : 'Edit'} {type === 'user' ? 'User' : 
+                    type === 'attribute' ? 'User Attribute' : 
+                    type === 'secret' ? 'API Secret' : 'Role'}
+            </h3>
+            <button class="close-popup text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="form-content">
+            {type === 'user' && (
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                        <input type="text" id="name" name="name" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                        <input type="email" id="email" name="email" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-300 mb-1">Role</label>
+                        <select id="role" name="role" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                            <option value="Admin">Admin</option>
+                            <option value="Developer">Developer</option>
+                            <option value="User">User</option>
+                        </select>
+                    </div>
+                </div>
+            )}
+            
+            {type === 'attribute' && (
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                        <input type="text" id="name" name="name" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-gray-300 mb-1">Type</label>
+                        <select id="type" name="type" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                            <option value="string">String</option>
+                            <option value="number">Number</option>
+                            <option value="boolean">Boolean</option>
+                            <option value="object">Object</option>
+                            <option value="array">Array</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="required" class="block text-sm font-medium text-gray-300 mb-1">Required</label>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="required" name="required" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-300 rounded">
+                            <label for="required" class="ml-2 block text-sm text-gray-300">This attribute is required</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                        <textarea id="description" name="description" rows="3" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue"></textarea>
+                    </div>
+                </div>
+            )}
+            
+            {type === 'secret' && (
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                        <input type="text" id="name" name="name" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">ID: <span id="secret-id" class="text-white"></span></p>
+                        <p class="text-sm text-gray-400">Created: <span id="secret-created" class="text-white"></span></p>
+                        <p class="text-sm text-gray-400">Last Used: <span id="secret-lastused" class="text-white"></span></p>
+                    </div>
+                </div>
+            )}
+            
+            {type === 'role' && (
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                        <input type="text" id="name" name="name" class="w-full bg-dark-blue/70 border border-neon-blue/30 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <label for="permissions" class="block text-sm font-medium text-gray-300 mb-1">Permissions</label>
+                        <div class="space-y-2 bg-dark-blue/70 border border-neon-blue/30 rounded-md p-3">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="read-all" name="permissions" value="read:all" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-300 rounded">
+                                <label for="read-all" class="ml-2 block text-sm text-gray-300">read:all</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="write-all" name="permissions" value="write:all" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-300 rounded">
+                                <label for="write-all" class="ml-2 block text-sm text-gray-300">write:all</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="delete-all" name="permissions" value="delete:all" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-300 rounded">
+                                <label for="delete-all" class="ml-2 block text-sm text-gray-300">delete:all</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="read-own" name="permissions" value="read:own" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-300 rounded">
+                                <label for="read-own" class="ml-2 block text-sm text-gray-300">read:own</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="write-own" name="permissions" value="write:own" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-300 rounded">
+                                <label for="write-own" class="ml-2 block text-sm text-gray-300">write:own</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+            <button class="close-popup px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300">
+                Cancel
+            </button>
+            <button class="save-changes px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300">
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<script define:vars={{ id }}>
+    // Usamos una función auto-ejecutable para evitar conflictos de nombres
+    (function() {
+        // Función para inicializar los event listeners
+        function initPopupListeners() {
+        // Get all buttons and attach event listeners
+        const editButtons = document.querySelectorAll('.edit-item-btn');
+        const closeButtons = document.querySelectorAll('.close-popup');
+        const saveButtons = document.querySelectorAll('.save-changes');
+        
+        // Open popup when edit button is clicked
+        editButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const itemId = button.getAttribute('data-id');
+                const itemType = button.getAttribute('data-type');
+                const popup = document.getElementById(`edit-popup-${itemId}`);
+                
+                if (popup) {
+                    // Populate form with data
+                    const itemData = button.getAttribute('data-item');
+                    if (itemData) {
+                        try {
+                            const item = JSON.parse(itemData);
+                            populateForm(itemType || '', item);
+                        } catch (e) {
+                            console.error('Error parsing item data:', e);
+                        }
+                    }
+                    
+                    // Show popup with animation
+                    popup.style.display = 'flex';
+                    // Trigger animation after a small delay to ensure the display change has taken effect
+                    setTimeout(() => {
+                        popup.classList.add('bg-space-blue/10');
+                        popup.classList.add('backdrop-blur-sm');
+                        popup.classList.add('opacity-100');
+                        const popupContent = popup.querySelector('.bg-dark-blue');
+                        if (popupContent) {
+                            popupContent.classList.remove('scale-95');
+                            popupContent.classList.add('scale-100');
+                        }
+                    }, 10);
+                }
+            });
+        });
+        
+        // Close popup when close button is clicked
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const popup = button.closest('[id^="edit-popup-"]');
+                if (popup) {
+                    // Hide popup with animation
+                    popup.classList.remove('bg-space-blue/10');
+                    popup.classList.remove('backdrop-blur-sm');
+                    popup.classList.remove('opacity-100');
+                    popup.classList.add('bg-black/0');
+                    popup.classList.add('opacity-0');
+                    const popupContent = popup.querySelector('.bg-dark-blue');
+                    if (popupContent) {
+                        popupContent.classList.remove('scale-100');
+                        popupContent.classList.add('scale-95');
+                    }
+                    // Hide the popup after the animation completes
+                    setTimeout(() => {
+                        popup.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+        
+        // También podemos cerrar el popup haciendo clic fuera del contenido
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target && 'classList' in target && 'id' in target && 'style' in target) {
+                if (target.classList.contains('fixed') && target.id.startsWith('edit-popup-')) {
+                    target.style.display = 'none';
+                }
+            }
+        });
+        
+        // Handle save changes
+        saveButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const popup = button.closest('[id^="edit-popup-"]');
+                if (popup) {
+                    // Here you would collect form data and send to your backend
+                    // For now, just close the popup
+                    // Hide popup with animation
+                    popup.classList.remove('bg-space-blue/10');
+                    popup.classList.remove('backdrop-blur-sm');
+                    popup.classList.remove('opacity-100');
+                    popup.classList.add('bg-black/0');
+                    popup.classList.add('opacity-0');
+                    const popupContent = popup.querySelector('.bg-dark-blue');
+                    if (popupContent) {
+                        popupContent.classList.remove('scale-100');
+                        popupContent.classList.add('scale-95');
+                    }
+                    // Hide the popup after the animation completes
+                    setTimeout(() => {
+                        popup.style.display = 'none';
+                    }, 300);
+                    
+                    // You could emit a custom event that the parent component can listen for
+                    const itemId = popup.id.replace('edit-popup-', '');
+                    const event = new CustomEvent('itemUpdated', {
+                        detail: {
+                            id: itemId,
+                            // Add collected form data here
+                        }
+                    });
+                    document.dispatchEvent(event);
+                }
+            });
+        });
+        
+        // Helper function to populate form with data
+        function populateForm(type, item) {
+            if (type === 'user') {
+                const nameInput = document.getElementById('name');
+                const emailInput = document.getElementById('email');
+                const roleInput = document.getElementById('role');
+                
+                if (nameInput) nameInput.value = item.name || '';
+                if (emailInput) emailInput.value = item.email || '';
+                if (roleInput) roleInput.value = item.role || 'User';
+            } else if (type === 'attribute') {
+                const nameInput = document.getElementById('name');
+                const typeInput = document.getElementById('type');
+                const requiredInput = document.getElementById('required');
+                const descriptionInput = document.getElementById('description');
+                
+                if (nameInput) nameInput.value = item.name || '';
+                if (typeInput) typeInput.value = item.type || 'string';
+                if (requiredInput) requiredInput.checked = item.required || false;
+                if (descriptionInput) descriptionInput.value = item.description || '';
+            } else if (type === 'secret') {
+                const nameInput = document.getElementById('name');
+                const secretIdElement = document.getElementById('secret-id');
+                const secretCreatedElement = document.getElementById('secret-created');
+                const secretLastUsedElement = document.getElementById('secret-lastused');
+                
+                if (nameInput) nameInput.value = item.name || '';
+                if (secretIdElement) secretIdElement.textContent = item.id || '';
+                if (secretCreatedElement) secretCreatedElement.textContent = item.created || '';
+                if (secretLastUsedElement) secretLastUsedElement.textContent = item.lastUsed || '';
+            } else if (type === 'role') {
+                const nameInput = document.getElementById('name');
+                if (nameInput) nameInput.value = item.name || '';
+                
+                // Clear all checkboxes first
+                document.querySelectorAll('input[name="permissions"]').forEach((checkbox) => {
+                    checkbox.checked = false;
+                });
+                
+                // Check the ones that match the role's permissions
+                if (item.permissions && Array.isArray(item.permissions)) {
+                    item.permissions.forEach((permission) => {
+                        const checkbox = document.querySelector(`input[value="${permission}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            }
+        }
+    }
+    
+    // Inicializar los event listeners cuando se carga la página
+    document.addEventListener('DOMContentLoaded', initPopupListeners);
+    
+    // También inicializar cuando cambia la vista con Astro View Transitions
+    document.addEventListener('astro:page-load', initPopupListeners);
+    
+    // Inicializar inmediatamente en caso de que el DOM ya esté cargado
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initPopupListeners();
+    }
+    })();
+</script>
