@@ -1,8 +1,10 @@
 ---
+import Modal        from "@/components/shared/Modal.astro";
 import Paginations  from "@/components/shared/Paginations.astro";
 import Table        from "@/components/shared/table/Table.astro";
-import TableData from "@/components/shared/table/TableData.astro";
-import TableRow from "@/components/shared/table/TableRow.astro";
+import TableData    from "@/components/shared/table/TableData.astro";
+import TableRow     from "@/components/shared/table/TableRow.astro";
+
 
 const mockUsers = [
     { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', lastLogin: '2025-04-17T15:32:45Z' },
@@ -25,13 +27,11 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
             </div>
         </div>
 
-        <button class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Add User
-        </button>
+        <Modal id="add-user" type="user" />
     </div>
 
-    <Table columns={columns}>
+
+    <Table {columns}>
         {mockUsers.map(user => (
             <TableRow>
                 <TableData>{user.name}</TableData>
