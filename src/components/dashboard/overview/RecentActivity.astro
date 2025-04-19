@@ -1,0 +1,61 @@
+---
+import Paginations from "@/components/shared/Paginations.astro";
+import OverviewCard from "./OverviewCard.astro";
+
+const mockUsers = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', lastLogin: '2025-04-17T15:32:45Z' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Developer', lastLogin: '2025-04-16T09:15:22Z' },
+    { id: 3, name: 'Alex Johnson', email: 'alex@example.com', role: 'User', lastLogin: '2025-04-15T18:45:10Z' },
+];
+
+const mockAttributes = [
+    { id: 1, name: 'phone_number', type: 'string', required: false, description: 'User phone number' },
+    { id: 2, name: 'address', type: 'object', required: false, description: 'User address information' },
+    { id: 3, name: 'preferences', type: 'object', required: false, description: 'User preferences' },
+];
+
+const mockSecrets = [
+    { id: 'sec_123456', name: 'Production API Key', created: '2025-03-15', lastUsed: '2025-04-17' },
+    { id: 'sec_789012', name: 'Development API Key', created: '2025-03-20', lastUsed: '2025-04-16' },
+    { id: 'sec_345678', name: 'Testing API Key', created: '2025-04-01', lastUsed: '2025-04-10' },
+];
+
+const mockRoles = [
+    { id: 1, name: 'Admin', permissions: ['read:all', 'write:all', 'delete:all'], users: 2 },
+    { id: 2, name: 'Developer', permissions: ['read:all', 'write:own'], users: 5 },
+    { id: 3, name: 'User', permissions: ['read:own'], users: 12 },
+];
+---
+
+<div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 p-6 mb-8">
+    <h2 class="text-xl font-orbitron text-white mb-4">Recent Activity</h2>
+    <div class="space-y-4">
+        <div class="flex items-start">
+            <div class="h-10 w-10 rounded-full bg-neon-blue/30 flex items-center justify-center text-white mr-3">
+                {mockUsers[0].name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+                <p class="text-white">{mockUsers[0].name} logged in</p>
+                <p class="text-gray-400 text-sm">{new Date(mockUsers[0].lastLogin).toLocaleString()}</p>
+            </div>
+        </div>
+        <div class="flex items-start">
+            <div class="h-10 w-10 rounded-full bg-red-900/30 flex items-center justify-center text-white mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+            </div>
+            <div>
+                <p class="text-white">API Key {mockSecrets[0].id} was used</p>
+                <p class="text-gray-400 text-sm">{mockSecrets[0].lastUsed}</p>
+            </div>
+        </div>
+        <div class="flex items-start">
+            <div class="h-10 w-10 rounded-full bg-green-900/30 flex items-center justify-center text-white mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div>
+                <p class="text-white">Role {mockRoles[1].name} was updated</p>
+                <p class="text-gray-400 text-sm">Yesterday at 14:35</p>
+            </div>
+        </div>
+    </div>
+</div>
