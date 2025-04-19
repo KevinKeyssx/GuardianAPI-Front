@@ -1,0 +1,29 @@
+---
+import LogoutIcon from "@/icons/LogoutIcon.astro";
+
+export interface Props {
+    class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<button
+    class={`logout-button w-full flex items-center justify-center gap-1 text-sm text-white ${className}`}
+>
+    <LogoutIcon />
+    Sign Out
+</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const { signOut } = await import('auth-astro/client');
+        const logoutButtons = document.querySelectorAll('.logout-button');
+
+        logoutButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                signOut();
+            });
+        });
+    });
+</script>
