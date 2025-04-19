@@ -1,0 +1,16 @@
+---
+export interface Props {
+    columns: string[];
+}
+
+const { columns } = Astro.props;
+---
+<thead class="bg-dark-blue/70">
+    <tr>
+        {columns.map((column) => (
+            <th scope="col" class={`px-6 py-3 text-left text-xs font-medium text-neon-blue uppercase tracking-wider ${column === 'Actions' ? 'text-right' : ''}`}>
+                {column}
+            </th>
+        ))}
+    </tr>
+</thead>
