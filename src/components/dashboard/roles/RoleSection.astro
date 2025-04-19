@@ -1,0 +1,64 @@
+---
+import Paginations  from "@/components/shared/Paginations.astro";
+import Table        from "@/components/shared/table/Table.astro";
+import TableData    from "@/components/shared/table/TableData.astro";
+import TableRow     from "@/components/shared/table/TableRow.astro";
+
+
+const mockRoles = [
+    { id: 1, name: 'Admin', permissions: ['read:all', 'write:all', 'delete:all'], users: 2 },
+    { id: 2, name: 'Developer', permissions: ['read:all', 'write:own'], users: 5 },
+    { id: 3, name: 'User', permissions: ['read:own'], users: 12 },
+];
+
+
+const columns = ['Name', 'Permissions', 'Users', 'Actions'];
+---
+
+<div class="animate-fade-in">
+    <h1 class="text-2xl font-orbitron text-white mb-6">Roles & Permissions</h1>
+
+    <div class="flex justify-between items-center mb-4">
+        <div class="relative w-64">
+            <input type="text" placeholder="Search roles..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="roles">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+        </div>
+
+        <button class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Create Role
+        </button>
+    </div>
+
+    <Table columns={columns}>
+        {mockRoles.map(role => (
+            <TableRow>
+                <TableData>{role.name}</TableData>
+                <TableData>
+                    <div class="flex flex-wrap gap-1">
+                        {role.permissions.map(perm => (
+                            <span class="px-2 py-1 text-xs rounded-full bg-dark-blue/70 text-neon-blue border border-neon-blue/30">
+                                {perm}
+                            </span>
+                        ))}
+                    </div>
+                </TableData>
+                <TableData>{role.users}</TableData>
+                <TableData size="text-right text-sm font-medium">
+                    <button class="text-neon-blue hover:text-neon-blue/80 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="20" stroke-dashoffset="20" d="M3 21h18"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="20;0"/></path><path stroke-dasharray="48" stroke-dashoffset="48" d="M7 17v-4l10 -10l4 4l-10 10h-4"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.6s" values="48;0"/></path><path stroke-dasharray="8" stroke-dashoffset="8" d="M14 6l4 4"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.8s" dur="0.2s" values="8;0"/></path></g></svg>
+                    </button>
+
+                    <button class="text-red-400 hover:text-red-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="24" stroke-dashoffset="24" d="M12 20h5c0.5 0 1 -0.5 1 -1v-14M12 20h-5c-0.5 0 -1 -0.5 -1 -1v-14"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="24;0"/></path><path stroke-dasharray="20" stroke-dashoffset="20" d="M4 5h16"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.2s" values="20;0"/></path><path stroke-dasharray="8" stroke-dashoffset="8" d="M10 4h4M10 9v7M14 9v7"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="8;0"/></path></g></svg>
+                    </button>
+                </TableData>
+            </TableRow>
+        ))}
+    </Table>
+
+    <!-- Pagination -->
+    <Paginations totalItems={mockRoles.length} itemsPerPage={5} currentPage={1} />
+</div>
