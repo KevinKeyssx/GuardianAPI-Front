@@ -1,0 +1,19 @@
+---
+import TableBody from './TableBody.astro';
+import TableHead from './TableHead.astro';
+
+export interface Props {
+    columns: string[];
+}
+
+const { columns } = Astro.props;
+---
+
+<div class="bg-dark-blue/50 rounded-lg border border-neon-blue/20 overflow-auto w-full">
+    <table class="attributes-table min-w-full divide-y divide-neon-blue/20">
+        <TableHead columns={columns} />
+        <TableBody>
+            <slot />
+        </TableBody>
+    </table>
+</div>
