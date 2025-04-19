@@ -1,0 +1,21 @@
+---
+export interface Props {
+    color?: string;
+    py?: string;
+    px?: string;
+    size?: string;
+    className?: string;
+}
+
+const {
+    color = 'text-white',
+    py = 'py-4',
+    px = 'px-6',
+    size = 'text-sm',
+    className
+} = Astro.props;
+---
+
+<td class={`whitespace-nowrap ${size} ${color} ${py} ${px} ${className}`}>
+    <slot />
+</td>
