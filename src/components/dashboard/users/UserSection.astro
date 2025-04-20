@@ -1,9 +1,10 @@
 ---
-import Modal        from "@/components/shared/Modal.astro";
 import Paginations  from "@/components/shared/Paginations.astro";
+import Panel        from "@/components/shared/Panel.astro";
 import Table        from "@/components/shared/table/Table.astro";
 import TableData    from "@/components/shared/table/TableData.astro";
 import TableRow     from "@/components/shared/table/TableRow.astro";
+import UserForm     from "@/components/dashboard/users/UserForm.astro";
 
 
 const mockUsers = [
@@ -18,7 +19,7 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
 <div class="animate-fade-in">
     <h1 class="text-2xl font-orbitron text-white mb-6">Users</h1>
 
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4 gap-2 sm:gap-4">
         <div class="relative w-64">
             <input type="text" placeholder="Search users..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="users">
 
@@ -27,7 +28,9 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
             </div>
         </div>
 
-        <Modal id="add-user" type="user" />
+        <Panel id="add-user" title="Add User" saveButtonText="Add" cancelButtonText="Cancel" >
+            <UserForm />
+        </Panel>
     </div>
 
 
