@@ -8,7 +8,7 @@ export interface Props {
 const { totalItems, itemsPerPage, currentPage } = Astro.props;
 ---
 
-<div class="flex justify-between items-center mt-4">
+<div class="grid justify-end sm:flex sm:justify-between gap-4 items-center mt-4 ">
     <div class="attributes-pagination-info text-sm text-gray-400">
         Showing <span class="text-white">{itemsPerPage}</span> to <span class="text-white">{totalItems}</span> of <span class="text-white">{totalItems}</span> attributes
     </div>
