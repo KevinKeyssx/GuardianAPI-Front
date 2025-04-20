@@ -1,10 +1,11 @@
 ---
-import Paginations  from "@/components/shared/Paginations.astro";
-import Panel        from "@/components/shared/Panel.astro";
-import Table        from "@/components/shared/table/Table.astro";
-import TableData    from "@/components/shared/table/TableData.astro";
-import TableRow     from "@/components/shared/table/TableRow.astro";
-import UserForm     from "@/components/dashboard/users/UserForm.astro";
+import Paginations      from "@/components/shared/Paginations.astro";
+import Panel            from "@/components/shared/Panel.astro";
+import Table            from "@/components/shared/table/Table.astro";
+import TableData        from "@/components/shared/table/TableData.astro";
+import TableRow         from "@/components/shared/table/TableRow.astro";
+import UserForm         from "@/components/dashboard/users/UserForm.astro";
+import OpenPanelIcon    from "@/icons/OpenPanelIcon.astro";
 
 
 const mockUsers = [
@@ -28,11 +29,15 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
             </div>
         </div>
 
-        <Panel id="add-user" title="Add User" saveButtonText="Add" cancelButtonText="Cancel" >
-            <UserForm />
+        <Panel
+            id                  = "add-user"
+            title               = "Add User"
+            saveButtonText      = "Add"
+            buttonText          = "Add User"
+        >
+            <UserForm id="delete-user" />
         </Panel>
     </div>
-
 
     <Table {columns}>
         {mockUsers.map(user => (
@@ -45,13 +50,9 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
                     </span>
                 </TableData>
                 <TableData>{new Date(user.lastLogin).toLocaleString()}</TableData>
-                <TableData size="text-right text-sm font-medium">
-                    <button class="text-neon-blue hover:text-neon-blue/80 mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="20" stroke-dashoffset="20" d="M3 21h18"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="20;0"/></path><path stroke-dasharray="48" stroke-dashoffset="48" d="M7 17v-4l10 -10l4 4l-10 10h-4"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.6s" values="48;0"/></path><path stroke-dasharray="8" stroke-dashoffset="8" d="M14 6l4 4"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.8s" dur="0.2s" values="8;0"/></path></g></svg>
-                    </button>
-
-                    <button class="text-red-400 hover:text-red-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="24" stroke-dashoffset="24" d="M12 20h5c0.5 0 1 -0.5 1 -1v-14M12 20h-5c-0.5 0 -1 -0.5 -1 -1v-14"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="24;0"/></path><path stroke-dasharray="20" stroke-dashoffset="20" d="M4 5h16"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.2s" values="20;0"/></path><path stroke-dasharray="8" stroke-dashoffset="8" d="M10 4h4M10 9v7M14 9v7"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="8;0"/></path></g></svg>
+                <TableData size="text-sm font-medium" float={true}>
+                    <button class="text-neon-blue hover:text-neon-blue/80">
+                        <OpenPanelIcon />
                     </button>
                 </TableData>
             </TableRow>
