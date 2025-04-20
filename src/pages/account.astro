@@ -1,0 +1,137 @@
+---
+import { getSession } from 'auth-astro/server';
+
+import Layout       from '@/layouts/Layout.astro';
+import Panel        from '@/components/shared/Panel.astro';
+import AccountInfo  from '@/components/account/AccountInfo.astro';
+import AccountForm  from '@/components/account/AccountForm.astro';
+
+
+const session = await getSession( Astro.request );
+
+
+if ( !session ) {
+    return Astro.redirect( '/signin' );
+}
+
+
+const user = {
+    id: '1',
+    name: session.user?.name || 'Usuario',
+    email: session.user?.email || 'usuario@example.com',
+    avatar: session.user?.image || 'https://via.placeholder.com/150',
+    birthdate: '1990-01-01',
+    isActive: true,
+    nickname: 'guardian',
+    phone: '+1234567890',
+    planId: 'premium',
+    isVerified: true
+};
+---
+
+<Layout title="Mi Cuenta - GuardianApi">
+    <section class="min-h-screen max-w-7xl mx-auto container items-center justify-center py-24 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-orbitron text-white mb-6 animate-fade-in opacity-100">Mi Cuenta</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in opacity-100">
+            <!-- Columna izquierda: Información del perfil -->
+            <div class="md:col-span-1">
+                <AccountInfo user={user} />
+            </div>
+
+            <!-- Columna derecha: Formulario de edición -->
+            <div class="md:col-span-2">
+                <div class="bg-dark-blue/50 border border-neon-blue/30 rounded-lg p-6 backdrop-blur-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-orbitron text-neon-blue">Información de la cuenta</h2>
+
+                        <Panel
+                            id="edit-account"
+                            title="Editar Cuenta"
+                            saveButtonText="Guardar Cambios"
+                            buttonText="Editar"
+                            buttonClass="px-4 py-2 bg-neon-blue text-space-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center"
+                            isEdit={true}
+                        >
+                            <AccountForm user={user} />
+                        </Panel>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-400">Nombre</p>
+                                <p class="text-white">{user.name}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm text-gray-400">Nickname</p>
+                                <p class="text-white">{user.nickname}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-sm text-gray-400">Email</p>
+                            <p class="text-white">{user.email}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-400">Teléfono</p>
+                                <p class="text-white">{user.phone}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm text-gray-400">Fecha de nacimiento</p>
+                                <p class="text-white">{user.birthdate}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-400">Plan</p>
+                                <p class="text-white flex items-center">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-neon-blue mr-2"></span>
+                                    {user.planId}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm text-gray-400">Estado</p>
+                                <div class="flex items-center">
+                                    {user.isActive ? (
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-300">Activo</span>
+                                    ) : (
+                                        <span class="px-2 py-1 text-xs rounded-full bg-red-900/30 text-red-300">Inactivo</span>
+                                    )}
+
+                                    {user.isVerified && (
+                                        <span class="ml-2 px-2 py-1 text-xs rounded-full bg-blue-900/30 text-blue-300">Verificado</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-dark-blue/50 border border-neon-blue/30 rounded-lg p-6 backdrop-blur-sm">
+                    <h2 class="text-xl font-orbitron text-neon-blue mb-6">Seguridad</h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <button class="neon_button">
+                                Cambiar contraseña
+                            </button>
+                        </div>
+
+                        <div>
+                            <button class="neon_button">
+                                Activar autenticación de dos factores
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</Layout>
