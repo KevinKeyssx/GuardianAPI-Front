@@ -17,14 +17,17 @@ const {
 ---
 
 <!-- Botón para abrir el popup -->
-<button id={`open-popup-${id}`} class={`edit-item-btn ${buttonClass}`} data-id={id} data-type={type}>
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-    {buttonText}
+<button id={`open-popup-${id}`} class={`edit-item-btn h-10 gap-1 ${buttonClass}`} data-id={id} data-type={type}>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+
+    <span class="hidden sm:block">
+        {buttonText}
+    </span>
 </button>
 
 <!-- El popup -->
 <div id={`edit-popup-${id}`} class="animate-fade-in fixed inset-0 bg-space-blue/10 backdrop-blur-sm items-center justify-center z-50 hidden opacity-0 transition-all duration-300 ease-in-out" style="display: none;">
-    <div class="bg-dark-blue border border-neon-blue/30 rounded-lg p-6 w-full max-w-md transform scale-95 transition-all duration-300 ease-in-out">
+    <div class="bg-dark-blue/80 border border-neon-blue/30 rounded-lg p-6 w-full max-w-md transform scale-95 transition-all duration-300 ease-in-out">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-orbitron text-white px-4 py-2">
                 {mode === 'add' ? 'Add' : 'Edit'} {type === 'user' ? 'User' : 
