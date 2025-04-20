@@ -1,0 +1,150 @@
+---
+export interface Props {
+    id: string;
+    title: string;
+    saveButtonText?: string;
+    cancelButtonText?: string;
+    buttonText?: string;
+    buttonClass?: string;
+}
+
+const { 
+    id, 
+    title,
+    saveButtonText = "Save",
+    cancelButtonText = "Cancel",
+    buttonText = "Open Panel",
+    buttonClass = "px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center"
+} = Astro.props;
+---
+
+<!-- Button to open the panel -->
+<button id={`open-panel-${id}`} class={`open-panel-btn h-10 gap-1 ${buttonClass}`}>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+
+    <span class="hidden sm:block">
+        {buttonText}
+    </span>
+</button>
+
+<!-- Panel container -->
+<aside
+    id={`panel-container-${id}`}
+    class="mt-16 fixed inset-0 bg-space-blue/10 backdrop-blur-sm items-end justify-end sm:items-center sm:justify-end z-50 hidden opacity-0 transition-all duration-300 ease-in-out"
+    style="display: none;"
+>
+    <section
+        id={`panel-${id}`}
+        class="bg-dark-blue/80 border-l border-neon-blue/30 h-full w-full max-w-md transform translate-x-full transition-all duration-300 ease-in-out flex flex-col overflow-hidden"
+    >
+        <header class="flex justify-between items-center p-4 border-b border-neon-blue/30">
+            <h3 class="text-xl font-orbitron text-white px-2">{title}</h3>
+
+            <button aria-label="Cerrar panel" class="close-panel text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <main class="p-6 flex-grow overflow-y-auto" >
+            <slot />
+        </main>
+
+        <footer class="flex justify-end space-x-3 p-4 border-t border-neon-blue/30 bg-dark-blue/90 sticky bottom-0">
+            <button class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300">
+                {cancelButtonText}
+            </button>
+
+            <button class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300">
+                {saveButtonText}
+            </button>
+        </footer>
+    </section>
+</aside>
+
+<script define:vars={{ id }}>
+    // Self-executing function to avoid name conflicts
+    (function() {
+        // Function to open the panel
+        function openPanel() {
+            const panelContainer = document.getElementById(`panel-container-${id}`);
+            const panel = document.getElementById(`panel-${id}`);
+
+            if (panelContainer && panel) {
+                // Show container
+                panelContainer.style.display = 'flex';
+                
+                // Trigger animations after a small delay
+                setTimeout(() => {
+                    panelContainer.classList.add('opacity-100');
+                    panel.classList.remove('translate-x-full');
+                    panel.classList.add('translate-x-0');
+                }, 10);
+            }
+        }
+
+        // Function to close the panel
+        function closePanel() {
+            const panelContainer = document.getElementById(`panel-container-${id}`);
+            const panel = document.getElementById(`panel-${id}`);
+
+            if (panelContainer && panel) {
+                // Trigger closing animations
+                panelContainer.classList.remove('opacity-100');
+                panel.classList.remove('translate-x-0');
+                panel.classList.add('translate-x-full');
+
+                // Hide container after animation completes
+                setTimeout(() => {
+                    panelContainer.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Initialize event listeners when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the open button for this panel
+            const openButton = document.getElementById(`open-panel-${id}`);
+
+            // Add event listener to open button
+            if (openButton) {
+                openButton.addEventListener('click', openPanel);
+            }
+
+            // Get all close buttons within this panel
+            const closeButtons = document.querySelectorAll(`#panel-container-${id} .close-panel`);
+            const saveButton = document.querySelector(`#panel-container-${id} .save-panel`);
+            
+            // Add event listeners to close buttons
+            closeButtons.forEach(button => {
+                button.addEventListener('click', closePanel);
+            });
+
+            // Add event listener to save button
+            if (saveButton) {
+                saveButton.addEventListener('click', () => {
+                    // Trigger a custom event that can be listened for to handle save actions
+                    const saveEvent = new CustomEvent('panel:save', {
+                        detail: { panelId: id }
+                    });
+                    document.dispatchEvent(saveEvent);
+                    
+                    // Close the panel after saving
+                    closePanel();
+                });
+            }
+            
+            // Close panel when clicking outside
+            document.getElementById(`panel-container-${id}`)?.addEventListener('click', (e) => {
+                if (e.target === document.getElementById(`panel-container-${id}`)) {
+                    closePanel();
+                }
+            });
+        });
+
+        // Expose the open and close functions to the global scope for this specific panel
+        window[`openPanel_${id}`] = openPanel;
+        window[`closePanel_${id}`] = closePanel;
+    })();
+</script>
