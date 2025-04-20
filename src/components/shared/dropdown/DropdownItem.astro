@@ -1,0 +1,29 @@
+---
+export interface Props {
+    href?: string;
+    class?: string;
+    active?: boolean;
+    danger?: boolean;
+}
+
+const { 
+    href, 
+    class: className = "",
+    active = false,
+    danger = false
+} = Astro.props;
+
+
+const baseClasses = "flex items-center w-full gap-2 px-3 py-2 text-[0.775rem] rounded-md transition-colors duration-200 cursor-pointer";
+const stateClasses = active 
+    ? "bg-neon-blue/20 text-neon-blue" 
+    : danger 
+        ? "text-red-400 hover:bg-red-900/20" 
+        : "text-gray-300 hover:bg-neon-blue/20 hover:text-neon-blue";
+
+const combinedClasses = `${baseClasses} ${stateClasses} ${className}`;
+---
+
+<a class={ combinedClasses } href={ href || "#" }>
+    <slot />
+</a>
