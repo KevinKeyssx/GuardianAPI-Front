@@ -1,0 +1,103 @@
+---
+export interface Props {
+    user: {
+        id: string;
+        name: string;
+        email: string;
+        avatar: string;
+        birthdate: string;
+        isActive: boolean;
+        nickname: string;
+        phone: string;
+        planId: string;
+        isVerified: boolean;
+    };
+}
+
+const { user } = Astro.props;
+---
+
+<div class="bg-dark-blue/50 border border-neon-blue/30 rounded-lg p-6 backdrop-blur-sm animate-fade-in opacity-100">
+    <div class="flex flex-col items-center text-center">
+        <div class="relative mb-6 group">
+            <div class="avatar-container relative w-32 h-32 rounded-full overflow-hidden border-2 border-neon-blue/50 shadow-lg shadow-neon-blue/20">
+                <img 
+                    src={user.avatar} 
+                    alt={user.name} 
+                    class="w-full h-full object-cover"
+                />
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-dark-blue/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                    <span class="text-xs text-white">Cambiar avatar</span>
+                </div>
+            </div>
+            
+            <!-- Indicador de estado -->
+            <div class={`absolute bottom-2 right-2 w-4 h-4 rounded-full border-2 border-dark-blue ${user.isActive ? 'bg-green-400' : 'bg-red-400'}`}></div>
+            
+            <!-- Indicador de verificación -->
+            {user.isVerified && (
+                <div class="absolute top-0 right-0 bg-blue-500 rounded-full p-1 transform translate-x-1 -translate-y-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            )}
+        </div>
+        
+        <h2 class="text-xl font-orbitron text-white mb-1">{user.name}</h2>
+        <p class="text-neon-blue mb-4">@{user.nickname}</p>
+        
+        <div class="w-full border-t border-neon-blue/20 pt-4 mt-2">
+            <div class="flex justify-center space-x-2 mb-4">
+                <button class="p-2 bg-dark-blue hover:bg-neon-blue/20 rounded-full transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neon-blue" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                </button>
+                <button class="p-2 bg-dark-blue hover:bg-neon-blue/20 rounded-full transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neon-blue" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                </button>
+                <button class="p-2 bg-dark-blue hover:bg-neon-blue/20 rounded-full transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neon-blue" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Plan del usuario -->
+        <div class="bg-space-blue/50 rounded-lg p-3 w-full backdrop-blur-sm">
+            <p class="text-sm text-gray-400 mb-1">Plan actual</p>
+            <div class="flex items-center justify-between">
+                <span class="text-neon-blue font-medium">{user.planId.charAt(0).toUpperCase() + user.planId.slice(1)}</span>
+                <button class="text-xs bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue px-2 py-1 rounded transition-colors duration-300">
+                    Cambiar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-container {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .avatar-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 196, 214, 0.5);
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(0, 196, 214, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 10px rgba(0, 196, 214, 0);
+        }
+    }
+</style>
