@@ -12,7 +12,10 @@ const { class: className } = Astro.props;
     class={`logout-button w-full flex items-center justify-center gap-1 text-sm text-white ${className}`}
 >
     <LogoutIcon />
-    Sign Out
+
+    <span class="hidden lg:block">
+        Sign Out
+    </span>
 </button>
 
 <script>
