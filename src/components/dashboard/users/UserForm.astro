@@ -1,4 +1,15 @@
+---
+import Modal from "@/components/shared/Modal.astro";
+
+export interface Props {
+    id: string;
+}
+
+const { id } = Astro.props;
+---
 <div class="space-y-4">
+    <Modal id={id} type="user" />
+
     <div class="flex flex-col">
         <label for="name" class="text-sm font-orbitron text-white mb-1">Name</label>
         <input
