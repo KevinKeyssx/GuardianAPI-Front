@@ -5,6 +5,7 @@ export interface Props {
     px?: string;
     size?: string;
     className?: string;
+    float?: boolean;
 }
 
 const {
@@ -12,10 +13,11 @@ const {
     py = 'py-4',
     px = 'px-6',
     size = 'text-sm',
-    className
+    className,
+    float = false
 } = Astro.props;
 ---
 
-<td class={`whitespace-nowrap ${size} ${color} ${py} ${px} ${className}`}>
+<td class={`whitespace-nowrap ${size} ${color} ${py} ${float ? 'px-4': px } ${className} ${float ? 'text-center sticky right-0 z-10 bg-dark-blue/90 backdrop-blur-sm shadow-[-4px_0_5px_rgba(0,0,0,0.3)]' : ''}`}>
     <slot />
 </td>
