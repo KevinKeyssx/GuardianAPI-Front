@@ -7,6 +7,7 @@ import AttributesIcon   from '@/icons/AttributesIcon.astro';
 import SecretIcon       from '@/icons/SecretIcon.astro';
 import RoleIcon         from '@/icons/RoleIcon.astro';
 import MenuIcon         from '@/icons/MenuIcon.astro';
+import ConfigIcon       from '@/icons/ConfigIcon.astro';
 // Components
 import Logout from '@/components/auth/Logout.astro';
 
@@ -47,7 +48,7 @@ const sidebarItems = [
                             href    = { `/dashboard?section=${item.id}` }
                             class   = { `flex items-center px-4 py-3 text-sm transition-colors duration-300 ${activeSection === item.id ? 'bg-neon-blue/10 text-neon-blue border-l-2 border-neon-blue' : 'text-gray-300 hover:bg-neon-blue/5 hover:text-neon-blue'}` }
                         >
-                            <span class="flex items-center">
+                            <span class="flex items-center mr-3">
                                 {<item.icon />}
                             </span>
 
@@ -62,17 +63,25 @@ const sidebarItems = [
     </section>
 
     <footer class="p-2 py-4 lg:p-4 border-t border-neon-blue/20 space-y-6 lg:space-y-4">
-        <div class="flex items-center">
-            <img
-                src     = { session.user?.image }
-                alt     = { session.user?.name || 'User' }
-                class   = "w-8 h-8 rounded-full mx-auto lg:mx-0"
-            />
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="/account" class="ml-1 lg:ml-0">
+                    <img
+                        src     = { session.user?.image }
+                        alt     = { session.user?.name || 'User' }
+                        class   = "w-8 h-8 rounded-full mx-auto lg:mx-0"
+                    />
+                </a>
 
-            <div class="hidden lg:block lg:ml-3">
-                <p class="text-sm font-medium text-white truncate">{session.user?.name || 'User'}</p>
-                <p class="text-xs text-gray-400 truncate">{session.user?.email || ''}</p>
+                <div class="hidden lg:block lg:ml-3">
+                    <p class="text-sm font-medium text-white truncate">{session.user?.name || 'User'}</p>
+                    <p class="text-xs text-gray-400 truncate">{session.user?.email || ''}</p>
+                </div>
             </div>
+
+            <a href="/account" class="hidden lg:block bg-neon-blue/10 p-1 rounded-full hover:bg-neon-blue/5 hover:text-neon-blue">
+                <ConfigIcon/>
+            </a>
         </div>
 
         <Logout class="lg:px-4 lg:py-2 bg-dark-blue hover:bg-neon-blue/20 rounded-md transition-colors duration-300"/>
