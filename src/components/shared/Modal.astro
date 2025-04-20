@@ -1,17 +1,19 @@
 ---
+import CloseIcon from '@/icons/CloseIcon.astro';
+
 export interface Props {
-    id: string;
-    type: 'user' | 'attribute' | 'secret' | 'role';
-    mode?: 'add' | 'edit';
-    buttonText?: string;
-    buttonClass?: string;
+    id              : string;
+    type            : 'user' | 'attribute' | 'secret' | 'role';
+    mode?           : 'add' | 'edit';
+    buttonText?     : string;
+    buttonClass?    : string;
 }
 
 const { 
     id, 
     type, 
-    mode = 'edit',
-    buttonText = mode === 'add' ? `Add ${type === 'user' ? 'User' : type === 'attribute' ? 'Attribute' : type === 'secret' ? 'Secret' : 'Role'}` : `Edit ${type === 'user' ? 'User' : type === 'attribute' ? 'Attribute' : type === 'secret' ? 'Secret' : 'Role'}`,
+    mode        = 'edit',
+    buttonText  = mode === 'add' ? `Add ${type === 'user' ? 'User' : type === 'attribute' ? 'Attribute' : type === 'secret' ? 'Secret' : 'Role'}` : `Edit ${type === 'user' ? 'User' : type === 'attribute' ? 'Attribute' : type === 'secret' ? 'Secret' : 'Role'}`,
     buttonClass = 'px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center'
 } = Astro.props;
 ---
@@ -26,8 +28,8 @@ const {
 </button>
 
 <!-- El popup -->
-<div id={`edit-popup-${id}`} class="animate-fade-in fixed inset-0 bg-space-blue/10 backdrop-blur-sm items-center justify-center z-50 hidden opacity-0 transition-all duration-300 ease-in-out" style="display: none;">
-    <div class="bg-dark-blue/80 border border-neon-blue/30 rounded-lg p-6 w-full max-w-md transform scale-95 transition-all duration-300 ease-in-out">
+<div id={`edit-popup-${id}`} class="animate-fade-in fixed inset-0 bg-space-blue/10 backdrop-blur-sm items-center justify-center z-[9999] hidden opacity-0 transition-all duration-300 ease-in-out" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
+    <div class="bg-dark-blue/80 border border-neon-blue/30 rounded-lg p-6 w-full max-w-md transform scale-95 transition-all duration-300 ease-in-out absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-orbitron text-white px-4 py-2">
                 {mode === 'add' ? 'Add' : 'Edit'} {type === 'user' ? 'User' : 
@@ -35,9 +37,7 @@ const {
                     type === 'secret' ? 'API Secret' : 'Role'}
             </h3>
             <button class="close-popup text-gray-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <CloseIcon />
             </button>
         </div>
         
@@ -184,6 +184,8 @@ const {
                     
                     // Show popup with animation
                     popup.style.display = 'flex';
+                    // Asegurar que el modal esté en el body
+                    document.body.appendChild(popup);
                     // Trigger animation after a small delay to ensure the display change has taken effect
                     setTimeout(() => {
                         popup.classList.add('bg-space-blue/10');
