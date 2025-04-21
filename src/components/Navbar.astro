@@ -10,7 +10,7 @@ import DropdownSeparator    from '@/components/shared/dropdown/DropdownSeparator
 const session = await getSession( Astro.request );
 
 const navItems = [
-    { name: 'Home',             path: session ? '/dashboard' : '/' },
+    { name: 'Home',             path: session ? '/dashboard' : '/', hidden: session },
     { name: 'Documentation',    path: '/docs',      hidden: session },
     { name: 'Pricing',          path: '/pricing',   hidden: session },
     { name: 'Sign In',          path: '/signin',    hidden: session },
@@ -28,8 +28,8 @@ const navItems = [
                 </a>
             </div>
 
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-4">
+            <div class="block">
+                <div class="sm:ml-10 flex items-baseline space-x-4">
                 {
                     navItems.map((item) => (
                         !item.hidden && (
@@ -50,7 +50,10 @@ const navItems = [
                             class="text-gray-300 hover:text-neon-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300"
                         >
                             <div class=" flex items-center gap-4">
+                                <p class="hidden sm:flex">
+
                                 { session.user?.name || 'User' }
+                                </p>
 
                                 <img
                                     src     = { session.user?.image }
