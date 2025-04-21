@@ -5,6 +5,7 @@ import Table            from "@/components/shared/table/Table.astro";
 import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
 import UserForm         from "@/components/dashboard/users/UserForm.astro";
+import Filter           from "@/components/inputs/Filter.astro";
 import OpenPanelIcon    from "@/icons/OpenPanelIcon.astro";
 
 
@@ -21,13 +22,7 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
     <h1 class="text-2xl font-orbitron text-white mb-6">Users</h1>
 
     <div class="flex justify-between items-center mb-4 gap-2 sm:gap-4">
-        <div class="relative w-64">
-            <input type="text" placeholder="Search users..." class="search-input w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60" data-section="users">
-
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </div>
-        </div>
+        <Filter />
 
         <Panel
             id                  = "add-user"
