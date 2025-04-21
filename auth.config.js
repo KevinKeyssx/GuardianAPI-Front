@@ -12,8 +12,16 @@ export default defineConfig({
 	],
     secret: ENV.AUTH_SECRET,
     trustHost: true,
-    experimental: {
-        session: true,
+    cookies: {
+        sessionToken: {
+            name: `next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: true
+            }
+        }
     },
     callbacks: {
         async jwt({ token, account }) {
