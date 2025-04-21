@@ -4,18 +4,29 @@ import Panel            from "@/components/shared/Panel.astro";
 import Table            from "@/components/shared/table/Table.astro";
 import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
-import UserForm         from "@/components/dashboard/users/UserForm.astro";
+import UserForm         from "@/components/dashboard/users/UserForm.svelte";
 import Filter           from "@/components/inputs/Filter.astro";
-import OpenPanelIcon    from "@/icons/OpenPanelIcon.astro";
 
 
 const mockUsers = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', lastLogin: '2025-04-17T15:32:45Z' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Developer', lastLogin: '2025-04-16T09:15:22Z' },
-    { id: 3, name: 'Alex Johnson', email: 'alex@example.com', role: 'User', lastLogin: '2025-04-15T18:45:10Z' },
+    { id: 1, email: 'john@example.com', name: 'John Doe',       nickname: 'johndoe',    avatar: 'https://res.cloudinary.com/dbgzsikcs/image/upload/v1744512902/kevinkeyssx/projects/efa91c84-239f-4c87-b052-d74822e2f529.avif', birthday: '2025-04-17', isActive: true,  isVerified: false,  phone: '+1234567890', role: 'Admin',       lastLogin: '2025-04-17T15:32:45Z' },
+    { id: 2, email: 'jane@example.com', name: 'Jane Smith',     nickname: 'janesmith',  avatar: 'https://res.cloudinary.com/dbgzsikcs/image/upload/v1744512902/kevinkeyssx/projects/efa91c84-239f-4c87-b052-d74822e2f529.avif', birthday: '2025-04-16', isActive: false, isVerified: true,   phone: '+1234567890', role: 'Developer',   lastLogin: '2025-04-16T09:15:22Z' },
+    { id: 3, email: 'alex@example.com', name: 'Alex Johnson',   nickname: 'alexj',      avatar: 'https://res.cloudinary.com/dbgzsikcs/image/upload/v1744512902/kevinkeyssx/projects/efa91c84-239f-4c87-b052-d74822e2f529.avif', birthday: '2025-04-15', isActive: true,  isVerified: true,   phone: '+1234567890', role: 'User',        lastLogin: '2025-04-15T18:45:10Z' },
 ];
 
-const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
+const columns = [
+    'Avatar',
+    'Email',
+    'Name',
+    'Nickname',
+    'Birthday',
+    'Phone',
+    'Active',
+    'Verified',
+    'Role',
+    'Last Login',
+    'Actions'
+];
 ---
 
 <div class="animate-fade-in">
@@ -30,15 +41,31 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
             saveButtonText      = "Add"
             buttonText          = "Add User"
         >
-            <UserForm id="delete-user" />
+            <UserForm id="add-user" client:only="svelte"/>
         </Panel>
     </div>
 
     <Table {columns}>
         {mockUsers.map(user => (
             <TableRow>
-                <TableData>{user.name}</TableData>
+                <TableData>
+                    <img src={user.avatar} alt={user.name} class="w-8 h-8 rounded-full"/>
+                </TableData>
                 <TableData>{user.email}</TableData>
+                <TableData>{user.name}</TableData>
+                <TableData>{user.nickname}</TableData>
+                <TableData>{new Date(user.birthday).toLocaleDateString()}</TableData>
+                <TableData>{user.phone}</TableData>
+                <TableData>{user.isActive ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0" stroke-dasharray="64" stroke-dashoffset="64" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"><animate fill="freeze" attributeName="fill-opacity" begin="0.6s" dur="0.15s" values="0;0.3"/><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="64;0"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.75s" dur="0.2s" values="14;0"/></path></g></svg>
+                )
+                 : (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0.3" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"/><path stroke-dasharray="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="0;14"/></path></g></svg>)
+                 }</TableData>
+                <TableData>{user.isVerified ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0" stroke-dasharray="64" stroke-dashoffset="64" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"><animate fill="freeze" attributeName="fill-opacity" begin="0.6s" dur="0.15s" values="0;0.3"/><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="64;0"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.75s" dur="0.2s" values="14;0"/></path></g></svg>
+                )
+                 : (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0.3" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"/><path stroke-dasharray="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="0;14"/></path></g></svg>)
+                 }</TableData>
                 <TableData>
                     <span class={`px-2 py-1 text-xs rounded-full ${user.role === 'Admin' ? 'bg-red-900/30 text-red-300' : user.role === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
                         {user.role}
@@ -46,9 +73,16 @@ const columns = ['Name', 'Email', 'Role', 'Last Login', 'Actions'];
                 </TableData>
                 <TableData>{new Date(user.lastLogin).toLocaleString()}</TableData>
                 <TableData size="text-sm font-medium" float={true}>
-                    <button class="text-neon-blue hover:text-neon-blue/80">
-                        <OpenPanelIcon />
-                    </button>
+                    <Panel
+                        id                  = {`edit-user-${user.id}`}
+                        title               = "Edit User"
+                        saveButtonText      = "Edit"
+                        buttonText          = ""
+                        buttonClass         = ""
+                        isEdit              = {true}
+                    >
+                        <UserForm id={`edit-user-${user.id}`} client:only="svelte"/>
+                    </Panel>
                 </TableData>
             </TableRow>
         ))}
