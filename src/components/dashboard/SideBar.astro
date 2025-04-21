@@ -87,3 +87,26 @@ const sidebarItems = [
         <Logout class="lg:px-4 lg:py-2 bg-dark-blue hover:bg-neon-blue/20 rounded-md transition-colors duration-300"/>
     </footer>
 </aside>
+
+<aside class="fixed sm:hidden w-full h-12 bottom-0 bg-dark-blue/90 border-t border-neon-blue/20 ">
+    <nav class="flex gap-2 items-center justify-center">
+        {sidebarItems.map(item => (
+                <a 
+                    href    = { `/dashboard?section=${item.id}` }
+                    class   = { `flex items-center px-4 py-3 text-sm transition-colors duration-300 ${activeSection === item.id ? 'bg-neon-blue/10 text-neon-blue border-t-2 border-neon-blue' : 'text-gray-300 hover:bg-neon-blue/5 hover:text-neon-blue'}` }
+                >
+                    <span class="flex items-center justify-center">
+                        {<item.icon />}
+                    </span>
+                </a>
+        ))}
+<!-- 
+        <a href="/account">
+            <img
+                src     = { session.user?.image }
+                alt     = { session.user?.name || 'User' }
+                class   = "w-6 h-6 rounded-full ml-2"
+            />
+        </a> -->
+    </nav>
+</aside>
