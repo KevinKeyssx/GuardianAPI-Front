@@ -4,22 +4,21 @@ import { defineConfig } from 'astro/config';
 import tailwind         from '@astrojs/tailwind';
 import react            from '@astrojs/react';
 import svelte           from '@astrojs/svelte';
-import node             from '@astrojs/node';
+import vercel           from '@astrojs/vercel';
 import dotenv           from 'dotenv';
 
 dotenv.config();
 
 export default defineConfig({
     output: 'server',
-    integrations: [tailwind(), react(), svelte(), auth()],
-    adapter: node({
-        mode: 'standalone',
-    }),
-    experimental: {
-        session: true
-    },
+    integrations: [
+        tailwind(), 
+        react(), 
+        svelte(), 
+        auth()
+    ],
+    adapter: vercel(),
     devToolbar: {
         enabled: false
-    },
-    trailingSlash: 'always',
+    }
 });
