@@ -49,7 +49,6 @@ const positionClass = position === 'left' ? 'left-0' : 'right-0';
             if ( !isOpen ) {
                 dropdownMenu.classList.remove('scale-95', 'opacity-0', 'invisible');
                 dropdownMenu.classList.add('scale-100', 'opacity-100', 'visible');
-
                 isOpen = true;
             } else {
                 closeDropdown();
@@ -119,27 +118,3 @@ const positionClass = position === 'left' ? 'left-0' : 'right-0';
         window[`toggleDropdown_${id}`] = toggleDropdown;
     })();
 </script>
-
-<!-- <style>
-    @keyframes dropdownFadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95) translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
-
-    @keyframes dropdownFadeOut {
-        from {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: scale(0.95) translateY(-10px);
-        }
-    }
-</style> -->
