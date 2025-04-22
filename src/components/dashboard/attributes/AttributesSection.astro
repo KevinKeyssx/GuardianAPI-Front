@@ -4,7 +4,7 @@ import Table            from "@/components/shared/table/Table.astro";
 import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
 import Panel            from "@/components/shared/Panel.astro";
-import AttributeForm    from "./AttributeForm.astro";
+import AttributeForm    from "./AttributeForm.svelte";
 
 
 const mockAttributes = [
@@ -54,7 +54,7 @@ const columns = [
             saveButtonText      = "Add"
             buttonText          = "Add Attribute"
         >
-            <AttributeForm id="add-attribute" />
+            <AttributeForm id="add-attribute" client:only="svelte"/>
         </Panel>
     </div>
 
@@ -86,7 +86,7 @@ const columns = [
                         buttonClass         = ""
                         isEdit              = { true }
                     >
-                        <AttributeForm id={`edit-attribute-${index}`} attribute={attr} />
+                        <AttributeForm id={`edit-attribute-${index}`} attribute={attr} client:only="svelte"/>
                     </Panel>
                 </TableData>
             </TableRow>
