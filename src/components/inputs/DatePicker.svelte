@@ -9,7 +9,7 @@
 </script>
 
 <DatePicker.Root weekdayFormat="short" fixedWeeks={true}>
-    <div class="flex w-full flex-col gap-1.5">
+    <div class="flex w-full flex-col gap-0.5">
         <DatePicker.Label class="text-sm font-orbitron text-white mb-1">
             {label}
         </DatePicker.Label>
