@@ -1,6 +1,6 @@
 ---
 import Paginations      from "@/components/shared/Paginations.astro";
-import Panel            from "@/components/shared/Panel.astro";
+import Panel            from "@/components/shared/Panel.svelte";
 import Table            from "@/components/shared/table/Table.astro";
 import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
@@ -35,7 +35,7 @@ const columns = [
     <div class="flex justify-between items-center mb-4 gap-2 sm:gap-4">
         <Filter />
 
-        <Panel
+        <Panel client:only="svelte"
             id                  = "add-user"
             title               = "Add User"
             saveButtonText      = "Add"
@@ -74,7 +74,7 @@ const columns = [
                 </TableData>
                 <TableData>{new Date(user.lastLogin).toLocaleString()}</TableData>
                 <TableData size="text-sm font-medium" float={true}>
-                    <Panel
+                    <Panel client:only="svelte"
                         id                  = {`edit-user-${user.id}`}
                         title               = "Edit User"
                         saveButtonText      = "Edit"
