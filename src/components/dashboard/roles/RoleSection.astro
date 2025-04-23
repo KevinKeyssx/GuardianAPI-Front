@@ -1,6 +1,6 @@
 ---
 import Paginations      from "@/components/shared/Paginations.astro";
-import Panel            from "@/components/shared/Panel.astro";
+import Panel            from "@/components/shared/Panel.svelte";
 import Table            from "@/components/shared/table/Table.astro";
 import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
@@ -28,7 +28,7 @@ const columns = ['Name', 'Description', 'Permissions', 'Users', 'Created At', 'A
             </div>
         </div>
 
-        <Panel
+        <Panel client:only="svelte"
             id              = "add-role"
             title           = "Add Role"
             saveButtonText  = "Add"
@@ -55,7 +55,7 @@ const columns = ['Name', 'Description', 'Permissions', 'Users', 'Created At', 'A
                 <TableData>{role.users}</TableData>
                 <TableData>{role.createdAt}</TableData>
                 <TableData size="text-sm font-medium" float={true}>
-                    <Panel
+                    <Panel client:only="svelte"
                         id              = {`add-role-${index}`}
                         title           = "Edit Role"
                         saveButtonText  = "Add"
