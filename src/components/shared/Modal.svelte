@@ -71,7 +71,6 @@
             detail: {
                 id,
                 type
-                // Aquí se añadirían los datos del formulario
             }
         });
         document.dispatchEvent(event);
