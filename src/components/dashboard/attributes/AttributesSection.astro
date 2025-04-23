@@ -3,7 +3,7 @@ import Paginations      from "@/components/shared/Paginations.astro";
 import Table            from "@/components/shared/table/Table.astro";
 import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
-import Panel            from "@/components/shared/Panel.astro";
+import Panel            from "@/components/shared/Panel.svelte";
 import AttributeForm    from "./AttributeForm.svelte";
 
 
@@ -29,6 +29,9 @@ const columns = [
     'Active',
     'Actions'
 ];
+
+
+let openAddPanel = false;
 ---
 
 <div class="animate-fade-in">
@@ -48,13 +51,17 @@ const columns = [
             </div>
         </div>
 
-        <Panel
+        <Panel client:only="svelte"
             id                  = "add-attribute"
             title               = "Add Attribute"
             saveButtonText      = "Add"
             buttonText          = "Add Attribute"
+            isPanelOpen         = {openAddPanel}
         >
-            <AttributeForm id="add-attribute" client:only="svelte"/>
+            <AttributeForm client:only="svelte"
+                id="add-attribute"
+                bind:isPanelOpen={openAddPanel}
+            />
         </Panel>
     </div>
 
@@ -81,10 +88,11 @@ const columns = [
                     <Panel
                         id                  = {`edit-attribute-${index}`}
                         title               = "Edit Attribute"
-                        saveButtonText      = "Add"
+                        saveButtonText      = "Save"
                         buttonText          = ""
                         buttonClass         = ""
                         isEdit              = { true }
+                        client:only         = "svelte"
                     >
                         <AttributeForm id={`edit-attribute-${index}`} attribute={attr} client:only="svelte"/>
                     </Panel>
