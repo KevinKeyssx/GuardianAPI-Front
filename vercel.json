@@ -1,8 +1,5 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/entry.js" }
-  ],
-  "buildCommand": "pnpm build",
-  "installCommand": "pnpm install",
-  "framework": "astro"
+    "buildCommand": "pnpm build",
+    "installCommand": "pnpm install",
+    "framework": "astro"
 }
