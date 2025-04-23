@@ -1,31 +1,26 @@
 <script lang="ts">
     import DatePicker from "@/components/inputs/DatePicker.svelte";
-
-    // import Modal from "@/components/shared/Modal.astro";
     import Input from "@/components/inputs/Input.svelte";
     import Select from "@/components/inputs/Select.svelte";
     import Switch from "@/components/inputs/Switch.svelte";
+    import Modal from "@/components/shared/Modal.svelte";
 
 
     interface Props {
         key: string;
         type: string;
         required?: boolean;
+        isPanelOpen?: boolean;
     }
 
     // Destructura las props usando $props()
-    let { key, type, required = false } = $props() as Props;
+    let { key, type, required = false, isPanelOpen } = $props() as Props;
 
 
     let keyState = $state("");
 </script>
 
 <div class="space-y-4">
-
-    <!-- {attribute && (
-        <Modal id={id} type="attribute" />
-    )} -->
-
     <Input
         label       = "Key Name"
         placeholder = "Enter key name"
@@ -90,7 +85,6 @@
 
     <!-- Min Max Date -->
     <DatePicker label="Min Date" />
-
     <DatePicker label="Max Date" />
 
     <Input
@@ -104,3 +98,25 @@
 
     <Switch label="Required" />
 </div>
+
+<footer class="flex p-3 border-t border-neon-blue/30 bg-dark-blue/90 sticky bottom-0">
+    <div class="flex items-center justify-between">
+        <Modal id={'add-attribute'} type="attribute" title="Add Attribute" />
+
+        <div class="flex items-center space-x-3">
+            <button
+                class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300"
+                onclick={() => {
+                    isPanelOpen = false
+                    console.log('🚀 ~ file: AttributeForm.svelte:112 ~ isPanelOpen:', isPanelOpen)
+                }}
+            >
+                Close
+            </button>
+
+            <button class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300">
+                Save
+            </button>
+        </div>
+    </div>
+</footer>
