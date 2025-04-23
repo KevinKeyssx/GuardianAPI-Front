@@ -11,6 +11,9 @@ dotenv.config();
 
 export default defineConfig({
     output: 'server',
+    site: 'https://guardian-auth.vercel.app',
+    compressHTML: true,
+    prefetch: true,
     integrations: [
         tailwind(), 
         react(), 
@@ -20,5 +23,10 @@ export default defineConfig({
     adapter: vercel(),
     devToolbar: {
         enabled: false
-    }
+    },
+    vite: {
+        ssr: {
+            noExternal: ["path-to-regexp"],
+        },
+    },
 });
