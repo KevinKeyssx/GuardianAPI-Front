@@ -1,9 +1,9 @@
 <script lang="ts">
-    import DatePicker from "@/components/inputs/DatePicker.svelte";
-    import Input from "@/components/inputs/Input.svelte";
-    import Select from "@/components/inputs/Select.svelte";
-    import Switch from "@/components/inputs/Switch.svelte";
-    import Modal from "@/components/shared/Modal.svelte";
+    import DatePicker   from "@/components/inputs/DatePicker.svelte";
+    import Input        from "@/components/inputs/Input.svelte";
+    import Select       from "@/components/inputs/Select.svelte";
+    import Switch       from "@/components/inputs/Switch.svelte";
+    import Modal        from "@/components/shared/Modal.svelte";
 
 
     interface Props {
