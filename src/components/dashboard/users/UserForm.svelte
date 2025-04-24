@@ -2,6 +2,17 @@
     import DatePicker   from "@/components/inputs/DatePicker.svelte";
     import Input        from "@/components/inputs/Input.svelte";
     import Switch       from "@/components/inputs/Switch.svelte";
+    import Modal from "@/components/shared/Modal.svelte";
+    import PanelFooter from "@/components/shared/PanelFooter.svelte";
+    import PanelMain from "@/components/shared/PanelMain.svelte";
+
+    let {
+        clicked = $bindable<number>()
+    } = $props<{
+        clicked?            : number;
+    }>();
+    console.log('🚀 ~ file: UserForm.svelte:11 ~ clicked:', clicked)
+
 
     let email = $state("");
     let avatarSrc = $state("https://res.cloudinary.com/dbgzsikcs/image/upload/v1693855933/smartnewgen/logo/LOGO-07_at2vwp.jpg");
@@ -39,6 +50,9 @@
         }
     }
 </script>
+
+<PanelMain>
+
 
 <form class="space-y-4">
     <div class="relative w-32 mx-auto"> 
@@ -130,3 +144,30 @@
         <span>5h june, 2025 - 00:55</span>
     </p>
 </div>
+</PanelMain>
+
+<PanelFooter>
+    <Modal id={'add-attribute'} type="attribute" title="Add Attribute" />
+
+    <div class="flex items-center space-x-3">
+        <button
+            class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300 active:scale-[0.98] active:bg-gray-700"
+            onclick={() => {
+                clicked++;
+                console.log('🚀 ~ file: AttributeForm.svelte:112 ~ isPanelOpen:', clicked)
+            }}
+        >
+            Close
+        </button>
+
+        <button
+            class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300"
+            onclick={() => {
+                clicked++;
+                console.log('🚀 ~ file: AttributeForm.svelte:112 ~ isPanelOpen:', clicked)
+            }}
+        >
+            Save
+        </button>
+    </div>
+</PanelFooter>
