@@ -1,5 +1,13 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    // import { onMount } from 'svelte';
+
+    // export let id                  : string;
+    // export let title               : string;
+    // export let buttonText          : string;
+    // export let buttonClass         : string;
+    // export let isEdit              : boolean;
+    // export let isPanelOpen         : boolean = false;
+    // export let isClick = 0
 
     let {
         id,
@@ -9,7 +17,9 @@
         buttonText          = "Open Panel",
         buttonClass         = "px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center",
         isEdit              = false,
-        isPanelOpen         = false
+        isPanelOpen         = false,
+        clicked = $bindable<number>()
+
     } = $props<{
         id                  : string;
         title               : string;
@@ -19,6 +29,7 @@
         buttonClass?        : string;
         isEdit?             : boolean;
         isPanelOpen?        : boolean;
+        clicked?            : number;
     }>();
 
     // let isPanelOpen = $state( false );
@@ -28,13 +39,25 @@
     let panelSection: HTMLElement;
 
     $effect(() => {
-        if( isPanelOpen ) {
-            openPanel()
-        }
-        else {
+        // if( isPanelOpen ) {
+        //     openPanel()
+        // }
+        // else {
+        //     closePanel()
+        // }
+        console.log('🚀 ~ file: Panel.svelte:46 ~ isPanelOpen:', isPanelOpen)
+        if( clicked > 0) {
             closePanel()
         }
     });
+
+    // $: if ( isClick  === 0 && !isPanelOpen ) {
+        // openPanel();
+        // } else {
+            // closePanel()
+        // console.log('🚀 ~ file: Panel.svelte:47 ~ isPanelOpen:', isPanelOpen)
+
+    // }
 
     function openPanel() {
         isPanelOpen = true;
@@ -57,6 +80,7 @@
     }
 
     function closePanel() {
+        clicked = 0
         if (panelContainer && panelSection) {
             panelContainer.classList.remove('opacity-100');
             panelSection.classList.remove('translate-x-0');
@@ -70,23 +94,23 @@
         }
     }
 
-    function handleSave() {
-        const saveEvent = new CustomEvent('panel:save', { detail: { panelId: id } });
-        document.dispatchEvent(saveEvent);
-        closePanel();
-    }
+    // function handleSave() {
+    //     const saveEvent = new CustomEvent('panel:save', { detail: { panelId: id } });
+    //     document.dispatchEvent(saveEvent);
+    //     closePanel();
+    // }
 
-    onMount(() => {
-        if (id) {
-            (window as any)[`openPanel_${id}`] = openPanel;
-            (window as any)[`closePanel_${id}`] = closePanel;
+    // onMount(() => {
+    //     if (id) {
+    //         (window as any)[`openPanel_${id}`] = openPanel;
+    //         (window as any)[`closePanel_${id}`] = closePanel;
 
-            return () => {
-                delete (window as any)[`openPanel_${id}`];
-                delete (window as any)[`closePanel_${id}`];
-            };
-        }
-    });
+    //         return () => {
+    //             delete (window as any)[`openPanel_${id}`];
+    //             delete (window as any)[`closePanel_${id}`];
+    //         };
+    //     }
+    // });
 </script>
 
 <button 
@@ -127,17 +151,16 @@
                 </button>
             </header>
 
-            <main class="p-6 flex-grow overflow-y-auto">
+            <!-- <main class="p-6 flex-grow overflow-y-auto"> -->
                 <!-- svelte-ignore slot_element_deprecated -->
                 <slot />
-            </main>
+            <!-- </main> -->
 
-            <footer class="flex justify-end space-x-3 p-4 border-t border-neon-blue/30 bg-dark-blue/90 sticky bottom-0">
+            <!-- <footer class="flex justify-end space-x-3 p-4 border-t border-neon-blue/30 bg-dark-blue/90 sticky bottom-0">
                 <button
                     class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300"
                     onclick={closePanel}
                 >
-                    <!-- {cancelButtonText} -->
                     Cancel
                 </button>
 
@@ -145,11 +168,9 @@
                     class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300"
                     onclick={handleSave}
                 >
-                    <!-- {saveButtonText} -->
                     Save
                 </button>
-                <!-- <slot name="footer" /> -->
-            </footer>
+            </footer> -->
         </aside>
     </div>
 {/if}
