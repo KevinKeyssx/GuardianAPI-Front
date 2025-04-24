@@ -1,3 +1,6 @@
+---
+import logo from '@/assets/logo.webp';
+---
 <div class="container noselect">
     <div class="canvas">
         <div class="tracker tr-1"></div>
@@ -17,7 +20,7 @@
                     <span></span><span></span><span></span><span></span>
                 </div>
 
-                <img src="/src/assets/logo.webp" alt="logo" class="w-52 h-60 mx-auto">
+                <img src={logo.src} alt="logo" class="w-52 h-60 mx-auto">
 
                 <div class="glowing-elements">
                     <div class="glow-1"></div>
@@ -66,7 +69,6 @@
     border-radius: 20px;
     transition: 700ms;
     overflow: hidden;
-   
     }
 
     .card-content {
