@@ -4,23 +4,26 @@
     import Select       from "@/components/inputs/Select.svelte";
     import Switch       from "@/components/inputs/Switch.svelte";
     import Modal        from "@/components/shared/Modal.svelte";
+    import PanelFooter from "@/components/shared/PanelFooter.svelte";
+    import PanelMain from "@/components/shared/PanelMain.svelte";
 
 
-    interface Props {
-        key: string;
-        type: string;
-        required?: boolean;
-        isPanelOpen?: boolean;
-    }
-
-    // Destructura las props usando $props()
-    let { key, type, required = false, isPanelOpen } = $props() as Props;
+    // type Exps = {
+        // key?: string;
+        // required?: boolean;
+        // isPanelOpen?: boolean;
+    // }
 
 
-    let keyState = $state("");
+    // let { key = '', required, isPanelOpen = $bindable<boolean>(false) } = $props() as Exps;
+
+    export let key : string;
+    export let clicked : number;
 </script>
 
-<div class="space-y-4">
+<PanelMain>
+
+<form class="space-y-4">
     <Input
         label       = "Key Name"
         placeholder = "Enter key name"
@@ -97,26 +100,31 @@
     />
 
     <Switch label="Required" />
-</div>
+</form>
+</PanelMain>
 
-<footer class="flex p-3 border-t border-neon-blue/30 bg-dark-blue/90 sticky bottom-0">
-    <div class="flex items-center justify-between">
-        <Modal id={'add-attribute'} type="attribute" title="Add Attribute" />
+<PanelFooter>
+    <Modal id={'add-attribute'} type="attribute" title="Add Attribute" />
 
-        <div class="flex items-center space-x-3">
-            <button
-                class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300"
-                onclick={() => {
-                    isPanelOpen = false
-                    console.log('🚀 ~ file: AttributeForm.svelte:112 ~ isPanelOpen:', isPanelOpen)
-                }}
-            >
-                Close
-            </button>
+    <div class="flex items-center space-x-3">
+        <button
+            class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300 active:scale-[0.98] active:bg-gray-700"
+            onclick={() => {
+                clicked++;
+                console.log('🚀 ~ file: AttributeForm.svelte:112 ~ isPanelOpen:', clicked)
+            }}
+        >
+            Close
+        </button>
 
-            <button class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300">
-                Save
-            </button>
-        </div>
+        <button
+            class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300"
+            onclick={() => {
+                clicked++;
+                console.log('🚀 ~ file: AttributeForm.svelte:112 ~ isPanelOpen:', clicked)
+            }}
+        >
+            Save
+        </button>
     </div>
-</footer>
+</PanelFooter>
