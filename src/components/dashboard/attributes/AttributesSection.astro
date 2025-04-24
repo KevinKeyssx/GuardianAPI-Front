@@ -5,7 +5,7 @@ import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
 import Panel            from "@/components/shared/Panel.svelte";
 import AttributeForm    from "./AttributeForm.svelte";
-
+import OpenForm         from "./OpenForm.svelte";
 
 const mockAttributes = [
     { id: 1, key: 'phone_number', value: '1234567890', type: 'string', required: false, min: '-', max: 100, minLenght: 0, maxLenght: 20, minDate: '-', maxDate: '-', patten: '-', active: true },
@@ -29,9 +29,6 @@ const columns = [
     'Active',
     'Actions'
 ];
-
-
-let openAddPanel = false;
 ---
 
 <div class="animate-fade-in">
@@ -51,21 +48,10 @@ let openAddPanel = false;
             </div>
         </div>
 
-        <Panel client:only="svelte"
-            id                  = "add-attribute"
-            title               = "Add Attribute"
-            saveButtonText      = "Add"
-            buttonText          = "Add Attribute"
-            isPanelOpen         = {openAddPanel}
-        >
-            <AttributeForm client:only="svelte"
-                id="add-attribute"
-                bind:isPanelOpen={openAddPanel}
-            />
-        </Panel>
+        <OpenForm client:only="svelte" />
     </div>
 
-    <Table columns={columns}>
+    <Table {columns}>
         {mockAttributes.map((attr, index) => (
             <TableRow>
                 <TableData>{attr.key}</TableData>
@@ -86,13 +72,13 @@ let openAddPanel = false;
                 <TableData>{attr.active ? 'Yes' : 'No'}</TableData>
                 <TableData size="text-sm font-medium" float={true}>
                     <Panel
-                        id                  = {`edit-attribute-${index}`}
-                        title               = "Edit Attribute"
-                        saveButtonText      = "Save"
-                        buttonText          = ""
-                        buttonClass         = ""
-                        isEdit              = { true }
-                        client:only         = "svelte"
+                        id              = { `edit-attribute-${ index }` }
+                        title           = "Edit Attribute"
+                        saveButtonText  = "Save"
+                        buttonText      = ""
+                        buttonClass     = ""
+                        isEdit          = { true }
+                        client:only     = "svelte"
                     >
                         <AttributeForm id={`edit-attribute-${index}`} attribute={attr} client:only="svelte"/>
                     </Panel>
