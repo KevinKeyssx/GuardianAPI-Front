@@ -5,7 +5,7 @@ import TableData        from "@/components/shared/table/TableData.astro";
 import TableRow         from "@/components/shared/table/TableRow.astro";
 import Panel            from "@/components/shared/Panel.svelte";
 import AttributeForm    from "./AttributeForm.svelte";
-import OpenForm         from "./OpenForm.svelte";
+import Attribute        from "./Attribute.svelte";
 
 const mockAttributes = [
     { id: 1, key: 'phone_number', value: '1234567890', type: 'string', required: false, min: '-', max: 100, minLenght: 0, maxLenght: 20, minDate: '-', maxDate: '-', patten: '-', active: true },
@@ -48,7 +48,7 @@ const columns = [
             </div>
         </div>
 
-        <OpenForm client:only="svelte" />
+        <Attribute client:only="svelte" columns={columns} />
     </div>
 
     <Table {columns}>
