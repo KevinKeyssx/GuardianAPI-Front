@@ -29,7 +29,6 @@ const columns = [
 ];
 
 let clicked = 0;
-
 ---
 
 <div class="animate-fade-in">
@@ -57,40 +56,33 @@ let clicked = 0;
     <Table {columns}>
         {mockUsers.map(user => (
             <TableRow>
-                <TableData>
-                    <img src={user.avatar} alt={user.name} class="w-8 h-8 rounded-full"/>
-                </TableData>
-                <TableData>{user.email}</TableData>
-                <TableData>{user.name}</TableData>
-                <TableData>{user.nickname}</TableData>
-                <TableData>{new Date(user.birthday).toLocaleDateString()}</TableData>
-                <TableData>{user.phone}</TableData>
-                <TableData>{user.isActive ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0" stroke-dasharray="64" stroke-dashoffset="64" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"><animate fill="freeze" attributeName="fill-opacity" begin="0.6s" dur="0.15s" values="0;0.3"/><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="64;0"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.75s" dur="0.2s" values="14;0"/></path></g></svg>
-                )
-                 : (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0.3" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"/><path stroke-dasharray="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="0;14"/></path></g></svg>)
-                 }</TableData>
-                <TableData>{user.isVerified ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0" stroke-dasharray="64" stroke-dashoffset="64" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"><animate fill="freeze" attributeName="fill-opacity" begin="0.6s" dur="0.15s" values="0;0.3"/><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="64;0"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.75s" dur="0.2s" values="14;0"/></path></g></svg>
-                )
-                 : (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path fill="currentColor" fill-opacity="0.3" d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"/><path stroke-dasharray="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="0;14"/></path></g></svg>)
-                 }</TableData>
+                <TableData value={user.avatar} />
+                <TableData value={user.email} />
+                <TableData value={user.name} />
+                <TableData value={user.nickname} />
+                <TableData value={user.birthday} />
+                <TableData value={user.phone} />
+                <TableData value={user.isActive} />
+                <TableData value={user.isVerified} />
                 <TableData>
                     <span class={`px-2 py-1 text-xs rounded-full ${user.role === 'Admin' ? 'bg-red-900/30 text-red-300' : user.role === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
                         {user.role}
                     </span>
                 </TableData>
-                <TableData>{new Date(user.lastLogin).toLocaleString()}</TableData>
-                <TableData size="text-sm font-medium" float={true}>
+                <TableData value={user.lastLogin} />
+                <TableData size="text-sm font-medium" float={ true }>
                     <Panel client:only="svelte"
-                        id                  = {`edit-user-${user.id}`}
-                        title               = "Edit User"
-                        saveButtonText      = "Edit"
-                        buttonText          = ""
-                        buttonClass         = ""
-                        isEdit              = {true}
+                        id              = { `edit-user-${user.id}` }
+                        title           = "Edit User"
+                        saveButtonText  = "Edit"
+                        buttonText      = ""
+                        buttonClass     = ""
+                        isEdit          = { true }
                     >
-                        <UserForm id={`edit-user-${user.id}`} client:only="svelte"/>
+                        <UserForm
+                            id={`edit-user-${user.id}`}
+                            client:only="svelte"
+                        />
                     </Panel>
                 </TableData>
             </TableRow>
