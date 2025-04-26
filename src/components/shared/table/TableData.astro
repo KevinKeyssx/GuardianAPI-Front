@@ -1,23 +1,43 @@
 ---
+import CheckIcon    from '@/icons/CheckIcon.astro';
+import NoCheckIcon  from '@/icons/NoCheckIcon.astro';
+
+
+export type Value = string | number | boolean;
+
 export interface Props {
-    color?: string;
-    py?: string;
-    px?: string;
-    size?: string;
-    className?: string;
-    float?: boolean;
+    color?      : string;
+    py?         : string;
+    px?         : string;
+    size?       : string;
+    className?  : string;
+    float?      : boolean;
+    value?      : Value;
 }
 
+
 const {
-    color = 'text-white',
-    py = 'py-4',
-    px = 'px-6',
-    size = 'text-sm',
+    color       = 'text-white',
+    py          = 'py-4',
+    px          = 'px-6',
+    size        = 'text-sm',
+    float       = false,
     className,
-    float = false
+    value,
 } = Astro.props;
 ---
 
 <td class={`whitespace-nowrap ${size} ${color} ${py} ${float ? 'px-4': px } ${className} ${float ? 'text-center sticky right-0 z-10 bg-dark-blue/90 backdrop-blur-sm shadow-[-4px_0_5px_rgba(0,0,0,0.3)]' : ''}`}>
-    <slot />
+    { value === undefined
+        ? <slot />
+        : typeof value === 'boolean'
+            ? ( value as boolean ) === false
+                ? <NoCheckIcon />
+                : <CheckIcon />
+            : typeof value === 'number'
+                ? <span class="text-neon-blue">{value}</span>
+                : ( /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i ).test( value )
+                    ? <img src={value} alt={value} class="w-8 h-8 rounded-full mx-auto"/>
+                    : <span>{ value }</span>
+    }
 </td>
