@@ -23,32 +23,85 @@ const positionClass = position === 'left' ? 'left-0' : 'right-0';
     <div class="dropdown-trigger cursor-pointer">
         <slot name="trigger" />
     </div>
+</div>
 
-    <!-- Dropdown menu -->
+<!-- Portal container for dropdowns -->
+<div id="dropdown-portal" class="fixed top-0 left-0 w-full h-0 overflow-visible pointer-events-none"></div>
+
+<!-- Dropdown menu template that will be cloned and appended to the portal -->
+<template id={`dropdown-template-${id}`}>
     <div 
         id={`dropdown-menu-${id}`}
-        class={`absolute ${positionClass} mt-2 ${width} origin-top-right bg-dark-blue/90 backdrop-blur-sm border border-neon-blue/30 rounded-md shadow-lg z-50 transform scale-95 opacity-0 invisible transition-all duration-200 ease-in-out ${menuClass}`}
+        class={`fixed ${positionClass} mt-2 ${width} origin-top-right bg-dark-blue/95 backdrop-blur-md border border-neon-blue/50 rounded-md shadow-xl z-[99999] transform scale-95 opacity-0 invisible transition-all duration-200 ease-in-out pointer-events-auto ${menuClass}`}
     >
         <div class="p-1 rounded-md overflow-hidden">
             <slot />
         </div>
     </div>
-</div>
+</template>
 
-<script define:vars={{ id, closeOnClick }}>
+<script define:vars={{ id, closeOnClick, position }}>
     (function() {
         let isOpen = false;
+        let dropdownMenu = null;
+
+        // Inicializar el dropdown al cargar la página
+        function initDropdown() {
+            // Crear el portal si no existe
+            let portal = document.getElementById('dropdown-portal');
+            if (!portal) {
+                portal = document.createElement('div');
+                portal.id = 'dropdown-portal';
+                portal.className = 'fixed top-0 left-0 w-full h-0 overflow-visible pointer-events-none';
+                document.body.appendChild(portal);
+            }
+            
+            // Eliminar cualquier instancia anterior del dropdown
+            const existingDropdown = document.getElementById(`dropdown-menu-${id}`);
+            if (existingDropdown) {
+                existingDropdown.remove();
+            }
+            
+            // Clonar el template y añadirlo al portal
+            const template = document.getElementById(`dropdown-template-${id}`);
+            if (template) {
+                const clone = template.content.cloneNode(true);
+                portal.appendChild(clone);
+                
+                // Guardar referencia al dropdown
+                dropdownMenu = document.getElementById(`dropdown-menu-${id}`);
+            }
+        }
 
         function toggleDropdown(e) {
             e.stopPropagation();
 
-            const dropdownMenu = document.getElementById(`dropdown-menu-${id}`);
+            const container = document.getElementById(`dropdown-container-${id}`);
+            const triggerButton = container?.querySelector('.dropdown-trigger');
 
-            if (!dropdownMenu) return;
+            if (!dropdownMenu || !container || !triggerButton) {
+                initDropdown();
+                if (!dropdownMenu) return;
+            }
 
-            if ( !isOpen ) {
+            if (!isOpen) {
+                // Posicionar el dropdown relativo al botón trigger
+                const triggerRect = triggerButton.getBoundingClientRect();
+                
+                // Calcular posición
+                const top = triggerRect.bottom + 8; // 8px de espacio
+                const left = position === 'left' 
+                    ? triggerRect.left 
+                    : triggerRect.right - 224; // Ancho aproximado para 'w-56'
+                
+                // Aplicar posición
+                dropdownMenu.style.top = `${top}px`;
+                dropdownMenu.style.left = `${left}px`;
+                
+                // Aplicar animación de apertura
                 dropdownMenu.classList.remove('scale-95', 'opacity-0', 'invisible');
                 dropdownMenu.classList.add('scale-100', 'opacity-100', 'visible');
+                
                 isOpen = true;
             } else {
                 closeDropdown();
@@ -56,35 +109,41 @@ const positionClass = position === 'left' ? 'left-0' : 'right-0';
         }
 
         function closeDropdown() {
-            const dropdownMenu = document.getElementById(`dropdown-menu-${id}`);
-
             if (!dropdownMenu || !isOpen) return;
 
-            dropdownMenu.classList.remove('opacity-100', 'visible');
-            dropdownMenu.classList.add('opacity-0','invisible');
+            // Aplicar animación de cierre
+            dropdownMenu.classList.remove('scale-100', 'opacity-100', 'visible');
+            dropdownMenu.classList.add('scale-95', 'opacity-0', 'invisible');
+            
             isOpen = false;
         }
 
         function handleClickOutside(e) {
             const container = document.getElementById(`dropdown-container-${id}`);
 
-            if (container && !container.contains(e.target) && isOpen) {
+            if (isOpen && dropdownMenu && container && 
+                !container.contains(e.target) && 
+                !dropdownMenu.contains(e.target)) {
                 closeDropdown();
             }
         }
 
         function handleMenuItemClick(e) {
             if (closeOnClick && e.target.closest(`#dropdown-menu-${id}`)) {
-                if (!e.target.closest('.dropdown-trigger')) {
+                // No cerrar si el elemento tiene la clase dropdown-keep-open
+                if (!e.target.closest('.dropdown-keep-open')) {
                     closeDropdown();
                 }
             }
         }
 
         function initDropdownListeners() {
+            // Inicializar el dropdown
+            initDropdown();
+            
             const trigger = document.querySelector(`#dropdown-container-${id} .dropdown-trigger`);
 
-            if ( trigger ) {
+            if (trigger) {
                 trigger.removeEventListener('click', toggleDropdown);
                 trigger.addEventListener('click', toggleDropdown);
             }
@@ -92,22 +151,61 @@ const positionClass = position === 'left' ? 'left-0' : 'right-0';
             document.removeEventListener('click', handleClickOutside);
             document.addEventListener('click', handleClickOutside);
 
-            if ( closeOnClick ) {
-                const menu = document.getElementById(`dropdown-menu-${id}`);
-                if ( menu ) {
-                    menu.removeEventListener('click', handleMenuItemClick);
-                    menu.addEventListener('click', handleMenuItemClick);
-                }
+            if (closeOnClick && dropdownMenu) {
+                dropdownMenu.removeEventListener('click', handleMenuItemClick);
+                dropdownMenu.addEventListener('click', handleMenuItemClick);
             }
         }
-
+        
+        // Limpiar cualquier listener existente para evitar duplicados
+        function cleanupListeners() {
+            const trigger = document.querySelector(`#dropdown-container-${id} .dropdown-trigger`);
+            if (trigger) {
+                trigger.removeEventListener('click', toggleDropdown);
+            }
+            document.removeEventListener('click', handleClickOutside);
+            
+            if (dropdownMenu) {
+                dropdownMenu.removeEventListener('click', handleMenuItemClick);
+            }
+        }
+        
+        // Limpiar antes de inicializar
+        cleanupListeners();
+        
+        // Inicializar listeners cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', initDropdownListeners);
+        
+        // Reinicializar listeners cuando se navega entre páginas con Astro
         document.addEventListener('astro:page-load', initDropdownListeners);
+        
+        // Inicializar inmediatamente si el DOM ya está cargado
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initDropdownListeners();
+        }
 
+        // Funciones globales para manipular el dropdown programáticamente
         window[`openDropdown_${id}`] = function() {
-            const dropdownMenu = document.getElementById(`dropdown-menu-${id}`);
-
-            if ( dropdownMenu && !isOpen ) {
+            // Asegurarse de que el dropdown esté inicializado
+            if (!dropdownMenu) {
+                initDropdown();
+            }
+            
+            if (dropdownMenu && !isOpen) {
+                // Posicionar el dropdown en el centro de la pantalla si se abre programáticamente
+                const container = document.getElementById(`dropdown-container-${id}`);
+                if (container) {
+                    const triggerRect = container.getBoundingClientRect();
+                    dropdownMenu.style.top = `${triggerRect.bottom + 8}px`;
+                    dropdownMenu.style.left = `${triggerRect.left}px`;
+                } else {
+                    // Si no hay contenedor, centrar en la pantalla
+                    dropdownMenu.style.top = '50%';
+                    dropdownMenu.style.left = '50%';
+                    dropdownMenu.style.transform = 'translate(-50%, -50%)';
+                }
+                
+                // Mostrar el dropdown
                 dropdownMenu.classList.remove('scale-95', 'opacity-0', 'invisible');
                 dropdownMenu.classList.add('scale-100', 'opacity-100', 'visible');
                 isOpen = true;
@@ -116,5 +214,8 @@ const positionClass = position === 'left' ? 'left-0' : 'right-0';
 
         window[`closeDropdown_${id}`] = closeDropdown;
         window[`toggleDropdown_${id}`] = toggleDropdown;
+        
+        // Inicializar el dropdown inmediatamente
+        initDropdown();
     })();
 </script>
