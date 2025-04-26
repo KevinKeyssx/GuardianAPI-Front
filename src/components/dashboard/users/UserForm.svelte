@@ -6,18 +6,26 @@
     import PanelFooter from "@/components/shared/PanelFooter.svelte";
     import PanelMain from "@/components/shared/PanelMain.svelte";
 
+
+    // Opción 1: Usar la sintaxis inline sin tipos separados
     let {
-        clicked = $bindable<number>()
+        clicked = $bindable()
     } = $props<{
-        clicked?            : number;
+        clicked?: number;
     }>();
+    
+    // Opción 2: Usar defineProps (comentada)
+    // const { clicked = $bindable() } = defineProps<{ clicked?: number }>();
+    // export let clicked: number = 0;
     console.log('🚀 ~ file: UserForm.svelte:11 ~ clicked:', clicked)
 
 
-    let email = $state("");
-    let avatarSrc = $state("https://res.cloudinary.com/dbgzsikcs/image/upload/v1693855933/smartnewgen/logo/LOGO-07_at2vwp.jpg");
+    // let email = $state("");
+    let email: string = '';
+    // let avatarSrc = $state("https://res.cloudinary.com/dbgzsikcs/image/upload/v1693855933/smartnewgen/logo/LOGO-07_at2vwp.jpg");
+    let avatarSrc = "https://res.cloudinary.com/dbgzsikcs/image/upload/v1693855933/smartnewgen/logo/LOGO-07_at2vwp.jpg";
     let fileInput: HTMLInputElement;
-    let isLoading = $state(false);
+    // let isLoading = $state(false);
     
     function handleImageSelect() {
         if (fileInput) {
@@ -31,18 +39,18 @@
             const file = target.files[0];
             const reader = new FileReader();
             
-            isLoading = true;
+            // isLoading = true;
             
             reader.onload = (e) => {
                 if (e.target?.result) {
                     avatarSrc = e.target.result as string;
                     // Aquí podrías implementar la lógica para subir la imagen a un servidor
                 }
-                isLoading = false;
+                // isLoading = false;
             };
             
             reader.onerror = () => {
-                isLoading = false;
+                // isLoading = false;
                 // Aquí podrías manejar errores de lectura del archivo
             };
             
@@ -62,11 +70,11 @@
                 alt="User Avatar"
                 class="w-full h-full object-cover"
             />
-            {#if isLoading}
+            <!-- {#if isLoading}
             <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <div class="w-6 h-6 border-2 border-t-transparent border-neon-blue rounded-full animate-spin"></div>
             </div>
-            {/if}
+            {/if} -->
         </div>
         <button 
             class="absolute bottom-1 right-1 bg-neon-blue text-white p-1 rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
