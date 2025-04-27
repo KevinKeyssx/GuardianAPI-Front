@@ -27,7 +27,7 @@ const {
 } = Astro.props;
 ---
 
-<td class={`whitespace-nowrap ${size} ${color} ${py} ${float ? 'px-4': px } ${className} ${float ? 'text-center sticky right-0 z-10 bg-dark-blue/90 backdrop-blur-sm shadow-[-4px_0_5px_rgba(0,0,0,0.3)]' : ''}`}>
+<td class={`whitespace-nowrap ${size} ${color} ${py} ${float ? 'px-4': px } ${className} ${float ? 'text-center w-20 sticky right-0 z-10 bg-dark-blue/90 backdrop-blur-sm shadow-[-4px_0_5px_rgba(0,0,0,0.3)]' : ''}`}>
     { value === undefined
         ? <slot />
         : typeof value === 'boolean'
