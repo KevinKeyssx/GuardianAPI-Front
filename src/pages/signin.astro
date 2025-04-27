@@ -1,15 +1,32 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import SigninForm from '@/components/signin/SigninForm.svelte';
+// import SigninForm from '@/components/signin/SigninForm.svelte';
 import { getSession } from 'auth-astro/server';
 import NeonButton from '@/components/buttons/NeonButton.astro';
 import GitHubIcon from '@/icons/GitHubIcon.astro';
 import GoogleIcon from '@/icons/GoogleIcon.astro';
+import { SignInService } from '@/services/signin'
 
 const session = await getSession( Astro.request );
+const provider = Astro.cookies.get( 'auth_provider' )?.value || 'unknown';
 
 if ( session ) {
-    return Astro.redirect( '/dashboard' );
+    if ( provider === 'unknown' ) return Astro.redirect( '/error' );
+
+    try {
+        const response = await SignInService.signIn( session, provider );
+
+        Astro.cookies.set('token', response.token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 24, // TODO: Poner la expiracin correcta
+        });
+
+        return Astro.redirect( '/dashboard' );
+    } catch ( error ) {
+        return Astro.redirect( '/error' );
+    }
 }
 ---
 
@@ -63,6 +80,21 @@ if ( session ) {
     const $loginGithub  = $( '#login-github' );
     const $loginGoogle  = $( '#login-google' );
 
-    if ( $loginGithub ) $loginGithub.onclick  = () => signIn( 'github' );
-    if ( $loginGoogle ) $loginGoogle.onclick  = () => signIn( 'google' );
+    function setProviderCookie( provider: string ) {
+        document.cookie = `auth_provider=${provider}; path=/; max-age=300; secure; sameSite=strict`;
+    }
+
+    if ( $loginGithub ) {
+        $loginGithub.onclick = () => {
+            setProviderCookie( 'github' );
+            signIn( 'github' );
+        };
+    }
+
+    if ( $loginGoogle ) {
+        $loginGoogle.onclick = () => {
+            setProviderCookie( 'google' );
+            signIn( 'google' );
+        };
+    }
 </script>
