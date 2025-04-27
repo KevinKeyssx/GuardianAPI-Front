@@ -1,9 +1,9 @@
 <script lang="ts">
     import { Label, Switch } from "bits-ui";
 
-    export let label = "Do not disturb";
-    export let id = "dnd";
-    export let name = "hello";
+    export let label    = "Do not disturb";
+    export let id       = "dnd";
+    export let name     = "hello";
 </script>
 
 <div class="flex items-center justify-between py-2">
