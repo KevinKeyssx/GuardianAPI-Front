@@ -5,18 +5,20 @@ const envVariables = z.object({
     GITHUB_CLIENT_SECRET    : z.string(),
     AUTH_SECRET             : z.string(),
     AUTH_TRUST_HOST         : z.string(),
+    GUARDIANAPI_URL         : z.string(),
+    GUARDIAN_AUTH_SOCIAL    : z.string()
 });
 
+const _env = envVariables.safeParse( process.env );
 
-const _env = envVariables.safeParse(process.env);
 
-
-if (_env.success === false) {
+if ( _env.success === false ) {
     console.error(
         "❌ Invalid environment variables:",
         _env.error.format()
     );
-    throw new Error("Invalid environment variables");
+
+    throw new Error( "Invalid environment variables" );
 }
 
 export const ENV = _env.data;
