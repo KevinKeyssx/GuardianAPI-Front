@@ -1,0 +1,45 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Error 500 - Error del servidor | GuardianApi">
+    <div class="flex flex-col pt-20 pb-8 min-h-screen">
+        <div class="flex-grow flex items-center justify-center px-4">
+            <div class="text-center max-w-3xl animate-fade-in">
+                <h1 class="text-6xl md:text-7xl font-orbitron font-bold mb-6 text-neon-blue">
+                    <span class="text-white">500</span> Error
+                </h1>
+                
+                <div class="relative mb-10 w-full max-w-md mx-auto">
+                    <div class="h-1 w-full bg-gradient-to-r from-transparent via-neon-blue to-transparent"></div>
+                </div>
+                
+                <p class="text-xl md:text-2xl mb-8 text-gray-300">
+                    Ha ocurrido un error en el servidor. Estamos trabajando para solucionarlo.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/" class="neon_button px-6 py-2 font-medium text-base">
+                        Volver al inicio
+                    </a>
+                    <button onclick="window.location.reload()" class="neon_button px-6 py-2 font-medium text-base">
+                        Intentar nuevamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+    }
+</style>
