@@ -16,11 +16,19 @@ if ( session ) {
     try {
         const response = await SignInService.signIn( session, provider );
 
-        Astro.cookies.set('token', response.token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24, // TODO: Poner la expiracin correcta
+        Astro.cookies.set( 'token', response.token, {
+            httpOnly    : true,
+            secure      : true,
+            sameSite    : 'strict',
+            maxAge      : 60 * 60 * 24, // TODO: Poner la expiracin correcta
+        });
+
+        Astro.cookies.set( 'csrfToken', response.csrfToken, {
+            httpOnly: false, // Permitir que el frontend lo lea
+            secure: true, // Requerido para cross-origin
+            sameSite: 'none', // Necesario para cross-origin
+            maxAge: 60 * 60 * 24, // Igual que el JWT
+            path: '/', // Asegura que esté disponible en todas las rutas
         });
 
         return Astro.redirect( '/dashboard' );
