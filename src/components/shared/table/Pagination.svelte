@@ -1,12 +1,16 @@
----
-export interface Props {
-    totalItems: number;
-    itemsPerPage?: number;
-    currentPage?: number;
-}
+<script lang="ts">
+    export type Props = {
+        totalItems      : number;
+        itemsPerPage?   : number;
+        currentPage?    : number;
+    }
 
-const { totalItems, itemsPerPage, currentPage } = Astro.props;
----
+    let {
+        totalItems,
+        itemsPerPage,
+        currentPage
+    }: Props = $props();
+</script>
 
 <div class="grid justify-end sm:flex sm:justify-between gap-4 items-center mt-4 ">
     <div class="attributes-pagination-info text-sm text-gray-400">
