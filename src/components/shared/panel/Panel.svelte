@@ -1,36 +1,35 @@
 <script lang="ts">
     // import { onMount } from 'svelte';
 
-    // export let id                  : string;
-    // export let title               : string;
-    // export let buttonText          : string;
-    // export let buttonClass         : string;
-    // export let isEdit              : boolean;
-    // export let isPanelOpen         : boolean = false;
-    // export let isClick = 0
+    export let title               : string;
+    export let buttonText          : string;
+    export let buttonClass         : string;
+    export let isEdit              : boolean;
+    export let isPanelOpen         : boolean = false;
+    export let isClick = 0
+    export let clicked            : number = 0;
 
-    let {
-        id,
-        title,
-        // saveButtonText      = "Save",
-        // cancelButtonText    = "Cancel",
-        buttonText          = "Open Panel",
-        buttonClass         = "px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center",
-        isEdit              = false,
-        isPanelOpen         = false,
-        clicked = $bindable<number>()
+    // let {
+    //     title,
+    //     // saveButtonText      = "Save",
+    //     // cancelButtonText    = "Cancel",
+    //     buttonText          = "Open Panel",
+    //     buttonClass         = "px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center",
+    //     isEdit              = false,
+    //     isPanelOpen         = false,
+    //     clicked = $bindable<number>()
 
-    } = $props<{
-        id                  : string;
-        title               : string;
-        // saveButtonText?     : string;
-        // cancelButtonText?   : string;
-        buttonText?         : string;
-        buttonClass?        : string;
-        isEdit?             : boolean;
-        isPanelOpen?        : boolean;
-        clicked?            : number;
-    }>();
+    // } = $props<{
+    //     id                  : string;
+    //     title               : string;
+    //     // saveButtonText?     : string;
+    //     // cancelButtonText?   : string;
+    //     buttonText?         : string;
+    //     buttonClass?        : string;
+    //     isEdit?             : boolean;
+    //     isPanelOpen?        : boolean;
+    //     clicked?            : number;
+    // }>();
 
     // let isPanelOpen = $state( false );
     // svelte-ignore non_reactive_update
@@ -38,24 +37,25 @@
     // svelte-ignore non_reactive_update
     let panelSection: HTMLElement;
 
-    $effect(() => {
-        // if( isPanelOpen ) {
-        //     openPanel()
-        // }
-        // else {
-        //     closePanel()
-        // }
-        console.log('🚀 ~ file: Panel.svelte:46 ~ isPanelOpen:', isPanelOpen)
-        if( clicked > 0) {
-            closePanel()
-        }
-    });
+    // $effect(() => {
+    //     // if( isPanelOpen ) {
+    //     //     openPanel()
+    //     // }
+    //     // else {
+    //     //     closePanel()
+    //     // }
+    //     console.log('🚀 ~ file: Panel.svelte:46 ~ isPanelOpen:', isPanelOpen)
+    //     if( clicked > 0) {
+    //         closePanel()
+    //     }
+    // });
 
-    // $: if ( isClick  === 0 && !isPanelOpen ) {
-        // openPanel();
+    $: if ( isClick  > 0 ) {
+        openPanel();
+        // console.log('🚀 ~ file: Panel.svelte:47 ~ isPanelOpen:', isPanelOpen)
+    }
         // } else {
             // closePanel()
-        // console.log('🚀 ~ file: Panel.svelte:47 ~ isPanelOpen:', isPanelOpen)
 
     // }
 
