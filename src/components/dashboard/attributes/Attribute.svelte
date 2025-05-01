@@ -1,15 +1,13 @@
 <script lang="ts">
-    import Panel from "@/components/shared/Panel.svelte";
+    import Panel from "@/components/shared/panel/Panel.svelte";
     import AttributeForm from "./AttributeForm.svelte";
 
     let clicked = 0;
 
     export let columns: string[];
-    console.log('🚀 ~ file: Attribute.svelte:8 ~ columns:', columns)
 </script>
 
 <Panel
-    id          = "add-attribute"
     title       = "Add Attribute"
     buttonText  = "Add Attribute"
     isEdit      = { false }
