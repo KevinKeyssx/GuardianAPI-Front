@@ -2,9 +2,9 @@
     import DatePicker   from "@/components/inputs/DatePicker.svelte";
     import Input        from "@/components/inputs/Input.svelte";
     import Switch       from "@/components/inputs/Switch.svelte";
-    import Modal from "@/components/shared/Modal.svelte";
-    import PanelFooter from "@/components/shared/PanelFooter.svelte";
-    import PanelMain from "@/components/shared/PanelMain.svelte";
+    import Modal        from "@/components/shared/Modal.svelte";
+    import PanelFooter  from "@/components/shared/panel/PanelFooter.svelte";
+    import PanelMain    from "@/components/shared/panel/PanelMain.svelte";
 
 
     // Opción 1: Usar la sintaxis inline sin tipos separados
