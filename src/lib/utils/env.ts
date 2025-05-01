@@ -6,7 +6,8 @@ const envVariables = z.object({
     AUTH_SECRET             : z.string(),
     AUTH_TRUST_HOST         : z.string(),
     GUARDIANAPI_URL         : z.string(),
-    GUARDIAN_AUTH_SOCIAL    : z.string()
+    GUARDIAN_AUTH_SOCIAL    : z.string(),
+    GUARDIANAPI_GRAPHQL_URL : z.string()
 });
 
 const _env = envVariables.safeParse( process.env );
