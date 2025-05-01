@@ -1,5 +1,5 @@
 ---
-import Paginations      from "@/components/shared/Paginations.astro";
+import { Pagination }   from "@/components/shared/index";
 import OverviewCard     from "@/components/dashboard/overview/OverviewCard.astro";
 import RecentActivity   from "@/components/dashboard/overview/RecentActivity.astro";
 import SystemStatus     from "@/components/dashboard/overview/SystemStatus.astro";
@@ -56,5 +56,10 @@ const mockRoles = [
     <!-- System Status -->
     <SystemStatus />
     <!-- Pagination -->
-    <Paginations totalItems={mockAttributes.length} itemsPerPage={5} currentPage={1} />
+    <Pagination
+        client:only="svelte"
+        totalItems={mockAttributes.length}
+        itemsPerPage={5}
+        currentPage={1}
+    />
 </div>
