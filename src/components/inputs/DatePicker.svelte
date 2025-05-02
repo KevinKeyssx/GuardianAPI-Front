@@ -1,15 +1,51 @@
 <script lang="ts">
     import { DatePicker } from "bits-ui";
 
+    import {
+    CalendarDate,
+        type DateValue
+    }                       from "@internationalized/date";
     import CalendarBlank    from "phosphor-svelte/lib/CalendarBlank";
     import CaretLeft        from "phosphor-svelte/lib/CaretLeft";
     import CaretRight       from "phosphor-svelte/lib/CaretRight";
 
-    export let label = "";
+
+    type Props = {
+        id?             : string;
+        value?          : DateValue | string;
+        label?          : string;
+        required?       : boolean;
+        disabled?       : boolean;
+        minDate?        : DateValue;
+        maxDate?        : DateValue;
+    }
+
+
+    let {
+        id          = "",
+        value       = $bindable<DateValue | string>(),
+        label       = "",
+        disabled    = false,
+        minDate     = undefined,
+        maxDate     = undefined,
+    }: Props = $props();
+
+
+    if ( typeof value === 'string' ) {
+        const [year, month, day] = value.split( '-' );
+        value = new CalendarDate( Number( year ), Number( month ), Number( day ) )
+    }
 </script>
 
-<DatePicker.Root weekdayFormat="short" fixedWeeks={true}>
-    <div class="flex w-full flex-col gap-0.5">
+<DatePicker.Root
+    bind:value={ value as DateValue }
+    weekdayFormat   = "short"
+    fixedWeeks      = { true }
+    minValue        = { minDate }
+    maxValue        = { maxDate }
+    disabled        = { disabled }
+>
+    <div id={id} class="flex w-full flex-col gap-0.5">
         <DatePicker.Label class="text-sm font-orbitron text-white mb-1">
             {label}
         </DatePicker.Label>
