@@ -2,7 +2,6 @@
 import { getSession } from 'auth-astro/server';
 
 import Layout       from '@/layouts/Layout.astro';
-import Panel        from '@/components/shared/Panel.svelte';
 import AccountInfo  from '@/components/account/AccountInfo.astro';
 import AccountForm  from '@/components/account/AccountForm.astro';
 
@@ -45,8 +44,7 @@ const user = {
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-orbitron text-neon-blue">Información de la cuenta</h2>
 
-                        <Panel client:only="svelte"
-                            id="edit-account"
+                        <!-- <Panel client:load
                             title="Editar Cuenta"
                             saveButtonText="Guardar Cambios"
                             buttonText="Editar"
@@ -54,7 +52,7 @@ const user = {
                             isEdit={true}
                         >
                             <AccountForm user={user} />
-                        </Panel>
+                        </Panel> -->
                     </div>
 
                     <div class="space-y-4">
