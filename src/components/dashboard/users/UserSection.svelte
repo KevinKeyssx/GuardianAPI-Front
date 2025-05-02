@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { createQuery } from '@tanstack/svelte-query';
+
     import {
         Pagination,
         Table,
@@ -8,13 +10,27 @@
     import Panel                from "@/components/shared/panel/Panel.svelte";
     import UserForm             from "@/components/dashboard/users/UserForm.svelte";
     import type { ColumnProp }  from "@/components/shared/table/column.model";
+    import type { User, UsersQuery } from "@/lib/graphql/users/types";
+    import { USERS_QUERY } from "@/lib/graphql/users/queries";
+    import { graphqlClient } from "@/lib/graphql/query-client";
+    
     // import Filter       from "@/components/inputs/Filter.astro";
 
-    const mockUsers = [
-        { id: 1, email: 'john@example.com', name: 'John Doe',       nickname: 'johndoe',    avatar: 'https://res.cloudinary.com/dbgzsikcs/image/upload/v1744512902/kevinkeyssx/projects/efa91c84-239f-4c87-b052-d74822e2f529.avif', birthday: '2025-04-17', isActive: true,  isVerified: false,  phone: '+1234567890', role: 'Admin',       lastLogin: '2025-04-17T15:32:45Z' },
-        { id: 2, email: 'jane@example.com', name: 'Jane Smith',     nickname: 'janesmith',  avatar: 'https://res.cloudinary.com/dbgzsikcs/image/upload/v1744512902/kevinkeyssx/projects/efa91c84-239f-4c87-b052-d74822e2f529.avif', birthday: '2025-04-16', isActive: false, isVerified: true,   phone: '+1234567890', role: 'Developer',   lastLogin: '2025-04-16T09:15:22Z' },
-        { id: 3, email: 'alex@example.com', name: 'Alex Johnson',   nickname: 'alexj',      avatar: 'https://res.cloudinary.com/dbgzsikcs/image/upload/v1744512902/kevinkeyssx/projects/efa91c84-239f-4c87-b052-d74822e2f529.avif', birthday: '2025-04-15', isActive: true,  isVerified: true,   phone: '+1234567890', role: 'User',        lastLogin: '2025-04-15T18:45:10Z' },
-    ];
+    const queryParams = {
+        page: 0,
+        each: 10,
+        field: 'createdAt',
+        orderBy: 'desc',
+        attributeKeys: [],
+    };
+
+    const usersQuery = createQuery({
+        queryKey: ['users', queryParams],
+        queryFn: async (): Promise<UsersQuery> => {
+        return await graphqlClient.request(USERS_QUERY, queryParams);
+        },
+    });
+
 
     const columns: ColumnProp[] = [
         { column: 'Avatar',     showColumn: true },
@@ -30,9 +46,8 @@
         { column: 'Actions',    showColumn: true },
     ];
 
-    let clicked = 0;
+    let clicked = $state( 0 );
 </script>
-
 
 <div class="animate-fade-in">
     <h1 class="text-2xl font-orbitron text-white mb-6">Users</h1>
@@ -41,50 +56,64 @@
         <!-- <Filter /> -->
 
         <Panel
-            title               = "Add User"
-            buttonText          = "Add User"
-            isEdit      = { false }
-
-            buttonClass         = "fixed sm:static sm:flex bottom-16 sm:bottom-auto right-4 sm:right-auto bg-neon-blue text-dark-blue rounded-full sm:rounded-lg px-2.5 sm:px-4 sm:py-2 hover:bg-opacity-80 transition-colors duration-300 sm:items-center "
-            bind:clicked={ clicked }
+            title           = "Add User"
+            buttonText      = "Add User"
+            isEdit          = { false }
+            buttonClass     = "fixed sm:static sm:flex bottom-16 sm:bottom-auto right-4 sm:right-auto bg-neon-blue text-dark-blue rounded-full sm:rounded-lg px-2.5 sm:px-4 sm:py-2 hover:bg-opacity-80 transition-colors duration-300 sm:items-center "
+            bind:clicked    = { clicked }
         >
             <UserForm
                 bind:clicked={ clicked }
+                user={{} as User}
             />
         </Panel>
     </div>
 
+{#if $usersQuery.isLoading}
+    <p>Loading...</p>
+{:else if $usersQuery.isError}
+    <p>Error: {$usersQuery.error.message}</p>
+{:else if $usersQuery.data}
+    <p>Total: {$usersQuery.data.users[0].total}</p>
     <Table {columns}>
-        {#each mockUsers as user}
+        {#each $usersQuery.data.users as user}
             <TableRow>
-                <TableData value={user.avatar} />
-                <TableData value={user.email} />
-                <TableData value={user.name} />
-                <TableData value={user.nickname} />
-                <TableData value={user.birthday} />
-                <TableData value={user.phone} />
-                <TableData value={user.isActive} />
-                <TableData value={user.isVerified} />
+                <TableData value={ user.avatar } />
+                <TableData value={ user.email } />
+                <TableData value={ user.name } />
+                <TableData value={ user.nickname } />
+                <TableData value={ user.birthdate as string } />
+                <TableData value={ user.phone } />
+                <TableData value={ user.isActive } />
+                <TableData value={ user.isVerified } />
                 <TableData>
-                    <span class={`px-2 py-1 text-xs rounded-full ${user.role === 'Admin' ? 'bg-red-900/30 text-red-300' : user.role === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
-                        {user.role}
-                    </span>
+                    <!-- <span class={`px-2 py-1 text-xs rounded-full ${user?.roles![0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user?.roles![0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
+                        {user?.roles![0].name}
+                        
+                    </span> -->
+                Role
                 </TableData>
                 <TableData value={user.lastLogin} />
                 <TableData size="text-sm font-medium" float={ true }>
                     <Panel
-                        title           = "Edit User"
-                        buttonText      = ""
-                        buttonClass     = ""
-                        isEdit          = { true }
+                        bind:clicked={ clicked }
+                        title       = "Edit User"
+                        buttonText  = ""
+                        buttonClass = ""
+                        isEdit      = { true }
                     >
-                        <UserForm bind:clicked={ clicked } />
+                        <UserForm
+                            bind:clicked={ clicked }
+                            { user }
+                        />
                     </Panel>
                 </TableData>
             </TableRow>
+        {:else}
+            <p>No users found</p>
         {/each}
     </Table>
-
+{/if}
     <!-- Pagination -->
-    <Pagination totalItems={mockUsers.length} itemsPerPage={5} currentPage={1} />
+    <!-- <Pagination totalItems={mockUsers.length} itemsPerPage={5} currentPage={1} /> -->
 </div>
