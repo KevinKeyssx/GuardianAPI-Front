@@ -3,8 +3,6 @@
     import AttributeForm from "./AttributeForm.svelte";
 
     let clicked = 0;
-
-    export let columns: string[];
 </script>
 
 <Panel
