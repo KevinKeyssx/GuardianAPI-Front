@@ -29,6 +29,9 @@ importers:
       '@fontsource/orbitron':
         specifier: ^5.2.5
         version: 5.2.5
+      '@internationalized/date':
+        specifier: ^3.8.0
+        version: 3.8.0
       '@tanstack/svelte-query':
         specifier: ^5.74.9
         version: 5.74.9(svelte@5.28.2)
