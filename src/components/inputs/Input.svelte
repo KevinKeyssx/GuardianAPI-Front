@@ -1,15 +1,30 @@
 <script lang="ts">
-    export let placeholder = "";
-    export let id = "";
-    export let name = "";
-    export let value = "";
-    export let label = "";
-    export let type: 'text' | 'email' | 'password' | 'number' | 'search' = "text";
-    export let required = false;
-    export let disabled = false;
-    export let min: number | undefined = undefined;
-    export let max: number | undefined = undefined;
-    export let step: number | undefined = undefined;
+    type Props = {
+        placeholder?    : string;
+        id?             : string;
+        name?           : string;
+        value?          : string;
+        label?          : string;
+        type?           : 'text' | 'email' | 'password' | 'number' | 'search';
+        required?       : boolean;
+        disabled?       : boolean;
+        min?            : number;
+        max?            : number;
+    }
+
+
+    let {
+        placeholder = "",
+        id          = "",
+        name        = "",
+        value       = $bindable<string>(),
+        label       = "",
+        type        = 'text',
+        required    = false,
+        disabled    = false,
+        min         = undefined,
+        max         = undefined,
+    }: Props = $props();
 </script>
 
 <div class="flex flex-col gap-1.5">
@@ -18,18 +33,17 @@
     {/if}
 
     <input
-        type={type}
-        placeholder={placeholder}
-        class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue hover:border-neon-blue/60 focus:outline-none text-white placeholder-white/50 transition-colors number-input-custom"
-        data-section={id}
-        id={id}
-        name={name}
-        value={value}
-        required={required}
-        disabled={disabled}
-        min={min}
-        max={max}
-        step={step}
+        bind:value={ value }
+        type            = { type }
+        placeholder     = { placeholder }
+        class           = "w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue hover:border-neon-blue/60 focus:outline-none text-white placeholder-white/50 transition-colors number-input-custom"
+        data-section    = { id }
+        id              = { id }
+        name            = { name }
+        required        = { required }
+        disabled        = { disabled }
+        min             = { min }
+        max             = { max }
     />
 </div>
 
