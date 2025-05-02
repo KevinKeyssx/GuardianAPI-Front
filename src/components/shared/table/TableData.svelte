@@ -1,6 +1,7 @@
 <script lang="ts">
-    import CheckIcon  from '@/icons/CheckIcon.svelte';
-    import NoCheckIcon from '@/icons/NoCheckIcon.svelte';
+    import CheckIcon    from '@/icons/CheckIcon.svelte';
+    import NoCheckIcon  from '@/icons/NoCheckIcon.svelte';
+    import noneIcon     from '@/assets/icons/none.svg?raw';
 
     type Value = string | number | boolean | undefined;
 
@@ -34,6 +35,8 @@
         {/if}
     {:else if typeof value === 'number'}
         <span class="text-neon-blue">{value}</span>
+    {:else if value === null}
+        {@html noneIcon}
     {:else if urlPattern.test( value )}
         <img src={value} alt={value} class="w-8 h-8 rounded-full mx-auto"/>
     {:else}
