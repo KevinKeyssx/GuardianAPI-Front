@@ -1,17 +1,14 @@
 ---
 import { getSession } from 'auth-astro/server';
 
-import { QueryClientProvider } from '@tanstack/svelte-query';
-
-import { queryClient } from '@/lib/graphql/query-client';
 
 import Layout               from '@/layouts/Layout.astro';
 import SideBar              from '@/components/dashboard/SideBar.astro';
 import OverviewSection      from '@/components/dashboard/overview/OverviewSection.astro';
-import UserSection          from '@/components/dashboard/users/UserSection.svelte';
 import AttributesSection    from '@/components/dashboard/attributes/AttributesSection.astro';
 import SecretSection        from '@/components/dashboard/secrets/SecretSection.astro';
 import RoleSection          from '@/components/dashboard/roles/RoleSection.astro';
+import UserSectionWrapper   from '@/components/dashboard/users/UserSectionWrapper.svelte';
 
 
 const session = await getSession( Astro.request );
@@ -33,13 +30,11 @@ const activeSection = Astro.url.searchParams.get( 'section' ) || 'overview';
         <!-- Main Content -->
         <div class="flex-1 overflow-y-auto mt-14">
             <div class="p-6">
-                <QueryClientProvider client={queryClient}>
-                    {activeSection === 'overview'   && <OverviewSection /> }
-                    {activeSection === 'users'      && <UserSection client:only="svelte" /> }
-                    <!-- {activeSection === 'attributes' && <AttributesSection /> } -->
-                    <!-- {activeSection === 'secrets'    && <SecretSection /> } -->
-                    <!-- {activeSection === 'roles'      && <RoleSection />} -->
-                </QueryClientProvider>
+                {activeSection === 'overview'   && <OverviewSection /> }
+                {activeSection === 'users'      && <UserSectionWrapper client:only="svelte" /> }
+                <!-- {activeSection === 'attributes' && <AttributesSection /> } -->
+                <!-- {activeSection === 'secrets'    && <SecretSection /> } -->
+                <!-- {activeSection === 'roles'      && <RoleSection />} -->
             </div>
         </div>
     </div>
