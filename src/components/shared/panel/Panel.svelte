@@ -1,78 +1,48 @@
 <script lang="ts">
-    // import { onMount } from 'svelte';
+    let {
+        title,
+        buttonText          = "Open Panel",
+        buttonClass         = "px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center",
+        isEdit              = false,
+        isPanelOpen         = false,
+        clicked             = $bindable<number>(),
+    } = $props<{
+        title               : string;
+        buttonText?         : string;
+        buttonClass?        : string;
+        isEdit?             : boolean;
+        isPanelOpen?        : boolean;
+        clicked?            : number;
+    }>();
 
-    export let title               : string;
-    export let buttonText          : string;
-    export let buttonClass         : string;
-    export let isEdit              : boolean;
-    export let isPanelOpen         : boolean = false;
-    export let isClick = 0
-    export let clicked            : number = 0;
-
-    // let {
-    //     title,
-    //     // saveButtonText      = "Save",
-    //     // cancelButtonText    = "Cancel",
-    //     buttonText          = "Open Panel",
-    //     buttonClass         = "px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center",
-    //     isEdit              = false,
-    //     isPanelOpen         = false,
-    //     clicked = $bindable<number>()
-
-    // } = $props<{
-    //     id                  : string;
-    //     title               : string;
-    //     // saveButtonText?     : string;
-    //     // cancelButtonText?   : string;
-    //     buttonText?         : string;
-    //     buttonClass?        : string;
-    //     isEdit?             : boolean;
-    //     isPanelOpen?        : boolean;
-    //     clicked?            : number;
-    // }>();
-
-    // let isPanelOpen = $state( false );
     // svelte-ignore non_reactive_update
     let panelContainer: HTMLElement;
     // svelte-ignore non_reactive_update
     let panelSection: HTMLElement;
+    let isActive = $state( false );
+    
+    $effect(() => {
+        if ( isActive && clicked > 0 ) {
+            closePanel();
+        }
+    });
 
-    // $effect(() => {
-    //     // if( isPanelOpen ) {
-    //     //     openPanel()
-    //     // }
-    //     // else {
-    //     //     closePanel()
-    //     // }
-    //     console.log('🚀 ~ file: Panel.svelte:46 ~ isPanelOpen:', isPanelOpen)
-    //     if( clicked > 0) {
-    //         closePanel()
-    //     }
-    // });
-
-    $: if ( isClick  > 0 ) {
-        openPanel();
-        // console.log('🚀 ~ file: Panel.svelte:47 ~ isPanelOpen:', isPanelOpen)
-    }
-        // } else {
-            // closePanel()
-
-    // }
 
     function openPanel() {
+        isActive    = true;
         isPanelOpen = true;
 
         setTimeout(() => {
             if (panelContainer) {
-                document.body.appendChild(panelContainer);
+                document.body.appendChild( panelContainer );
                 panelContainer.style.display = 'flex';
 
                 setTimeout(() => {
-                    panelContainer.classList.add('opacity-100');
+                    panelContainer.classList.add( 'opacity-100' );
 
-                    if ( panelSection ) {
-                        panelSection.classList.remove('translate-x-full');
-                        panelSection.classList.add('translate-x-0');
+                    if (panelSection) {
+                        panelSection.classList.remove( 'translate-x-full' );
+                        panelSection.classList.add( 'translate-x-0' );
                     }
                 }, 10);
             }
@@ -80,37 +50,22 @@
     }
 
     function closePanel() {
-        clicked = 0
-        if (panelContainer && panelSection) {
-            panelContainer.classList.remove('opacity-100');
-            panelSection.classList.remove('translate-x-0');
-            panelSection.classList.add('translate-x-full');
+        clicked = 0;
+
+        if ( panelContainer && panelSection ) {
+            panelContainer.classList.remove( 'opacity-100' );
+            panelSection.classList.remove( 'translate-x-0' );
+            panelSection.classList.add( 'translate-x-full' );
 
             setTimeout(() => {
                 isPanelOpen = false;
+                isActive    = false;
             }, 300);
         } else {
             isPanelOpen = false;
+            isActive    = false;
         }
     }
-
-    // function handleSave() {
-    //     const saveEvent = new CustomEvent('panel:save', { detail: { panelId: id } });
-    //     document.dispatchEvent(saveEvent);
-    //     closePanel();
-    // }
-
-    // onMount(() => {
-    //     if (id) {
-    //         (window as any)[`openPanel_${id}`] = openPanel;
-    //         (window as any)[`closePanel_${id}`] = closePanel;
-
-    //         return () => {
-    //             delete (window as any)[`openPanel_${id}`];
-    //             delete (window as any)[`closePanel_${id}`];
-    //         };
-    //     }
-    // });
 </script>
 
 <button 
@@ -150,27 +105,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </header>
-
-            <!-- <main class="p-6 flex-grow overflow-y-auto"> -->
-                <!-- svelte-ignore slot_element_deprecated -->
-                <slot />
-            <!-- </main> -->
-
-            <!-- <footer class="flex justify-end space-x-3 p-4 border-t border-neon-blue/30 bg-dark-blue/90 sticky bottom-0">
-                <button
-                    class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300"
-                    onclick={closePanel}
-                >
-                    Cancel
-                </button>
-
-                <button
-                    class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300"
-                    onclick={handleSave}
-                >
-                    Save
-                </button>
-            </footer> -->
+            <!-- svelte-ignore slot_element_deprecated -->
+            <slot />
         </aside>
     </div>
 {/if}
