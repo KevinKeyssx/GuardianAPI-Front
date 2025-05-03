@@ -17,16 +17,13 @@ export const graphqlClient = new GraphQLClient(
     'http://localhost:3007/graphql',
     {
         credentials: 'include',
-        // headers: () => ({
-        //     'X-CSRF-Token': localStorage.getItem('csrfToken') || '',
-        // }),
 
-        // headers: () => ({
-        //     'X-CSRF-Token': document.cookie
-        //         .split('; ')
-        //         .find((row) => row.startsWith('csrfToken='))
-        //         ?.split('=')[1] || '',
-        // }),
+        headers: () => ({
+            'X-CSRF-Token': document.cookie
+                .split('; ')
+                .find((row) => row.startsWith('csrfToken='))
+                ?.split('=')[1] || '',
+        }),
     }
 );
 
