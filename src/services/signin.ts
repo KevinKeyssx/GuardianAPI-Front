@@ -1,14 +1,16 @@
-import { ENV }          from "@/lib/utils/env";
 import type { Session } from "@auth/core/types";
+
+import { CLIENT_ENV } from "@/lib/env/client";
 
 
 export class SignInService {
     static async signIn( session: Session, provider: string ): Promise<any> {
-        const newSession = session as any;
-        const accessToken = newSession.accessToken;
+        const newSession    = session as any;
+        const accessToken   = newSession.accessToken;
+        const url           = CLIENT_ENV.PUBLIC_GUARDIANAPI_URL + CLIENT_ENV.PUBLIC_GUARDIAN_AUTH_SOCIAL;
 
         try {
-            const response = await fetch( ENV.GUARDIANAPI_URL + ENV.GUARDIAN_AUTH_SOCIAL, {
+            const response = await fetch( url, {
                 method  : 'POST',
                 headers : {
                     'Content-Type': 'application/json',
