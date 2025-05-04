@@ -20,8 +20,8 @@ const { class: className } = Astro.props;
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        const { signOut } = await import('auth-astro/client');
-        const logoutButtons = document.querySelectorAll('.logout-button');
+        const { signOut } = await import( 'auth-astro/client' );
+        const logoutButtons = document.querySelectorAll( '.logout-button' );
 
         logoutButtons.forEach(button => {
             button.addEventListener('click', () => {
