@@ -1,9 +1,9 @@
 ---
-import Paginations      from "@/components/shared/Paginations.astro";
+import Paginations      from "@/components/shared/table/Pagination.svelte";
 import Panel            from "@/components/shared/Panel.svelte";
-import Table            from "@/components/shared/table/Table.astro";
-import TableData        from "@/components/shared/table/TableData.astro";
-import TableRow         from "@/components/shared/table/TableRow.astro";
+import Table            from "@/components/shared/table/Table.svelte";
+import TableData        from "@/components/shared/table/TableData.svelte";
+import TableRow         from "@/components/shared/table/TableRow.svelte";
 import RoleForm         from "@/components/dashboard/roles/RoleForm.astro";
 
 
@@ -28,14 +28,14 @@ const columns = ['Name', 'Description', 'Permissions', 'Users', 'Created At', 'A
             </div>
         </div>
 
-        <Panel client:only="svelte"
+        <!-- <Panel client:only="svelte"
             id              = "add-role"
             title           = "Add Role"
             saveButtonText  = "Add"
             buttonText      = "Add Role"
         >
             <RoleForm id="add-role" />
-        </Panel>
+        </Panel> -->
     </div>
 
     <Table columns={columns}>
@@ -55,7 +55,8 @@ const columns = ['Name', 'Description', 'Permissions', 'Users', 'Created At', 'A
                 <TableData>{role.users}</TableData>
                 <TableData>{role.createdAt}</TableData>
                 <TableData size="text-sm font-medium" float={true}>
-                    <Panel client:only="svelte"
+                    Panel
+                    {/* <Panel client:only="svelte"
                         id              = {`add-role-${index}`}
                         title           = "Edit Role"
                         saveButtonText  = "Add"
@@ -64,7 +65,7 @@ const columns = ['Name', 'Description', 'Permissions', 'Users', 'Created At', 'A
                         isEdit          = { true }
                     >
                         <RoleForm id={`edit-role-${index}`} role={role} />
-                    </Panel>
+                    </Panel> */}
                 </TableData>
             </TableRow>
         ))}
