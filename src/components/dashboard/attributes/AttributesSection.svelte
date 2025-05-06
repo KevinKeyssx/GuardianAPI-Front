@@ -15,6 +15,7 @@
     import type { Attribute, AttributesQuery }  from "@/lib/graphql/attributes/types";
     import { ATTRIBUTES_QUERY }                 from "@/lib/graphql/attributes/queries";
     import { graphqlClient }                    from "@/lib/graphql/query-client";
+    import AttributeType from './AttributeType.svelte';
 
 
     const queryParams = {
@@ -35,7 +36,7 @@
 
     const columns: ColumnProp[] = [
         { column: 'Key',        showColumn: true },
-        { column: 'Value',      showColumn: true },
+        { column: 'Def. Value', showColumn: true },
         { column: 'Type',       showColumn: true },
         { column: 'Required',   showColumn: true },
         { column: 'Min',        showColumn: true },
@@ -90,24 +91,22 @@
         <p>Error: {$attributesQuery.error.message}</p>
     {:else if $attributesQuery.data}
         <Table {columns}>
-            {#each $attributesQuery.data.attributes as attr}
+            {#each $attributesQuery.data.userAttributes as attr}
                 <TableRow>
                     <TableData value={attr.key} />
-                    <TableData value={attr.value} />
+                    <TableData value={attr.defaultValue} />
                     <TableData>
-                        <span class={`px-2 py-1 text-xs rounded-full ${attr.type === 'string' ? 'bg-green-900/30 text-green-300' : attr.type === 'object' ? 'bg-blue-900/30 text-blue-300' : 'bg-purple-900/30 text-purple-300'}`}>
-                            {attr.type}
-                        </span>
+                        <AttributeType type={attr.type || 'default'} />
                     </TableData>
                     <TableData value={ attr.required } />
                     <TableData value={ attr.min } />
                     <TableData value={ attr.max } />
-                    <TableData value={ attr.minLenght } />
-                    <TableData value={ attr.maxLenght } />
+                    <TableData value={ attr.minLength } />
+                    <TableData value={ attr.maxLength } />
                     <TableData value={ attr.minDate } />
                     <TableData value={ attr.maxDate } />
                     <TableData value={ attr.pattern } />
-                    <TableData value={ attr.active } />
+                    <TableData value={ attr.isActive } />
                     <TableData size="text-sm font-medium" float={true}>
                         Panel
                         <!-- <Panel
