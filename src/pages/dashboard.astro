@@ -28,14 +28,14 @@ const activeSection = Astro.url.searchParams.get( 'section' ) || 'overview';
         <SideBar {activeSection} {session} />
 
         <!-- Main Content -->
-        <div class="flex-1 overflow-y-auto mt-14">
-            <div class="p-6">
+        <div class="flex-1 overflow-y-auto mt-14 p-6">
+            <!-- <div class="p-6"> -->
                 {activeSection === 'overview'   && <OverviewSection /> }
                 {activeSection === 'users'      && <UserSectionWrapper client:only="svelte" /> }
                 {activeSection === 'attributes' && <AttributeWrapper client:only="svelte" /> }
                 <!-- {activeSection === 'secrets'    && <SecretSection /> } -->
                 <!-- {activeSection === 'roles'      && <RoleSection />} -->
-            </div>
+            <!-- </div> -->
         </div>
     </div>
 </Layout>
