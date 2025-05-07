@@ -7,8 +7,8 @@ import SideBar              from '@/components/dashboard/SideBar.astro';
 import OverviewSection      from '@/components/dashboard/overview/OverviewSection.astro';
 import AttributeWrapper     from '@/components/dashboard/attributes/AttributeWrapper.svelte';
 import SecretSection        from '@/components/dashboard/secrets/SecretSection.astro';
-import RoleSection          from '@/components/dashboard/roles/RoleSection.astro';
-import UserSectionWrapper   from '@/components/dashboard/users/UserSectionWrapper.svelte';
+import RoleWrapper          from '@/components/dashboard/roles/RoleWrapper.svelte';
+import UserWrapper          from '@/components/dashboard/users/UserWrapper.svelte';
 
 
 const session = await getSession( Astro.request );
@@ -30,11 +30,11 @@ const activeSection = Astro.url.searchParams.get( 'section' ) || 'overview';
         <!-- Main Content -->
         <div class="flex-1 overflow-y-auto mt-14 p-6">
             <!-- <div class="p-6"> -->
-                {activeSection === 'overview'   && <OverviewSection /> }
-                {activeSection === 'users'      && <UserSectionWrapper client:only="svelte" /> }
-                {activeSection === 'attributes' && <AttributeWrapper client:only="svelte" /> }
+                { activeSection === 'overview'   && <OverviewSection /> }
+                { activeSection === 'users'      && <UserWrapper client:only="svelte" /> }
+                { activeSection === 'attributes' && <AttributeWrapper client:only="svelte" /> }
                 <!-- {activeSection === 'secrets'    && <SecretSection /> } -->
-                <!-- {activeSection === 'roles'      && <RoleSection />} -->
+                { activeSection === 'roles'      && <RoleWrapper client:only="svelte" /> }
             <!-- </div> -->
         </div>
     </div>
