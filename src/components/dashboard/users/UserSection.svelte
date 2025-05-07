@@ -5,12 +5,11 @@
         Pagination,
         Table,
         TableData,
-        TableRow
+        TableRow,
+        type ColumnProp
     }                           from "@/components/shared/table";
     import Panel                from "@/components/shared/panel/Panel.svelte";
     import UserForm             from "@/components/dashboard/users/UserForm.svelte";
-    import type { ColumnProp }  from "@/components/shared/table/column.model";
-
     import type { User, UsersQuery }    from "@/lib/graphql/users/types";
     import { USERS_QUERY }              from "@/lib/graphql/users/queries";
     import { graphqlClient }            from "@/lib/graphql/query-client";
@@ -28,7 +27,7 @@
     const usersQuery = createQuery({
         queryKey: ['users', queryParams],
         queryFn: async (): Promise<UsersQuery> => {
-            return await graphqlClient.request(USERS_QUERY, queryParams);
+            return await graphqlClient.request( USERS_QUERY, queryParams );
         },
     });
 
