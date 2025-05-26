@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 
 export const USERS_QUERY = gql`
-    query Users($page: Int, $each: Int, $field: String, $orderBy: String, $attributeKeys: [String!]) {
+    query Users($page: Int, $each: Int, $field: String, $orderBy: String) {
         users(page: $page, each: $each, field: $field, orderBy: $orderBy) {
             id
             avatar
@@ -16,10 +16,10 @@ export const USERS_QUERY = gql`
             roles {
                 name
             }
-            attributes(keys: $attributeKeys) {
-                key
-                value
-            }
+            # attributes(keys: $attributeKeys) {
+            #     key
+            #     value
+            # }
             total
         }
     }
