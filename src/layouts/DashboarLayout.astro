@@ -1,0 +1,182 @@
+---
+import '@fontsource/orbitron';
+import '@fontsource/inter';
+
+import { ClientRouter } from 'astro:transitions';
+
+import { getSession } from 'auth-astro/server';
+
+import Navbar               from '@/components/Navbar.astro';
+import ParticleBackground   from '@/components/ParticleBackground.tsx';
+import Background           from '@/components/Background.astro';
+import SideBar              from '@/components/dashboard/SideBar.astro';
+import UrqlProvider         from '@/components/UrqlProvider.svelte';
+
+
+interface Props {
+    title: string;
+}
+
+
+const { title } = Astro.props;
+const session = await getSession( Astro.request );
+
+Astro.locals.session = session;
+
+const activeSection = Astro.url.searchParams.get( 'section' ) || 'overview';
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="GuardianApi - Secure Authentication Solution" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <ClientRouter />
+    </head>
+
+    <body class="bg-space-blue min-h-screen text-white">
+        <!-- <div transition:persist> -->
+            <ParticleBackground transition:persist client:only="react" />
+        <!-- </div> -->
+
+        <Background />
+
+        <Navbar />
+
+        <div class="flex h-screen bg-dark-blue/30 overflow-hidden">
+            <!-- Sidebar -->
+            <SideBar {activeSection} session={session!} />
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto mt-14 p-6">
+                <UrqlProvider client:load>
+                    <slot />
+                </UrqlProvider>
+            </main>
+        </div>
+    </body>
+</html>
+
+<style is:global>
+    :root {
+        --accent: 136, 58, 234;
+        --accent-light: 224, 204, 250;
+        --accent-dark: 49, 10, 101;
+        --accent-gradient: linear-gradient(
+            45deg,
+            rgb(var(--accent)),
+            rgb(var(--accent-light)) 30%,
+            white 60%
+        );
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    ::selection {
+        background: #00ebff;
+        color: #000;
+    }
+
+    /* Estilos para navegadores WebKit (Chrome, Safari, Edge) */
+    ::-webkit-scrollbar {
+        width: 8px; /* Ancho de la barra de desplazamiento */
+        height: 8px; /* Altura de la barra de desplazamiento (para scroll horizontal) */
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #010316; /* Color de fondo de la pista */
+        border-radius: 55px; /* Bordes redondeados */
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #0a3474; /* Color azul neón oscuro */
+        border-radius: 55px; /* Bordes redondeados */
+        border: 2px solid #1a1a1a; /* Borde para un efecto moderno */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #0a3474; /* Color azul neón oscuro más claro al pasar el mouse */
+    }
+
+    /* Estilos para Firefox */
+    * {
+        scrollbar-width: thin; /* Hace la barra más delgada */
+        scrollbar-color: #0a3474 #010316; /* Color del thumb y del track */
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .neon_button {
+        width: 100%;
+        position: relative;
+        height: 3.5em;
+        border: 3px ridge #00c4d6;
+        outline: none;
+        background-color: transparent;
+        color: #00c4d6;
+        transition: 1s;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .neon_button::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: transparent;
+        transition: 0.5s;
+        transform-origin: center;
+    }
+
+    .neon_button::before {
+        content: "";
+        transform-origin: center;
+        position: absolute;
+        top: 80%;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: transparent;
+        transition: 0.5s;
+    }
+
+    .neon_button:hover::before, .neon_button:hover::after {
+        transform: scale(0)
+    }
+
+    .neon_button:hover {
+        box-shadow: inset 0px 0px 25px #00c4d6;
+    }
+</style>
