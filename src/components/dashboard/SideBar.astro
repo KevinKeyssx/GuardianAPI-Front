@@ -11,15 +11,9 @@ import ConfigIcon       from '@/icons/ConfigIcon.astro';
 // Components
 import Logout from '@/components/auth/Logout.astro';
 
-
-export interface Props {
-    activeSection   : string;
-    session         : Session;
-}
-
-const { activeSection, session } = Astro.props;
-
-const sidebarItems = [
+const activeSection = Astro.url.pathname.split( '/' ).pop() || 'overview';
+const session       = Astro.locals.session as Session;
+const sidebarItems  = [
     { id: 'overview',   name: 'Overview',              icon: OverviewIcon },
     { id: 'users',      name: 'Users',                 icon: UsersIcon },
     { id: 'attributes', name: 'User Attributes',       icon: AttributesIcon },
@@ -28,8 +22,8 @@ const sidebarItems = [
 ];
 ---
 
-<aside class="hidden w-14 lg:w-64 bg-dark-blue/70 border-r border-neon-blue/20 sm:flex flex-col mt-12">
-    <header class="p-4 border-b border-neon-blue/20">
+<aside class="hidden w-14 lg:w-64 bg-dark-blue/70 border-r border-neon-blue/20 sm:flex flex-col mt-12 transition-all duration-100">
+    <header class="p-4 border-b border-neon-blue/20 flex justify-between items-center">
         <h2 class="text-2xl font-orbitron text-neon-blue flex items-center gap-2">
             <MenuIcon />
 
@@ -37,6 +31,12 @@ const sidebarItems = [
                 Menu <span class="text-white">Api</span>
             </span>
         </h2>
+
+        <button
+            class=" bg-dark-blue hover:bg-neon-blue/20 rounded-full mt-0.5 border border-neon-blue/50 text-neon-blue"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="10" stroke-dashoffset="10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l5 -5M9 12l5 5"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="10;0"/></path></svg>
+        </button>
     </header>
 
     <section class="overflow-y-auto flex-grow">
@@ -45,7 +45,7 @@ const sidebarItems = [
                 {sidebarItems.map(item => (
                     <li class="mb-2">
                         <a 
-                            href    = { `/dashboard?section=${item.id}` }
+                            href    = { `/dashboard/${item.id}` }
                             class   = { `flex items-center px-4 py-3 text-sm transition-colors duration-300 ${activeSection === item.id ? 'bg-neon-blue/10 text-neon-blue border-l-2 border-neon-blue' : 'text-gray-300 hover:bg-neon-blue/5 hover:text-neon-blue'}` }
                         >
                             <span class="flex items-center mr-3">
@@ -92,7 +92,7 @@ const sidebarItems = [
     <nav class="flex gap-2 items-center justify-center">
         {sidebarItems.map(item => (
             <a 
-                href    = { `/dashboard?section=${item.id}` }
+                href    = { `/dashboard/${item.id}` }
                 class   = { `flex items-center px-4 py-3 text-sm transition-colors duration-300 ${activeSection === item.id ? 'bg-neon-blue/10 text-neon-blue border-t-2 border-neon-blue' : 'text-gray-300 hover:bg-neon-blue/5 hover:text-neon-blue'}` }
             >
                 <span class="flex items-center justify-center">
