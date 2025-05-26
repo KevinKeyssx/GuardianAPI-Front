@@ -2,7 +2,7 @@
     import { DatePicker } from "bits-ui";
 
     import {
-    CalendarDate,
+        CalendarDate,
         type DateValue
     }                       from "@internationalized/date";
     import CalendarBlank    from "phosphor-svelte/lib/CalendarBlank";
