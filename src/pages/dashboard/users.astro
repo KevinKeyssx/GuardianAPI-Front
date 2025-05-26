@@ -1,0 +1,10 @@
+---
+import DashboarLayout from '@/layouts/DashboarLayout.astro';
+
+import UserSection from '@/components/dashboard/users/UserSection.svelte';
+
+---
+
+<DashboarLayout title="Users - GuardianApi">
+    <UserSection client:only="svelte"/>
+</DashboarLayout>
