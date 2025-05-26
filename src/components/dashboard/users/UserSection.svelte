@@ -1,34 +1,71 @@
 <script lang="ts">
-    import { createQuery } from '@tanstack/svelte-query';
-
     import {
         Pagination,
         Table,
         TableData,
         TableRow,
         type ColumnProp
-    }                           from "@/components/shared/table";
-    import Panel                from "@/components/shared/panel/Panel.svelte";
+    } from "@/components/shared/table";
+    import Panel from "@/components/shared/panel/Panel.svelte";
+
     import UserForm             from "@/components/dashboard/users/UserForm.svelte";
     import type { User, UsersQuery }    from "@/lib/graphql/users/types";
     import { USERS_QUERY }              from "@/lib/graphql/users/queries";
-    import { graphqlClient }            from "@/lib/graphql/query-client";
+    import { onMount } from 'svelte';
+    import { client } from "@/lib/urql";
+    import { queryStore } from '@urql/svelte';
 
-    // import Filter       from "@/components/inputs/Filter.astro";
+    // import Filter from "@/components/inputs/Filter.astro";
 
     const queryParams = {
-        page            : 0,
-        each            : 10,
-        field           : 'createdAt',
-        orderBy         : 'desc',
-        attributeKeys   : [],
+        page: 0,
+        each: 10,
+        field: 'createdAt',
+        orderBy: 'desc',
+        // attributeKeys: [],
     };
 
-    const usersQuery = createQuery({
-        queryKey: ['users', queryParams],
-        queryFn: async (): Promise<UsersQuery> => {
-            return await graphqlClient.request( USERS_QUERY, queryParams );
-        },
+    // Crear la consulta con urql usando queryStore
+    const usersResult = queryStore({
+        client,
+        query: USERS_QUERY,
+        variables: queryParams,
+        // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
+        requestPolicy: 'cache-and-network'
+    });
+    
+    // Función para refrescar los datos manualmente
+    function refetchUsers() {
+        usersResult.reexecute({ requestPolicy: 'network-only' });
+    }
+    
+    // Configurar intervalo para refrescar datos cada cierto tiempo (ej: cada 30 segundos)
+    let refreshInterval: ReturnType<typeof setInterval> | undefined;
+    
+    // Función para iniciar el intervalo de actualización
+    function startRefreshInterval(intervalMs = 1000 * 60 * 30) { // 30 minutos por defecto
+        // Limpiar intervalo existente si hay alguno
+        if (refreshInterval) clearInterval(refreshInterval);
+        
+        // Crear nuevo intervalo
+        refreshInterval = setInterval(() => {
+            console.log('Actualizando datos de usuarios...');
+            refetchUsers();
+        }, intervalMs);
+    }
+    
+    // Función para detener el intervalo
+    function stopRefreshInterval() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = undefined;
+        }
+    }
+    
+    // Iniciar intervalo al montar el componente
+    onMount(() => {
+        startRefreshInterval();
+        return () => stopRefreshInterval(); // Limpiar al desmontar
     });
 
 
@@ -46,7 +83,7 @@
         { column: 'Actions',    showColumn: true },
     ];
 
-    let clicked = $state( 0 );
+    let clicked = $state(0);
 </script>
 
 <div class="animate-fade-in">
@@ -69,15 +106,26 @@
         </Panel>
     </div>
 
-    {#if $usersQuery.isLoading}
-        <p>Loading...</p>
-    {:else if $usersQuery.isError}
-        <p>Error: {$usersQuery.error.message}</p>
-    {:else if $usersQuery.data}
-        <p>Total: {$usersQuery.data.users[0].total}</p>
-
+    {#if $usersResult.fetching}
+        <div class="flex justify-center items-center py-8">
+            <p class="text-white">Loading users...</p>
+        </div>
+    {:else if $usersResult.error}
+        <div class="bg-red-900/30 text-red-300 p-4 rounded-lg mb-4">
+            <p>Error: {$usersResult.error.message}</p>
+            <button 
+                class="mt-2 px-3 py-1 bg-red-700/50 hover:bg-red-700/70 rounded-md text-sm"
+                onclick={refetchUsers}
+            >
+                Retry
+            </button>
+        </div>
+    {:else if $usersResult.data.users && $usersResult.data.users.length > 0}
+        <div class="mb-4">
+            <p class="text-white">Total: {$usersResult.data.users[0].total}</p>
+        </div>
         <Table {columns}>
-            {#each $usersQuery.data.users as user}
+            {#each $usersResult.data.users as user}
                 <TableRow>
                     <TableData value={ user.avatar } />
                     <TableData value={ user.email } />
@@ -88,11 +136,13 @@
                     <TableData value={ user.isActive } />
                     <TableData value={ user.isVerified } />
                     <TableData>
-                        <!-- <span class={`px-2 py-1 text-xs rounded-full ${user?.roles![0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user?.roles![0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
-                            {user?.roles![0].name}
-                            
-                        </span> -->
-                    Role
+                        {#if user?.roles && user.roles.length > 0}
+                            <span class={`px-2 py-1 text-xs rounded-full ${user.roles[0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user.roles[0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
+                                {user.roles[0].name}
+                            </span>
+                        {:else}
+                            <span class="text-gray-400">-</span>
+                        {/if}
                     </TableData>
                     <TableData value={user.lastLogin} />
                     <TableData size="text-sm font-medium" float={ true }>
@@ -110,11 +160,21 @@
                         </Panel>
                     </TableData>
                 </TableRow>
-            {:else}
-                <p>No users found</p>
             {/each}
         </Table>
+
+        <!-- <Pagination 
+            totalItems={total} 
+            itemsPerPage={queryParams.each} 
+            currentPage={queryParams.page + 1} 
+            on:pageChange={(e) => {
+                queryParams.page = e.detail - 1;
+                refetchUsers();
+            }} 
+        /> -->
+    {:else}
+        <div class="bg-dark-blue/50 p-8 rounded-lg text-center">
+            <p class="text-white">No users found</p>
+        </div>
     {/if}
-    <!-- Pagination -->
-    <!-- <Pagination totalItems={mockUsers.length} itemsPerPage={5} currentPage={1} /> -->
 </div>
