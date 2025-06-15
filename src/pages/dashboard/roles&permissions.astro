@@ -1,0 +1,9 @@
+---
+import DashboarLayout from '@/layouts/DashboarLayout.astro';
+
+import RoleSection from '@/components/dashboard/roles/RoleSection.svelte';
+---
+
+<DashboarLayout title="Roles & Permissions - GuardianApi">
+    <RoleSection client:only="svelte" />
+</DashboarLayout>
