@@ -1,14 +1,15 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-// import SigninForm from '@/components/signin/SigninForm.svelte';
 import { getSession } from 'auth-astro/server';
-import NeonButton from '@/components/buttons/NeonButton.astro';
-import GitHubIcon from '@/icons/GitHubIcon.astro';
-import GoogleIcon from '@/icons/GoogleIcon.astro';
-import { SignInService } from '@/services/signin'
 
-const session = await getSession( Astro.request );
-const provider = Astro.cookies.get( 'auth_provider' )?.value || 'unknown';
+// import SigninForm from '@/components/signin/SigninForm.svelte';
+import Layout               from '@/layouts/Layout.astro';
+import NeonButton           from '@/components/buttons/NeonButton.astro';
+import GitHubIcon           from '@/icons/GitHubIcon.astro';
+import GoogleIcon           from '@/icons/GoogleIcon.astro';
+import { SignInService }    from '@/services/signin'
+
+const session   = await getSession( Astro.request );
+const provider  = Astro.cookies.get( 'auth_provider' )?.value || 'unknown';
 
 if ( session ) {
     if ( provider === 'unknown' ) return Astro.redirect( '/error' );
@@ -20,7 +21,7 @@ if ( session ) {
             httpOnly    : true,
             secure      : true,
             sameSite    : 'strict',
-            maxAge      : 60 * 60 * 24, // TODO: Poner la expiracin correcta
+            maxAge      : 60 * 60 * 24,
         });
 
         Astro.cookies.set( 'csrfToken', response.csrfToken, {
