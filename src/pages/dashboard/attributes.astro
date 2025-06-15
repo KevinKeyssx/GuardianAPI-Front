@@ -1,0 +1,10 @@
+---
+import DashboarLayout from '@/layouts/DashboarLayout.astro';
+
+import AttributesSection from '@/components/dashboard/attributes/AttributesSection.svelte';
+
+---
+
+<DashboarLayout title="Attributes - GuardianApi">
+    <AttributesSection client:only="svelte"/>
+</DashboarLayout>
