@@ -1,67 +1,66 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+
     import {
         Pagination,
         Table,
         TableData,
         TableRow,
         type ColumnProp
-    } from "@/components/shared/table";
-    import Panel from "@/components/shared/panel/Panel.svelte";
-
-    import UserForm             from "@/components/dashboard/users/UserForm.svelte";
+    }                       from "@/components/shared/table";
+    import Panel            from "@/components/shared/panel/Panel.svelte";
+    import UserForm         from "@/components/dashboard/users/UserForm.svelte";
     import type { User, UsersQuery }    from "@/lib/graphql/users/types";
-    import { USERS_QUERY }              from "@/lib/graphql/users/queries";
-    import { onMount } from 'svelte';
-    import { client } from "@/lib/urql";
-    import { queryStore } from '@urql/svelte';
-
-    // import Filter from "@/components/inputs/Filter.astro";
+    import { USERS_QUERY }  from "@/lib/graphql/users/queries";
+    import { client }       from "@/lib/urql";
+    import { queryStore }   from '@urql/svelte';
+    // import Filter from "@/components/inputs/Filter.svelte";
 
     const queryParams = {
-        page: 0,
-        each: 10,
-        field: 'createdAt',
-        orderBy: 'desc',
+        page    : 0,
+        each    : 10,
+        field   : 'createdAt',
+        orderBy : 'desc',
         // attributeKeys: [],
     };
 
     // Crear la consulta con urql usando queryStore
-    const usersResult = queryStore({
+    const usersResult = queryStore<UsersQuery>({
         client,
-        query: USERS_QUERY,
-        variables: queryParams,
+        query           : USERS_QUERY,
+        variables       : queryParams,
+        requestPolicy   : 'cache-and-network'
         // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
-        requestPolicy: 'cache-and-network'
     });
-    
+
     // Función para refrescar los datos manualmente
     function refetchUsers() {
         usersResult.reexecute({ requestPolicy: 'network-only' });
     }
-    
+
     // Configurar intervalo para refrescar datos cada cierto tiempo (ej: cada 30 segundos)
     let refreshInterval: ReturnType<typeof setInterval> | undefined;
-    
+
     // Función para iniciar el intervalo de actualización
     function startRefreshInterval(intervalMs = 1000 * 60 * 30) { // 30 minutos por defecto
         // Limpiar intervalo existente si hay alguno
-        if (refreshInterval) clearInterval(refreshInterval);
-        
+        if ( refreshInterval ) clearInterval( refreshInterval );
+
         // Crear nuevo intervalo
         refreshInterval = setInterval(() => {
             console.log('Actualizando datos de usuarios...');
             refetchUsers();
-        }, intervalMs);
+        }, intervalMs );
     }
-    
+
     // Función para detener el intervalo
     function stopRefreshInterval() {
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
+        if ( refreshInterval ) {
+            clearInterval( refreshInterval );
             refreshInterval = undefined;
         }
     }
-    
+
     // Iniciar intervalo al montar el componente
     onMount(() => {
         startRefreshInterval();
@@ -112,18 +111,16 @@
         </div>
     {:else if $usersResult.error}
         <div class="bg-red-900/30 text-red-300 p-4 rounded-lg mb-4">
-            <p>Error: {$usersResult.error.message}</p>
-            <button 
+            <p>Error fetching users</p>
+
+            <button
                 class="mt-2 px-3 py-1 bg-red-700/50 hover:bg-red-700/70 rounded-md text-sm"
                 onclick={refetchUsers}
             >
                 Retry
             </button>
         </div>
-    {:else if $usersResult.data.users && $usersResult.data.users.length > 0}
-        <div class="mb-4">
-            <p class="text-white">Total: {$usersResult.data.users[0].total}</p>
-        </div>
+    {:else if $usersResult.data?.users && $usersResult.data.users.length > 0}
         <Table {columns}>
             {#each $usersResult.data.users as user}
                 <TableRow>
@@ -163,15 +160,11 @@
             {/each}
         </Table>
 
-        <!-- <Pagination 
-            totalItems={total} 
-            itemsPerPage={queryParams.each} 
-            currentPage={queryParams.page + 1} 
-            on:pageChange={(e) => {
-                queryParams.page = e.detail - 1;
-                refetchUsers();
-            }} 
-        /> -->
+        <Pagination
+            totalItems      = { 10 }
+            itemsPerPage    = { queryParams.each }
+            currentPage     = { queryParams.page + 1 }
+        />
     {:else}
         <div class="bg-dark-blue/50 p-8 rounded-lg text-center">
             <p class="text-white">No users found</p>
