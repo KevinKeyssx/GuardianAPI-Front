@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createQuery } from '@tanstack/svelte-query';
+    import { onMount } from 'svelte';
 
     // import Paginations                  from "@/components/shared/table/Pagination.svelte";
     // import Panel                from "@/components/shared/panel/Panel.svelte";
@@ -12,7 +12,8 @@
     // import RoleForm             from "./RoleForm.svelte";
     import type { RolesQuery }  from "@/lib/graphql/roles/types";
     import { ROLES_QUERY }      from "@/lib/graphql/roles/queries";
-    import { graphqlClient }    from "@/lib/graphql/query-client";
+    import { client }           from "@/lib/urql";
+    import { queryStore }       from '@urql/svelte';
 
 
     const queryParams = {
@@ -23,13 +24,46 @@
     };
 
 
-    const rolesQuery = createQuery({
-        queryKey    : ['roles', queryParams],
-        queryFn     : async (): Promise<RolesQuery> => {
-            return await graphqlClient.request( ROLES_QUERY, queryParams )
-        }
+    const roleResult = queryStore<RolesQuery>({
+        client,
+        query           : ROLES_QUERY,
+        variables       : queryParams,
+        requestPolicy   : 'cache-and-network'
+        // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
     });
 
+
+    function refetchUsers() {
+        roleResult.reexecute({ requestPolicy: 'network-only' });
+    }
+
+    // Configurar intervalo para refrescar datos cada cierto tiempo (ej: cada 30 segundos)
+    let refreshInterval: ReturnType<typeof setInterval> | undefined;
+
+    // Función para iniciar el intervalo de actualización
+    function startRefreshInterval(intervalMs = 1000 * 60 * 30) { // 30 minutos por defecto
+        // Limpiar intervalo existente si hay alguno
+        if ( refreshInterval ) clearInterval( refreshInterval );
+
+        // Crear nuevo intervalo
+        refreshInterval = setInterval(() => {
+            console.log('Actualizando datos de usuarios...');
+            refetchUsers();
+        }, intervalMs );
+    }
+
+    // Función para detener el intervalo
+    function stopRefreshInterval() {
+        if ( refreshInterval ) {
+            clearInterval( refreshInterval );
+            refreshInterval = undefined;
+        }
+    }
+
+    onMount(() => {
+        startRefreshInterval();
+        return () => stopRefreshInterval();
+    });
 
     const columns: ColumnProp[] = [
         { column: 'Name',           showColumn: true },
@@ -62,13 +96,13 @@
         </Panel> -->
     </div>
 
-    {#if $rolesQuery.isLoading}
+    {#if $roleResult.fetching}
         <p>Loading...</p>
-    {:else if $rolesQuery.isError}
-        <p>Error: {$rolesQuery.error.message}</p>
-    {:else if $rolesQuery.data}
+    {:else if $roleResult.error}
+        <p>Error: {$roleResult.error.message}</p>
+    {:else if $roleResult.data}
         <Table columns={columns}>
-            {#each $rolesQuery.data.roles as role}
+            {#each $roleResult.data.roles as role}
                 <TableRow>
                     <TableData value={role.name} />
                     <TableData value={role.description} />
