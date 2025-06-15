@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createQuery } from '@tanstack/svelte-query';
+    import { onMount } from 'svelte';
 
     import {
         Table,
@@ -14,8 +14,9 @@
 
     import type { Attribute, AttributesQuery }  from "@/lib/graphql/attributes/types";
     import { ATTRIBUTES_QUERY }                 from "@/lib/graphql/attributes/queries";
-    import { graphqlClient }                    from "@/lib/graphql/query-client";
-    import AttributeType from './AttributeType.svelte';
+    import AttributeType                        from './AttributeType.svelte';
+    import { client }       from "@/lib/urql";
+    import { queryStore }   from '@urql/svelte';
 
 
     const queryParams = {
@@ -26,11 +27,47 @@
         attributeKeys   : [],
     };
 
-    const attributesQuery = createQuery({
-        queryKey: ['attributes', queryParams],
-        queryFn: async (): Promise<AttributesQuery> => {
-        return await graphqlClient.request(ATTRIBUTES_QUERY, queryParams);
-        },
+
+    const attributeResult = queryStore<AttributesQuery>({
+        client,
+        query           : ATTRIBUTES_QUERY,
+        variables       : queryParams,
+        requestPolicy   : 'cache-and-network'
+        // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
+    });
+
+
+    function refetchUsers() {
+        attributeResult.reexecute({ requestPolicy: 'network-only' });
+    }
+
+    // Configurar intervalo para refrescar datos cada cierto tiempo (ej: cada 30 segundos)
+    let refreshInterval: ReturnType<typeof setInterval> | undefined;
+
+    // Función para iniciar el intervalo de actualización
+    function startRefreshInterval(intervalMs = 1000 * 60 * 30) { // 30 minutos por defecto
+        // Limpiar intervalo existente si hay alguno
+        if ( refreshInterval ) clearInterval( refreshInterval );
+
+        // Crear nuevo intervalo
+        refreshInterval = setInterval(() => {
+            console.log('Actualizando datos de usuarios...');
+            refetchUsers();
+        }, intervalMs );
+    }
+
+    // Función para detener el intervalo
+    function stopRefreshInterval() {
+        if ( refreshInterval ) {
+            clearInterval( refreshInterval );
+            refreshInterval = undefined;
+        }
+    }
+
+    // Iniciar intervalo al montar el componente
+    onMount(() => {
+        startRefreshInterval();
+        return () => stopRefreshInterval(); // Limpiar al desmontar
     });
 
 
@@ -85,28 +122,28 @@
         </Panel>
     </div>
 
-    {#if $attributesQuery.isLoading}
+    {#if $attributeResult.fetching}
         <p>Loading...</p>
-    {:else if $attributesQuery.isError}
-        <p>Error: {$attributesQuery.error.message}</p>
-    {:else if $attributesQuery.data}
+    {:else if $attributeResult.error}
+        <p>Error: {$attributeResult.error.message}</p>
+    {:else if $attributeResult.data}
         <Table {columns}>
-            {#each $attributesQuery.data.userAttributes as attr}
+            {#each $attributeResult.data.userAttributes as attribute}
                 <TableRow>
-                    <TableData value={attr.key} />
-                    <TableData value={attr.defaultValue} />
+                    <TableData value={attribute.key} />
+                    <TableData value={attribute.defaultValue} />
                     <TableData>
-                        <AttributeType type={attr.type || 'default'} />
+                        <AttributeType type={attribute.type || 'default'} />
                     </TableData>
-                    <TableData value={ attr.required } />
-                    <TableData value={ attr.min } />
-                    <TableData value={ attr.max } />
-                    <TableData value={ attr.minLength } />
-                    <TableData value={ attr.maxLength } />
-                    <TableData value={ attr.minDate } />
-                    <TableData value={ attr.maxDate } />
-                    <TableData value={ attr.pattern } />
-                    <TableData value={ attr.isActive } />
+                    <TableData value={ attribute.required } />
+                    <TableData value={ attribute.min } />
+                    <TableData value={ attribute.max } />
+                    <TableData value={ attribute.minLength } />
+                    <TableData value={ attribute.maxLength } />
+                    <TableData value={ attribute.minDate } />
+                    <TableData value={ attribute.maxDate } />
+                    <TableData value={ attribute.pattern } />
+                    <TableData value={ attribute.isActive } />
                     <TableData size="text-sm font-medium" float={true}>
                         Panel
                         <!-- <Panel
