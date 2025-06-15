@@ -39,9 +39,7 @@ const activeSection = Astro.url.searchParams.get( 'section' ) || 'overview';
     </head>
 
     <body class="bg-space-blue min-h-screen text-white">
-        <!-- <div transition:persist> -->
-            <ParticleBackground transition:persist client:only="react" />
-        <!-- </div> -->
+        <ParticleBackground transition:persist client:only="react" />
 
         <Background />
 
