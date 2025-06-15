@@ -14,11 +14,11 @@ import Logout from '@/components/auth/Logout.astro';
 const activeSection = Astro.url.pathname.split( '/' ).pop() || 'overview';
 const session       = Astro.locals.session as Session;
 const sidebarItems  = [
-    { id: 'overview',   name: 'Overview',              icon: OverviewIcon },
-    { id: 'users',      name: 'Users',                 icon: UsersIcon },
-    { id: 'attributes', name: 'User Attributes',       icon: AttributesIcon },
-    { id: 'secrets',    name: 'API Secrets',           icon: SecretIcon },
-    { id: 'roles',      name: 'Roles & Permissions',   icon: RoleIcon },
+    { id: 'overview',           name: 'Overview',               icon: OverviewIcon },
+    { id: 'users',              name: 'Users',                  icon: UsersIcon },
+    { id: 'attributes',         name: 'User Attributes',        icon: AttributesIcon },
+    { id: 'secrets',            name: 'API Secrets',            icon: SecretIcon },
+    { id: 'roles&permissions',  name: 'Roles & Permissions',    icon: RoleIcon },
 ];
 ---
 
