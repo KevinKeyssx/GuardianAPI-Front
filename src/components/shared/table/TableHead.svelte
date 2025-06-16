@@ -90,7 +90,7 @@
         } catch (error) {
             console.error('Error loading column visibility state:', error);
         }
-        
+
         // Limpiar estilos al desmontar el componente
         return () => {
             const styleEl = document.getElementById('column-visibility-styles');
@@ -114,11 +114,13 @@
                     <Popover>
                         <div class="py-1">
                             <h3 class="text-neon-blue font-orbitron mb-3 border-b border-neon-blue/30 pb-1">Toggle Columns</h3>
+
                             <div class="space-y-1 max-h-[300px] overflow-y-auto pr-1">
                                 {#each columns as colItem}
                                     {#if colItem.column !== 'Actions'}
                                         <div class="flex items-center justify-between py-2">
                                             <label for={`column-toggle-${colItem.column}`} class="text-sm font-orbitron text-white cursor-pointer">{colItem.column}</label>
+
                                             <div class="relative">
                                                 <input 
                                                     type="checkbox" 
@@ -128,6 +130,7 @@
                                                     on:change={(e) => handleColumnToggle(colItem.column, e.currentTarget.checked)}
                                                     class="sr-only peer"
                                                 />
+
                                                 <div 
                                                     role="switch"
                                                     tabindex="0"
