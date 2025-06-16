@@ -14,6 +14,7 @@
     import { USERS_QUERY }  from "@/lib/graphql/users/queries";
     import { client }       from "@/lib/urql";
     import { queryStore }   from '@urql/svelte';
+    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
     // import Filter from "@/components/inputs/Filter.svelte";
 
     const queryParams = {
@@ -120,7 +121,7 @@
                 Retry
             </button>
         </div>
-    {:else if $usersResult.data?.users && $usersResult.data.users.length > 0}
+    {:else if $usersResult.data}
         <Table {columns}>
             {#each $usersResult.data.users as user}
                 <TableRow>
@@ -157,6 +158,11 @@
                         </Panel>
                     </TableData>
                 </TableRow>
+            {:else}
+                <TableEmpty
+                    columns = { columns.length }
+                    data    = "No users found"
+                />
             {/each}
         </Table>
 
