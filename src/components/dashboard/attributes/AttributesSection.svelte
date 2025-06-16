@@ -17,6 +17,7 @@
     import AttributeType                        from './AttributeType.svelte';
     import { client }       from "@/lib/urql";
     import { queryStore }   from '@urql/svelte';
+    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
 
 
     const queryParams = {
@@ -160,6 +161,11 @@
                         </Panel> -->
                     </TableData>
                 </TableRow>
+            {:else}
+                <TableEmpty
+                    columns = { columns.length }
+                    data    = "No attributes found"
+                />
             {/each}
         </Table>
     {/if}
