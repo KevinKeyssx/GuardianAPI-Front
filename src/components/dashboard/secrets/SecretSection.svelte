@@ -11,6 +11,7 @@
     import { queryStore }   from '@urql/svelte';
     import { SECRETS_QUERY } from "@/lib/graphql/secrets/queries";
     import type { SecretsQuery } from "@/lib/graphql/secrets/types";
+    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
 
 
     const secretsResult = queryStore<SecretsQuery>({
@@ -59,8 +60,8 @@
         { column: 'Expires At',     showColumn: true },
         { column: 'Will Expire At', showColumn: true },
         { column: 'Active',         showColumn: true },
-        { column: 'Created',        showColumn: true },
-        { column: 'Updated',        showColumn: true },
+        { column: 'Created',        showColumn: false },
+        { column: 'Updated',        showColumn: false },
         { column: 'Actions',        showColumn: true }
     ];
 </script>
@@ -118,9 +119,10 @@
                     </TableData>
                 </TableRow>
             {:else}
-                <TableRow>
-                    <TableData >No secrets found</TableData>
-                </TableRow>
+                <TableEmpty
+                    columns = { columns.length }
+                    data    = "No secrets found"
+                />
             {/each}
         </Table>
     {/if}
