@@ -1,14 +1,16 @@
 <script lang="ts">
     import { CalendarDateTime, type DateValue } from "@internationalized/date";
 
-    import DatePicker       from "@/components/inputs/DatePicker.svelte";
-    import Input            from "@/components/inputs/Input.svelte";
-    import Switch           from "@/components/inputs/Switch.svelte";
-    import Modal            from "@/components/shared/Modal.svelte";
-    import PanelFooter      from "@/components/shared/panel/PanelFooter.svelte";
-    import PanelMain        from "@/components/shared/panel/PanelMain.svelte";
-    import type { User }    from "@/lib/graphql/users/types";
-    import Upload           from "@/components/inputs/Upload.svelte";
+    import DatePicker   from "@/components/inputs/DatePicker.svelte";
+    import Input        from "@/components/inputs/Input.svelte";
+    import Switch       from "@/components/inputs/Switch.svelte";
+    import Modal        from "@/components/shared/Modal.svelte";
+    import PanelFooter  from "@/components/shared/panel/PanelFooter.svelte";
+    import PanelMain    from "@/components/shared/panel/PanelMain.svelte";
+    import Upload       from "@/components/inputs/Upload.svelte";
+    import DateForm     from "@/components/shared/show/date-form.svelte";
+
+    import type { User } from "@/lib/graphql/users/types";
 
 
     type Props = {
@@ -92,20 +94,11 @@
         />
     </form>
 
-    <div class="mt-12 space-y-2">
-        <p class="flex items-center px-4 py-2 border border-neon-blue/50 bg-neon-blue/10 text-neon-blue rounded-md justify-between">
-            <span class="text-sm font-orbitron font-bold">
-                Created:
-            </span>
-            <span>5h june, 2025 - 00:55</span>
-        </p>
-        <p class="flex items-center px-4 py-2 border border-neon-blue/50 bg-neon-blue/10 text-neon-blue rounded-md justify-between">
-            <span class="text-sm font-orbitron font-bold">
-                Updated:
-            </span>
-            <span>5h june, 2025 - 00:55</span>
-        </p>
-    </div>
+    <DateForm
+        show        = { !!user.id }
+        createdAt   = { user.createdAt }
+        updatedAt   = { user.updatedAt }
+    />
 </PanelMain>
 
 <PanelFooter>
