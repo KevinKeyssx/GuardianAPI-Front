@@ -5,19 +5,18 @@
         Table,
         TableData,
         TableRow,
-
         type ColumnProp
-
     }                       from "@/components/shared/table";
     import Panel            from "@/components/shared/panel/Panel.svelte";
-    import AttributeForm    from "./AttributeForm.svelte";
+    import TableEmpty       from '@/components/shared/table/TableEmpty.svelte';
+    import AttributeForm    from "@/components/dashboard/attributes/AttributeForm.svelte";
+    import AttributeType    from '@/components/dashboard/attributes/AttributeType.svelte';
 
     import type { Attribute, AttributesQuery }  from "@/lib/graphql/attributes/types";
     import { ATTRIBUTES_QUERY }                 from "@/lib/graphql/attributes/queries";
-    import AttributeType                        from './AttributeType.svelte';
-    import { client }       from "@/lib/urql";
+    import { client }                           from "@/lib/urql";
+
     import { queryStore }   from '@urql/svelte';
-    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
 
 
     const queryParams = {
@@ -117,8 +116,8 @@
             bind:clicked={ clicked }
         >
             <AttributeForm
-                key={'llave'}
                 bind:clicked={ clicked }
+                attribute={{} as Attribute}
             />
         </Panel>
     </div>
