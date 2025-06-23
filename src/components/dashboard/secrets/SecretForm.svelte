@@ -1,51 +1,40 @@
----
-interface Secret {
-    name: string;
-    willExpireAt: string;
-}
+<script lang="ts">
+    import DatePicker from "@/components/inputs/DatePicker.svelte";
+    import Input from "@/components/inputs/Input.svelte";
+    import Dialog from "@/components/shared/dialog/dialog.svelte";
+    import DateForm from "@/components/shared/show/date-form.svelte";
 
-export interface Props {
-    id: string;
-    secret?: Secret;
-}
+    interface Secret {
+        name: string;
+        willExpireAt: string;
+    }
 
-const { id, secret } = Astro.props;
----
-<div class="space-y-4">
+    interface Props {
+        id: string;
+        secret?: Secret;
+    }
 
-    <div class="flex flex-col">
-        <label
-            for="name"
-            class="text-sm font-orbitron text-white mb-1"
-        >
-            Name
-        </label>
+    const { id, secret } = $props();
+</script>
 
-        <input
-            type="text"
-            name="name"
-            placeholder="Enter name"
-            id="name"
-            class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white"
-            required
-            value={secret?.name}
-        />
-    </div>
+<form class="space-y-4" {id}>
+    <Input
+        bind:value  = { secret.name }
+        label       = "Name"
+        placeholder = "Enter name"
+        id          = "name"
+        name        = "name"
+        type        = 'text'
+    />
 
-    <div class="flex flex-col">
-        <label
-            for="willExpireAt"
-            class="text-sm font-orbitron text-white mb-1"
-        >
-            Will expire at
-        </label>
+    <DatePicker
+        bind:value    = { secret.willExpireAt }
+        id            = "will-expire-at"
+        label         = "Will expire at"
+    />
 
-        <input
-            type="date"
-            id="willExpireAt"
-            class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white"
-            required
-            value={secret?.willExpireAt}
-        />
-    </div>
-</div>
+    <!-- <DateForm
+        id            = "will-expire-at"
+        label         = "Will expire at"
+    /> -->
+</form>
