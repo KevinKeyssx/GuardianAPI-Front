@@ -6,7 +6,7 @@
     import Select       from "@/components/inputs/Select.svelte";
     import Switch       from "@/components/inputs/Switch.svelte";
     import Textarea     from "@/components/inputs/Textarea.svelte";
-    import Modal        from "@/components/shared/Modal.svelte";
+    // import Modal        from "@/components/shared/Modal.svelte";
     import PanelFooter  from "@/components/shared/panel/PanelFooter.svelte";
     import PanelMain    from "@/components/shared/panel/PanelMain.svelte";
     import DateForm     from "@/components/shared/show/date-form.svelte";
@@ -193,11 +193,11 @@
 </PanelMain>
 
 <PanelFooter>
-    <Modal
+    <!-- <Modal
         id      = { 'add-attribute' }
         type    = "attribute"
         title   = "Add Attribute"
-    />
+    /> -->
 
     <div class="flex items-center space-x-3">
         <button
