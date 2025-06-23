@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, type Snippet } from 'svelte';
 
     const {
         id,
@@ -7,7 +7,8 @@
         title,
         buttonText = 'Open',
         buttonClass = 'px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center',
-        isEdit = false
+        isEdit = false,
+        form
     } = $props<{
         id: string;
         type: 'user' | 'attribute' | 'secret' | 'role';
@@ -15,6 +16,7 @@
         buttonText?: string;
         buttonClass?: string;
         isEdit?: boolean;
+        form: Snippet;
     }>();
 
     let isModalOpen = $state(false);
@@ -144,8 +146,7 @@
             </header>
 
             <main class="form-content">
-                <!-- svelte-ignore slot_element_deprecated -->
-                <slot />
+                {@render form()}
             </main>
 
             <footer class="flex justify-end space-x-3 mt-6">
