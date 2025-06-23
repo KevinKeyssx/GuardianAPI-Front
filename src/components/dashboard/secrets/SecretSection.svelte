@@ -12,6 +12,10 @@
     import { SECRETS_QUERY } from "@/lib/graphql/secrets/queries";
     import type { SecretsQuery } from "@/lib/graphql/secrets/types";
     import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
+    import Dialog from '@/components/shared/dialog/dialog.svelte';
+    import Modal from '@/components/shared/Modal.svelte';
+    import SecretForm from './SecretForm.svelte';
+    import AlertDialog from '@/components/shared/dialog/AlertDialog.svelte';
 
 
     const secretsResult = queryStore<SecretsQuery>({
@@ -83,6 +87,21 @@
                 ...
             </div>
         </div>
+
+    <!-- <Dialog /> -->
+
+    <Modal
+        id      = { 'add-secret' }
+        type    = "secret"
+        title   = "Add Secret"
+    >
+        {#snippet form()}
+            <SecretForm id="add-secret" secret={{} as SecretForm} />
+        {/snippet}
+    </Modal>
+
+    <AlertDialog />
+
 
         <!-- <Panel client:only="svelte"
             title           = "New Secret"
