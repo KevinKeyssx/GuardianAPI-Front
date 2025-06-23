@@ -153,7 +153,7 @@
                     type        = 'number'
                 />
 
-                <div class=" grid col-span-2">
+                <div class="grid col-span-2">
                     <Input
                         bind:value  = { attribute.pattern }
                         label       = "Pattern"
