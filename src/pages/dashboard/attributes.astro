@@ -1,8 +1,14 @@
 ---
-import DashboarLayout from '@/layouts/DashboarLayout.astro';
+import { getSession } from 'auth-astro/server';
 
+import DashboarLayout from '@/layouts/DashboarLayout.astro';
 import AttributesSection from '@/components/dashboard/attributes/AttributesSection.svelte';
 
+const session = await getSession( Astro.request );
+
+if ( !session ) {
+    return Astro.redirect( '/signin' );
+}
 ---
 
 <DashboarLayout title="Attributes - GuardianApi">
