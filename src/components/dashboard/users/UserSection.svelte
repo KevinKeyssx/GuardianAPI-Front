@@ -7,15 +7,16 @@
         TableData,
         TableRow,
         type ColumnProp
-    }                       from "@/components/shared/table";
-    import Panel            from "@/components/shared/panel/Panel.svelte";
-    import UserForm         from "@/components/dashboard/users/UserForm.svelte";
-    import type { User, UsersQuery }    from "@/lib/graphql/users/types";
-    import { USERS_QUERY }  from "@/lib/graphql/users/queries";
-    import { client }       from "@/lib/urql";
-    import { queryStore }   from '@urql/svelte';
-    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
+    }                   from "@/components/shared/table";
+    import Panel        from "@/components/shared/panel/Panel.svelte";
+    import UserForm     from "@/components/dashboard/users/UserForm.svelte";
+    import TableEmpty   from '@/components/shared/table/TableEmpty.svelte';
     // import Filter from "@/components/inputs/Filter.svelte";
+
+    import type { User, UsersQuery }    from "@/lib/graphql/users/types";
+    import { USERS_QUERY }              from "@/lib/graphql/users/queries";
+    import { client }                   from "@/lib/urql";
+    import { queryStore }               from '@urql/svelte';
 
     const queryParams = {
         page    : 0,
