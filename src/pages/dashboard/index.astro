@@ -1,0 +1,9 @@
+---
+import { getSession } from 'auth-astro/server';
+
+const session = await getSession( Astro.request );
+
+const page = session ? '/dashboard/overview' : '/signin';
+
+return Astro.redirect( page );
+---
