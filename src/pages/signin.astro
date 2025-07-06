@@ -32,7 +32,7 @@ if ( session ) {
             path        : '/',
         });
 
-        return Astro.redirect( '/dashboard' );
+        return Astro.redirect( '/dashboard/overview' );
     } catch ( error ) {
         return Astro.redirect( '/error' );
     }
