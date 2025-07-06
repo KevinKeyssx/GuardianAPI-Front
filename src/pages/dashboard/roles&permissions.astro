@@ -1,7 +1,14 @@
 ---
-import DashboarLayout from '@/layouts/DashboarLayout.astro';
+import { getSession } from 'auth-astro/server';
 
+import DashboarLayout from '@/layouts/DashboarLayout.astro';
 import RoleSection from '@/components/dashboard/roles/RoleSection.svelte';
+
+const session = await getSession(Astro.request);
+
+if (!session) {
+    return Astro.redirect('/signin');
+}
 ---
 
 <DashboarLayout title="Roles & Permissions - GuardianApi">
