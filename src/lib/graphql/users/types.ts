@@ -1,5 +1,13 @@
 import type { DateValue } from "@internationalized/date";
 
+
+export interface UserAttribute {
+    key     : string;
+    value   : string;
+    type    : string;
+    required: boolean;
+}
+
 export interface User {
     id?             : string;
     avatar?         : string;
@@ -14,7 +22,7 @@ export interface User {
     updatedAt?      : string;
     lastLogin?      : string;
     roles?          : Role[];
-    attributes?     : { key: string; value: string }[];
+    attributes?     : UserAttribute[];
     total?          : number;
 }
 
