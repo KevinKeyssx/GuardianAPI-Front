@@ -23,10 +23,9 @@
         each    : 10,
         field   : 'createdAt',
         orderBy : 'desc',
-        // attributeKeys: [],
+        keys    : [],
     };
 
-    // Crear la consulta con urql usando queryStore
     const usersResult = queryStore<UsersQuery>({
         client,
         query           : USERS_QUERY,
@@ -35,27 +34,22 @@
         // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
     });
 
-    // Función para refrescar los datos manualmente
     function refetchUsers() {
         usersResult.reexecute({ requestPolicy: 'network-only' });
     }
 
-    // Configurar intervalo para refrescar datos cada cierto tiempo (ej: cada 30 segundos)
     let refreshInterval: ReturnType<typeof setInterval> | undefined;
 
-    // Función para iniciar el intervalo de actualización
     function startRefreshInterval(intervalMs = 1000 * 60 * 30) { // 30 minutos por defecto
-        // Limpiar intervalo existente si hay alguno
         if ( refreshInterval ) clearInterval( refreshInterval );
 
-        // Crear nuevo intervalo
         refreshInterval = setInterval(() => {
             console.log('Actualizando datos de usuarios...');
             refetchUsers();
         }, intervalMs );
     }
 
-    // Función para detener el intervalo
+
     function stopRefreshInterval() {
         if ( refreshInterval ) {
             clearInterval( refreshInterval );
@@ -63,10 +57,10 @@
         }
     }
 
-    // Iniciar intervalo al montar el componente
+
     onMount(() => {
         startRefreshInterval();
-        return () => stopRefreshInterval(); // Limpiar al desmontar
+        return () => stopRefreshInterval();
     });
 
 
@@ -127,13 +121,21 @@
             {#each $usersResult.data.users as user}
                 <TableRow>
                     <TableData value={ user.avatar } />
+
                     <TableData value={ user.email } />
+
                     <TableData value={ user.name } />
+
                     <TableData value={ user.nickname } />
+
                     <TableData value={ user.birthdate as string } />
+
                     <TableData value={ user.phone } />
+
                     <TableData value={ user.isActive } />
+
                     <TableData value={ user.isVerified } />
+
                     <TableData>
                         {#if user?.roles && user.roles.length > 0}
                             <span class={`px-2 py-1 text-xs rounded-full ${user.roles[0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user.roles[0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
@@ -143,7 +145,9 @@
                             <span class="text-gray-400">-</span>
                         {/if}
                     </TableData>
+
                     <TableData value={user.lastLogin} />
+
                     <TableData size="text-sm font-medium" float={ true }>
                         <Panel
                             bind:clicked={ clicked }
@@ -167,11 +171,11 @@
             {/each}
         </Table>
 
-        <Pagination
+        <!-- <Pagination
             totalItems      = { 10 }
             itemsPerPage    = { queryParams.each }
             currentPage     = { queryParams.page + 1 }
-        />
+        /> -->
     {:else}
         <div class="bg-dark-blue/50 p-8 rounded-lg text-center">
             <p class="text-white">No users found</p>
