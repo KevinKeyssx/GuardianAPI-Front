@@ -3,8 +3,8 @@
 import { gql } from 'graphql-request';
 
 export const CREATE_USER_MUTATION = gql`
-    mutation CreateUser($input: CreateUserInput!) {
-        createUser(createUserInput: $input) {
+    mutation CreateUser($createUserInput: CreateUserInput!, $file: Upload) {
+        createUser(createUserInput: $createUserInput, file:$file) {
             email
             name
             avatar
@@ -14,6 +14,9 @@ export const CREATE_USER_MUTATION = gql`
             isActive
             createdAt
             updatedAt
+            roles {
+                name
+            }
             attributes {
                 type
                 key
@@ -25,8 +28,8 @@ export const CREATE_USER_MUTATION = gql`
 `;
 
 export const UPDATE_USER_MUTATION = gql`
-    mutation UpdateUser($input: UpdateUserInput!) {
-        updateUser(updateUserInput: $input) {
+    mutation UpdateUser($updateUserInput: UpdateUserInput!, $file: Upload) {
+        updateUser(updateUserInput: $updateUserInput, file: $file) {
             id
             avatar
             email
@@ -49,7 +52,6 @@ export const UPDATE_USER_MUTATION = gql`
         }
     }
 `;
-
 export const DELETE_USER_MUTATION = gql`
     mutation DeleteUser($id: String!) {
         deleteUser(id: $id)
