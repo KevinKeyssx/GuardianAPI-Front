@@ -12,7 +12,7 @@
 
     type Props = {
         id?         : string;
-        value?      : DateValue | string;
+        value?      : DateValue | string | null | undefined;
         label?      : string;
         required?   : boolean;
         disabled?   : boolean;
@@ -23,7 +23,7 @@
 
     let {
         id          = "",
-        value       = $bindable<DateValue | string>(),
+        value       = $bindable<DateValue | string | null | undefined>(),
         label       = "",
         disabled    = false,
         minDate     = undefined,
