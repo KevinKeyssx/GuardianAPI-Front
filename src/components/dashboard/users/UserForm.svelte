@@ -14,29 +14,63 @@
 
 
     type Props = {
-        user: User;
-        clicked: number;
+        user    : User;
+        clicked : number;
+        onSubmit: ( input: any, file: File | null ) => Promise<void>;
     }
 
 
     let {
         user: incomingUser,
         clicked = $bindable(),
+        onSubmit = $bindable(),
     }: Props = $props();
 
 
     let user = $state<User>( incomingUser );
+    let avatarFile: File | null = $state(null);
 
 
     function getMaxDate(): DateValue {
         const date = new Date();
         return new CalendarDateTime( date.getFullYear(), date.getMonth() + 1, date.getDate() );
     }
+
+
+    async function handleFormSubmit( event: Event ) {
+        event.preventDefault();
+
+        if ( !user.email ) {
+            return;
+        }
+
+        // const input: CreateUserInput | UpdateUserInput = {
+        const input: any = {
+            email       : user.email,
+            name        : user.name,
+            nickname    : user.nickname,
+            birthdate   : user.birthdate ? user.birthdate.toString() : null,
+            phone       : user.phone,
+            isActive    : user.isActive,
+            isVerified  : user.isVerified,
+        };
+
+        if ( user.id ) { // Es una actualización
+            // (input as UpdateUserInput).id = user.id;
+            input.id = user.id;
+        }
+
+        // Llama a la función onSubmit que viene del componente padre
+        await onSubmit( input, avatarFile );
+
+        // Opcional: Cerrar el panel o resetear el formulario
+        // clicked++; // Incrementa 'clicked' para cerrar el Panel
+    }
 </script>
 
 <PanelMain>
-    <form class="space-y-4">
-        <Upload bind:avatar={ user.avatar } />
+    <form class="space-y-4" onsubmit={ handleFormSubmit }>
+        <Upload bind:file={ avatarFile } />
 
         <Input
             bind:value={ user.email }
@@ -92,36 +126,38 @@
             label   = "Verified"
             id      = 'verified'
         />
+
+        <DateForm
+            show        = { !!user.id }
+            createdAt   = { user.createdAt }
+            updatedAt   = { user.updatedAt }
+        />
+
+        <PanelFooter>
+            <Modal
+                id      = { "add-attribute" }
+                type    = "attribute"
+                title   = "Add Attribute"
+            />
+
+            <div class="flex items-center space-x-3">
+                <button
+                    class   = "close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300 active:scale-[0.98] active:bg-gray-700"
+                    onclick = { () => clicked++ }
+                >
+                    Close
+                </button>
+
+                <button
+                    class   = "save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300"
+                    onclick = { () => {
+                        // clicked++;
+                        console.log('🚀 ~ file: UserForm.svelte:128 ~ clicked:', {...user})
+                    }}
+                >
+                    Save
+                </button>
+            </div>
+        </PanelFooter>
     </form>
-
-    <DateForm
-        show        = { !!user.id }
-        createdAt   = { user.createdAt }
-        updatedAt   = { user.updatedAt }
-    />
 </PanelMain>
-
-<PanelFooter>
-    <Modal id={'add-attribute'} type="attribute" title="Add Attribute" />
-
-    <div class="flex items-center space-x-3">
-        <button
-            class="close-panel px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors duration-300 active:scale-[0.98] active:bg-gray-700"
-            onclick={() => {
-                clicked++;
-            }}
-        >
-            Close
-        </button>
-
-        <button
-            class="save-panel px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300"
-            onclick={() => {
-                // clicked++;
-                console.log('🚀 ~ file: UserForm.svelte:128 ~ clicked:', {...user})
-            }}
-        >
-            Save
-        </button>
-    </div>
-</PanelFooter>
