@@ -3,7 +3,7 @@
     import NoCheckIcon  from '@/icons/NoCheckIcon.svelte';
     import noneIcon     from '@/assets/icons/none.svg?raw';
 
-    type Value = string | number | boolean | undefined;
+    type Value = string | number | boolean | undefined | null;
 
     export let value        : Value | undefined = undefined;
     export let color        : string    = 'text-white';
