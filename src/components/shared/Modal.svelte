@@ -16,7 +16,7 @@
         buttonText?: string;
         buttonClass?: string;
         isEdit?: boolean;
-        form: Snippet;
+        form?: Snippet;
     }>();
 
     let isModalOpen = $state(false);
