@@ -74,7 +74,7 @@
         { column: 'Active',     showColumn: true },
         { column: 'Verified',   showColumn: true },
         { column: 'Role',       showColumn: true },
-        { column: 'Last Login', showColumn: true },
+        // { column: 'Last Login', showColumn: true },
         { column: 'Actions',    showColumn: true },
     ];
 
@@ -97,6 +97,7 @@
             <UserForm
                 bind:clicked={ clicked }
                 user={{} as User}
+                onSubmit={ (input, file ) => Promise.resolve() }
             />
         </Panel>
     </div>
@@ -146,7 +147,7 @@
                         {/if}
                     </TableData>
 
-                    <TableData value={user.lastLogin} />
+                    <!-- <TableData value={user.lastLogin} /> -->
 
                     <TableData size="text-sm font-medium" float={ true }>
                         <Panel
@@ -159,6 +160,7 @@
                             <UserForm
                                 bind:clicked={ clicked }
                                 { user }
+                                onSubmit={ (input, file ) => Promise.resolve() }
                             />
                         </Panel>
                     </TableData>
