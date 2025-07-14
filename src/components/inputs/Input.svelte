@@ -3,7 +3,7 @@
         placeholder?    : string;
         id?             : string;
         name?           : string;
-        value?          : string | number;
+        value?          : string | number | null | undefined;
         label?          : string;
         type?           : 'text' | 'email' | 'password' | 'number' | 'search';
         required?       : boolean;
