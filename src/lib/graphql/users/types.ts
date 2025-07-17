@@ -68,6 +68,8 @@ export interface User {
 // Interfaz para crear un nuevo usuario
 // Basada en los campos que espera tu 'CreateUserInput' en el backend
 export interface CreateUserInput {
+    id?          : string; // El ID es esencial para la actualización
+
     email       : string;
     name        : string;
     nickname?   : string | null;
