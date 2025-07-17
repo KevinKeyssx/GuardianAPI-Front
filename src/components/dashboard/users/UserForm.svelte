@@ -10,7 +10,7 @@
     import Upload       from "@/components/inputs/Upload.svelte";
     import DateForm     from "@/components/shared/show/date-form.svelte";
 
-    import type { User } from "@/lib/graphql/users/types";
+    import type { CreateUserInput, UpdateUserInput, User } from "@/lib/graphql/users/types";
 
 
     type Props = {
@@ -44,8 +44,7 @@
             return;
         }
 
-        // const input: CreateUserInput | UpdateUserInput = {
-        const input: any = {
+        const input: CreateUserInput | UpdateUserInput = {
             email       : user.email,
             name        : user.name,
             nickname    : user.nickname,
@@ -55,16 +54,11 @@
             isVerified  : user.isVerified,
         };
 
-        if ( user.id ) { // Es una actualización
-            // (input as UpdateUserInput).id = user.id;
-            input.id = user.id;
+        if ( user.id ) {
+            ( input as UpdateUserInput ).id = user.id;
         }
 
-        // Llama a la función onSubmit que viene del componente padre
         await onSubmit( input, avatarFile );
-
-        // Opcional: Cerrar el panel o resetear el formulario
-        // clicked++; // Incrementa 'clicked' para cerrar el Panel
     }
 </script>
 
