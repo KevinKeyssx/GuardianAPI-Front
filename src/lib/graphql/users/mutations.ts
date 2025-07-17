@@ -1,5 +1,3 @@
-// src/lib/graphql/users/mutations.ts
-
 import { gql } from 'graphql-request';
 
 export const CREATE_USER_MUTATION = gql`
@@ -52,8 +50,9 @@ export const UPDATE_USER_MUTATION = gql`
         }
     }
 `;
+
 export const DELETE_USER_MUTATION = gql`
-    mutation DeleteUser($id: String!) {
-        deleteUser(id: $id)
+    mutation RemoveUser($removeUserId: ID) {
+        removeUser(id: $removeUserId)
     }
 `;
