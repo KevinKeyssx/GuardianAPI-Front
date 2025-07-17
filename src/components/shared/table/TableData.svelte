@@ -2,6 +2,7 @@
     import CheckIcon    from '@/icons/CheckIcon.svelte';
     import NoCheckIcon  from '@/icons/NoCheckIcon.svelte';
     import noneIcon     from '@/assets/icons/none.svg?raw';
+    import userIcon     from '@/assets/icons/user.svg?url';
 
     type Value = string | number | boolean | undefined | null;
 
@@ -12,6 +13,7 @@
     export let size         : string    = 'text-sm';
     export let className    : string    = '';
     export let float        : boolean   = false;
+    export let isImg        : boolean   = false;
 
     const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
 </script>
@@ -36,11 +38,18 @@
     {:else if typeof value === 'number'}
         <span class="text-neon-blue">{value}</span>
     {:else if value === null}
-        {@html noneIcon}
+        {#if isImg}
+            <img
+                src   = { userIcon }
+                alt   = { 'Avatar' }
+                class = "w-8 h-8 rounded-full mx-auto"
+            />
+        {:else}
+            {@html noneIcon}
+        {/if}
     {:else if urlPattern.test( value )}
-        <img src={value} alt={value} class="w-8 h-8 rounded-full mx-auto"/>
+        <img src={value} alt={value} class="w-8 h-8 rounded-full mx-auto" />
     {:else}
         <span>{ value }</span>
     {/if}
 </td>
-
