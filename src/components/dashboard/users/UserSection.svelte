@@ -13,10 +13,13 @@
     import TableEmpty   from '@/components/shared/table/TableEmpty.svelte';
     // import Filter from "@/components/inputs/Filter.svelte";
 
-    import type { User, UsersQuery }    from "@/lib/graphql/users/types";
+    import type { Client as UrqlClient } from '@urql/svelte';
+
+    import type { CreateUserInput, UpdateUserInput, User, UsersQuery }    from "@/lib/graphql/users/types";
     import { USERS_QUERY }              from "@/lib/graphql/users/queries";
     import { client }                   from "@/lib/urql";
-    import { queryStore }               from '@urql/svelte';
+    import { mutationStore, queryStore }               from '@urql/svelte';
+    import { CREATE_USER_MUTATION, DELETE_USER_MUTATION, UPDATE_USER_MUTATION } from '@/lib/graphql/users/mutations';
 
     const queryParams = {
         page    : 0,
@@ -78,7 +81,89 @@
         { column: 'Actions',    showColumn: true },
     ];
 
+
     let clicked = $state(0);
+
+    async function onCreateUser( input: CreateUserInput, file: File | null ): Promise<void> {
+        const createInput: CreateUserInput = input as CreateUserInput;
+        console.log('Attempting to create user:', createInput, 'with file:', file);
+
+        const { data, error } = await client.mutation(
+            CREATE_USER_MUTATION, {
+                createUserInput: createInput,
+                file
+            }
+        ).toPromise();
+
+        if ( error ) {
+            console.error('Error creating user:', error);
+            alert(`Error creating user: ${error.message}`);
+            return;
+        }
+
+        if ( data ) {
+            console.log('User created successfully:', data.createUser);
+            clicked++;
+        }
+    }
+
+
+    async function onUpdateUser(  input: UpdateUserInput, file: File | null ): Promise<void> {
+        console.log('Attempting to update user:', input, 'with file:', file);
+
+        const { data, error } = await client.mutation(
+            UPDATE_USER_MUTATION, {
+                updateUserInput: input,
+                file
+            }
+        ).toPromise();
+
+        if ( error ) {
+            console.error('Error updating user:', error);
+            alert(`Error updating user: ${error.message}`);
+            return;
+        }
+
+        if ( data ) {
+            console.log('User updated successfully:', data.updateUser);
+            alert('User updated successfully!');
+            // refetchUsers();
+            clicked++;
+        }
+    }
+
+
+    async function handleUserSubmit( input: CreateUserInput | UpdateUserInput, file: File | null ) {
+        if ( input.id ) {
+            await onUpdateUser( input as UpdateUserInput, file );
+        } else {
+            await onCreateUser( input as CreateUserInput, file );
+        }
+    }
+
+    // Para la eliminación
+    async function handleDeleteUser(id: string) {
+        console.log("🚀 ~ file: UserSection.svelte:142 ~ id:", id)
+
+        if ( confirm( 'Are you sure you want to delete this user?' )) {
+            const { data, error } = await client.mutation(
+                DELETE_USER_MUTATION,
+                { removeUserId: id }
+            ).toPromise();
+
+            if ( error ) {
+                console.error('Error deleting user:', error);
+                // alert(`Error deleting user: ${error.message}`);
+                return;
+            }
+
+            if ( data ) {
+                console.log('User deleted successfully:', id);
+                // alert('User deleted successfully!');
+                // refetchUsers();
+            }
+        }
+    }
 </script>
 
 <div class="animate-fade-in">
@@ -95,9 +180,9 @@
             bind:clicked    = { clicked }
         >
             <UserForm
-                bind:clicked={ clicked }
-                user={{} as User}
-                onSubmit={ (input, file ) => Promise.resolve() }
+                bind:clicked    = { clicked }
+                user            = { {} as User }
+                onSubmit        = { handleUserSubmit }
             />
         </Panel>
     </div>
@@ -121,7 +206,7 @@
         <Table {columns}>
             {#each $usersResult.data.users as user}
                 <TableRow>
-                    <TableData value={ user.avatar } />
+                    <TableData value={ user.avatar } isImg={ true } />
 
                     <TableData value={ user.email } />
 
@@ -150,19 +235,28 @@
                     <!-- <TableData value={user.lastLogin} /> -->
 
                     <TableData size="text-sm font-medium" float={ true }>
-                        <Panel
-                            bind:clicked={ clicked }
-                            title       = "Edit User"
-                            buttonText  = ""
-                            buttonClass = ""
-                            isEdit      = { true }
-                        >
-                            <UserForm
+                        <div class="flex gap-2 items-center">
+                            <Panel
                                 bind:clicked={ clicked }
-                                { user }
-                                onSubmit={ (input, file ) => Promise.resolve() }
-                            />
-                        </Panel>
+                                title       = "Edit User"
+                                buttonText  = ""
+                                buttonClass = ""
+                                isEdit      = { true }
+                            >
+                                <UserForm
+                                    bind:clicked    = { clicked }
+                                    onSubmit        = { handleUserSubmit }
+                                    { user }
+                                />
+                            </Panel>
+
+                            <button class="px-3 py-1 bg-red-700/50 hover:bg-red-700/70 rounded-md text-sm text-white"
+                                onclick={() => handleDeleteUser(user.id)}
+                            >
+                                <!-- Delete -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="24" stroke-dashoffset="24" d="M12 20h5c0.5 0 1 -0.5 1 -1v-14M12 20h-5c-0.5 0 -1 -0.5 -1 -1v-14"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="24;0"/></path><path stroke-dasharray="20" stroke-dashoffset="20" d="M4 5h16"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.2s" values="20;0"/></path><path stroke-dasharray="8" stroke-dashoffset="8" d="M10 4h4M10 9v7M14 9v7"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="8;0"/></path></g></svg>
+                            </button>
+                        </div>
                     </TableData>
                 </TableRow>
             {:else}
