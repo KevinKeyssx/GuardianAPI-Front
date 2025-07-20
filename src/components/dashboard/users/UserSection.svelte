@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { derived, writable } from 'svelte/store';
+
+    import toast from 'svelte-french-toast';
 
     import {
         Pagination,
@@ -11,15 +13,25 @@
     import Panel        from "@/components/shared/panel/Panel.svelte";
     import UserForm     from "@/components/dashboard/users/UserForm.svelte";
     import TableEmpty   from '@/components/shared/table/TableEmpty.svelte';
+    import Action       from '@/components/shared/Action.svelte';
     // import Filter from "@/components/inputs/Filter.svelte";
+    import type {
+        User,
+        UsersQuery
+    }                       from "@/lib/graphql/users/types";
+    import {
+        DELETE_USER_MUTATION
+    }                       from '@/lib/graphql/users/mutations';
+    import {
+        queryStore
+    }                       from '@urql/svelte';
+    import {
+        errorToast,
+        successToast
+    }                       from '@/config/toast.config';
+    import { USERS_QUERY }  from "@/lib/graphql/users/queries";
+    import { client }       from "@/lib/urql";
 
-    import type { Client as UrqlClient } from '@urql/svelte';
-
-    import type { CreateUserInput, UpdateUserInput, User, UsersQuery }    from "@/lib/graphql/users/types";
-    import { USERS_QUERY }              from "@/lib/graphql/users/queries";
-    import { client }                   from "@/lib/urql";
-    import { mutationStore, queryStore }               from '@urql/svelte';
-    import { CREATE_USER_MUTATION, DELETE_USER_MUTATION, UPDATE_USER_MUTATION } from '@/lib/graphql/users/mutations';
 
     const queryParams = {
         page    : 0,
@@ -29,6 +41,7 @@
         keys    : [],
     };
 
+
     const usersResult = queryStore<UsersQuery>({
         client,
         query           : USERS_QUERY,
@@ -37,34 +50,62 @@
         // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
     });
 
-    function refetchUsers() {
-        usersResult.reexecute({ requestPolicy: 'network-only' });
-    }
 
-    let refreshInterval: ReturnType<typeof setInterval> | undefined;
-
-    function startRefreshInterval(intervalMs = 1000 * 60 * 30) { // 30 minutos por defecto
-        if ( refreshInterval ) clearInterval( refreshInterval );
-
-        refreshInterval = setInterval(() => {
-            console.log('Actualizando datos de usuarios...');
-            refetchUsers();
-        }, intervalMs );
-    }
+    const deletedUserIds = writable<string[]>( [] );
 
 
-    function stopRefreshInterval() {
-        if ( refreshInterval ) {
-            clearInterval( refreshInterval );
-            refreshInterval = undefined;
+    const filteredUsersResult = derived(
+        [usersResult, deletedUserIds],
+        ([ $usersResult, $deletedUserIds ]) => {
+            if ( !$usersResult.data?.users ) return $usersResult;
+
+            return {
+                ...$usersResult,
+                data: {
+                    users: $usersResult.data.users.filter( user => !$deletedUserIds.includes( user.id ) )
+                }
+            };
         }
+    );
+
+
+    function refetchUsers(): void {
+        usersResult.reexecute({ requestPolicy: 'network-only' });
+        deletedUserIds.set( [] );
     }
 
 
-    onMount(() => {
-        startRefreshInterval();
-        return () => stopRefreshInterval();
-    });
+    // Handle successful form operations (create/update)
+    // function handleFormSuccess(): void {
+    //     refetchUsers();
+    // }
+
+
+    // let refreshInterval: ReturnType<typeof setInterval> | undefined;
+
+
+    // function startRefreshInterval( intervalMs = 1000 * 60 * 30 ) {
+    //     if ( refreshInterval ) clearInterval( refreshInterval );
+
+    //     refreshInterval = setInterval(() => {
+    //         console.log( 'Actualizando datos de usuarios...' );
+    //         refetchUsers();
+    //     }, intervalMs );
+    // }
+
+
+    // function stopRefreshInterval() {
+    //     if ( refreshInterval ) {
+    //         clearInterval( refreshInterval );
+    //         refreshInterval = undefined;
+    //     }
+    // }
+
+
+    // onMount(() => {
+    //     startRefreshInterval();
+    //     return () => stopRefreshInterval();
+    // });
 
 
     const columns: ColumnProp[] = [
@@ -82,86 +123,27 @@
     ];
 
 
-    let clicked = $state(0);
-
-    async function onCreateUser( input: CreateUserInput, file: File | null ): Promise<void> {
-        const createInput: CreateUserInput = input as CreateUserInput;
-        console.log('Attempting to create user:', createInput, 'with file:', file);
-
-        const { data, error } = await client.mutation(
-            CREATE_USER_MUTATION, {
-                createUserInput: createInput,
-                file
-            }
-        ).toPromise();
-
-        if ( error ) {
-            console.error('Error creating user:', error);
-            alert(`Error creating user: ${error.message}`);
-            return;
-        }
-
-        if ( data ) {
-            console.log('User created successfully:', data.createUser);
-            clicked++;
-        }
-    }
+    let clicked = $state( 0 );
 
 
-    async function onUpdateUser(  input: UpdateUserInput, file: File | null ): Promise<void> {
-        console.log('Attempting to update user:', input, 'with file:', file);
-
-        const { data, error } = await client.mutation(
-            UPDATE_USER_MUTATION, {
-                updateUserInput: input,
-                file
-            }
-        ).toPromise();
-
-        if ( error ) {
-            console.error('Error updating user:', error);
-            alert(`Error updating user: ${error.message}`);
-            return;
-        }
-
-        if ( data ) {
-            console.log('User updated successfully:', data.updateUser);
-            alert('User updated successfully!');
-            // refetchUsers();
-            clicked++;
-        }
-    }
-
-
-    async function handleUserSubmit( input: CreateUserInput | UpdateUserInput, file: File | null ) {
-        if ( input.id ) {
-            await onUpdateUser( input as UpdateUserInput, file );
-        } else {
-            await onCreateUser( input as CreateUserInput, file );
-        }
-    }
-
-    // Para la eliminación
-    async function handleDeleteUser(id: string) {
+    async function handleDeleteUser( id: string ): Promise<void> {
         console.log("🚀 ~ file: UserSection.svelte:142 ~ id:", id)
 
-        if ( confirm( 'Are you sure you want to delete this user?' )) {
-            const { data, error } = await client.mutation(
-                DELETE_USER_MUTATION,
-                { removeUserId: id }
-            ).toPromise();
+        const { data, error } = await client.mutation(
+            DELETE_USER_MUTATION,
+            { removeUserId: id }
+        ).toPromise();
 
-            if ( error ) {
-                console.error('Error deleting user:', error);
-                // alert(`Error deleting user: ${error.message}`);
-                return;
-            }
+        if ( error ) {
+            console.error( 'Error deleting user:', error );
+            toast.error( 'Error deleting user', errorToast() );
+            return;
+        }
 
-            if ( data ) {
-                console.log('User deleted successfully:', id);
-                // alert('User deleted successfully!');
-                // refetchUsers();
-            }
+        if ( data ) {
+            console.log( 'User deleted successfully:', id, data );
+            toast.success( 'Usuario eliminado correctamente', successToast() );
+            deletedUserIds.update( ids => [...ids, id] );
         }
     }
 </script>
@@ -182,16 +164,15 @@
             <UserForm
                 bind:clicked    = { clicked }
                 user            = { {} as User }
-                onSubmit        = { handleUserSubmit }
             />
         </Panel>
     </div>
 
-    {#if $usersResult.fetching}
+    {#if $filteredUsersResult.fetching}
         <div class="flex justify-center items-center py-8">
             <p class="text-white">Loading users...</p>
         </div>
-    {:else if $usersResult.error}
+    {:else if $filteredUsersResult.error}
         <div class="bg-red-900/30 text-red-300 p-4 rounded-lg mb-4">
             <p>Error fetching users</p>
 
@@ -202,76 +183,73 @@
                 Retry
             </button>
         </div>
-    {:else if $usersResult.data}
-        <Table {columns}>
-            {#each $usersResult.data.users as user}
-                <TableRow>
-                    <TableData value={ user.avatar } isImg={ true } />
+    {:else if $filteredUsersResult.data}
+        <div class="grid space-y-4">
+            <Table {columns}>
+                {#each $filteredUsersResult.data.users as user}
+                    <TableRow>
+                        <TableData value={ user.avatar } isImg={ true } />
 
-                    <TableData value={ user.email } />
+                        <TableData value={ user.email } />
 
-                    <TableData value={ user.name } />
+                        <TableData value={ user.name } />
 
-                    <TableData value={ user.nickname } />
+                        <TableData value={ user.nickname } />
 
-                    <TableData value={ user.birthdate as string } />
+                        <TableData value={ user.birthdate as string } />
 
-                    <TableData value={ user.phone } />
+                        <TableData value={ user.phone } />
 
-                    <TableData value={ user.isActive } />
+                        <TableData value={ user.isActive } />
 
-                    <TableData value={ user.isVerified } />
+                        <TableData value={ user.isVerified } />
 
-                    <TableData>
-                        {#if user?.roles && user.roles.length > 0}
-                            <span class={`px-2 py-1 text-xs rounded-full ${user.roles[0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user.roles[0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
-                                {user.roles[0].name}
-                            </span>
-                        {:else}
-                            <span class="text-gray-400">-</span>
-                        {/if}
-                    </TableData>
+                        <TableData>
+                            {#if user?.roles && user.roles.length > 0}
+                                <span class={`px-2 py-1 text-xs rounded-full ${user.roles[0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user.roles[0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
+                                    {user.roles[0].name}
+                                </span>
+                            {:else}
+                                <span class="text-gray-400">-</span>
+                            {/if}
+                        </TableData>
 
-                    <!-- <TableData value={user.lastLogin} /> -->
+                        <!-- <TableData value={user.lastLogin} /> -->
 
-                    <TableData size="text-sm font-medium" float={ true }>
-                        <div class="flex gap-2 items-center">
-                            <Panel
-                                bind:clicked={ clicked }
-                                title       = "Edit User"
-                                buttonText  = ""
-                                buttonClass = ""
-                                isEdit      = { true }
+                        <TableData size="text-sm font-medium" float={ true }>
+                            <Action
+                                { clicked }
+                                titleEdit    = "Edit User"
+                                onDelete     = { () => handleDeleteUser( user.id )}
+                                type         = { 'the user' }
+                                data         = { user.email }
                             >
-                                <UserForm
-                                    bind:clicked    = { clicked }
-                                    onSubmit        = { handleUserSubmit }
-                                    { user }
-                                />
-                            </Panel>
+                                {#snippet form()}
+                                    <UserForm
+                                        bind:clicked    = { clicked }
+                                        { user }
+                                    />
+                                {/snippet}
+                            </Action>
+                        </TableData>
+                    </TableRow>
+                {:else}
+                    <TableEmpty
+                        columns = { columns.length }
+                        data    = "No users found"
+                    />
+                {/each}
+            </Table>
 
-                            <button class="px-3 py-1 bg-red-700/50 hover:bg-red-700/70 rounded-md text-sm text-white"
-                                onclick={() => handleDeleteUser(user.id)}
-                            >
-                                <!-- Delete -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="24" stroke-dashoffset="24" d="M12 20h5c0.5 0 1 -0.5 1 -1v-14M12 20h-5c-0.5 0 -1 -0.5 -1 -1v-14"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="24;0"/></path><path stroke-dasharray="20" stroke-dashoffset="20" d="M4 5h16"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.2s" values="20;0"/></path><path stroke-dasharray="8" stroke-dashoffset="8" d="M10 4h4M10 9v7M14 9v7"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="8;0"/></path></g></svg>
-                            </button>
-                        </div>
-                    </TableData>
-                </TableRow>
-            {:else}
-                <TableEmpty
-                    columns = { columns.length }
-                    data    = "No users found"
-                />
-            {/each}
-        </Table>
-
-        <!-- <Pagination
-            totalItems      = { 10 }
-            itemsPerPage    = { queryParams.each }
-            currentPage     = { queryParams.page + 1 }
-        /> -->
+            <Pagination
+                count           = { $filteredUsersResult.data.users.length }
+                currentPage     = { queryParams.page + 1 }
+                onPageChange    = { ( page ) => {
+                    queryParams.page = page - 1;
+                    usersResult.reexecute( { variables: queryParams } );
+                } }
+            />
+        </div>
     {:else}
         <div class="bg-dark-blue/50 p-8 rounded-lg text-center">
             <p class="text-white">No users found</p>
