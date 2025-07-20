@@ -2,20 +2,20 @@
     import { onMount } from 'svelte';
 
     // import Panel            from "@/components/shared/Panel.svelte";
-    import Table            from "@/components/shared/table/Table.svelte";
-    import TableData        from "@/components/shared/table/TableData.svelte";
-    import TableRow         from "@/components/shared/table/TableRow.svelte";
+    import Table        from "@/components/shared/table/Table.svelte";
+    import TableData    from "@/components/shared/table/TableData.svelte";
+    import TableRow     from "@/components/shared/table/TableRow.svelte";
+    import TableEmpty   from '@/components/shared/table/TableEmpty.svelte';
+    import Dialog       from '@/components/shared/dialog/dialog.svelte';
+    import Modal        from '@/components/shared/Modal.svelte';
+    import AlertDialog  from '@/components/shared/dialog/AlertDialog.svelte';
+    import SecretForm   from '@/components/dashboard/secrets/SecretForm.svelte';
     // import SecretForm       from "@/components/dashboard/secrets/SecretForm.astro";
     // import SearchIcon       from "@/icons/SearchIcon.astro";
-    import { client }       from "@/lib/urql";
-    import { queryStore }   from '@urql/svelte';
-    import { SECRETS_QUERY } from "@/lib/graphql/secrets/queries";
-    import type { SecretsQuery } from "@/lib/graphql/secrets/types";
-    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
-    import Dialog from '@/components/shared/dialog/dialog.svelte';
-    import Modal from '@/components/shared/Modal.svelte';
-    import SecretForm from './SecretForm.svelte';
-    import AlertDialog from '@/components/shared/dialog/AlertDialog.svelte';
+    import { client }               from "@/lib/urql";
+    import { queryStore }           from '@urql/svelte';
+    import { SECRETS_QUERY }        from "@/lib/graphql/secrets/queries";
+    import type { SecretsQuery }    from "@/lib/graphql/secrets/types";
 
 
     const secretsResult = queryStore<SecretsQuery>({
@@ -100,7 +100,11 @@
         {/snippet}
     </Modal>
 
-    <AlertDialog />
+    <!-- <AlertDialog onDelete ={() =>{}}>
+        {#snippet information()}
+        <p>Confirm</p>
+        {/snippet}
+    </AlertDialog> -->
 
 
         <!-- <Panel client:only="svelte"
