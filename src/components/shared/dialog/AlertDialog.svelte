@@ -1,10 +1,20 @@
 <script lang="ts">
+    import DeleteIcon from "@/icons/DeleteIcon.svelte";
     import { AlertDialog } from "bits-ui";
+
+    interface Props {
+        onDelete: () => void;
+        type : string;
+        data : string
+    }
+
+    const { onDelete, type, data  }: Props = $props();
 </script>
 
 <AlertDialog.Root>
-    <AlertDialog.Trigger class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center">
-        Eliminar
+    <!-- <AlertDialog.Trigger class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center"> -->
+    <AlertDialog.Trigger class="text-red-500 p-2 hover:bg-neon-blue/20 rounded-md transition-all">
+        <DeleteIcon />
     </AlertDialog.Trigger>
 
     <AlertDialog.Portal>
@@ -17,12 +27,12 @@
         >
             <div class="flex flex-col gap-4 pb-6">
                 <AlertDialog.Title class="text-lg font-semibold text-neon-blue">
-                    Confirm your transaction
+                    Confirm your action
                 </AlertDialog.Title>
 
                 <AlertDialog.Description class="text-sm text-white">
-                    This action cannot be undone. This will initiate a monthly wire in the
-                    amount of $10,000 to Huntabyte. Do you wish to continue?
+                    Are you sure you want to delete { type } <b class="text-neon-blue">{ data }</b>?
+                    <p>This action cannot be undone. ❌</p>
                 </AlertDialog.Description>
             </div>
 
@@ -33,6 +43,7 @@
                     Cancel
                 </AlertDialog.Cancel>
                 <AlertDialog.Action
+                    onclick={onDelete}
                     class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center"
                 >
                     Continue
