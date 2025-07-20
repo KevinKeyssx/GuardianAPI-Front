@@ -12,6 +12,8 @@ import Background           from '@/components/Background.astro';
 import SideBar              from '@/components/dashboard/SideBar.astro';
 import UrqlProvider         from '@/components/UrqlProvider.svelte';
 
+import { Toaster } from 'svelte-french-toast';
+
 
 interface Props {
     title: string;
@@ -40,6 +42,8 @@ const activeSection = Astro.url.searchParams.get( 'section' ) || 'overview';
 
     <body class="bg-space-blue min-h-screen text-white">
         <ParticleBackground transition:persist client:only="react" />
+
+        <Toaster client:only="svelte" />
 
         <Background />
 
