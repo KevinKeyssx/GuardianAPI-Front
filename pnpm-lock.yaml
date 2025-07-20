@@ -68,6 +68,9 @@ importers:
       svelte:
         specifier: ^5.28.2
         version: 5.28.2
+      svelte-french-toast:
+        specifier: ^1.2.0
+        version: 1.2.0(svelte@5.28.2)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -2148,11 +2151,21 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  svelte-french-toast@1.2.0:
+    resolution: {integrity: sha512-5PW+6RFX3xQPbR44CngYAP1Sd9oCq9P2FOox4FZffzJuZI2mHOB7q5gJBVnOiLF5y3moVGZ7u2bYt7+yPAgcEQ==}
+    peerDependencies:
+      svelte: ^3.57.0 || ^4.0.0
+
   svelte-toolbelt@0.7.1:
     resolution: {integrity: sha512-HcBOcR17Vx9bjaOceUvxkY3nGmbBmCBBbuWLLEWO6jtmWH8f/QoWmbyUfQZrpDINH39en1b8mptfPQT9VKQ1xQ==}
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.0.0
+
+  svelte-writable-derived@3.1.1:
+    resolution: {integrity: sha512-w4LR6/bYZEuCs7SGr+M54oipk/UQKtiMadyOhW0PTwAtJ/Ai12QS77sLngEcfBx2q4H8ZBQucc9ktSA5sUGZWw==}
+    peerDependencies:
+      svelte: ^3.2.1 || ^4.0.0-next.1 || ^5.0.0-next.94
 
   svelte2tsx@0.7.36:
     resolution: {integrity: sha512-nBlERuCZRwmpebC8m0vDqZ9oaKsqW8frQS2l3zwFQW1voQIkItYtHxh1F5OTZEmE0meDIH6cxU36eIOQVOxlCw==}
@@ -4897,11 +4910,20 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+  svelte-french-toast@1.2.0(svelte@5.28.2):
+    dependencies:
+      svelte: 5.28.2
+      svelte-writable-derived: 3.1.1(svelte@5.28.2)
+
   svelte-toolbelt@0.7.1(svelte@5.28.2):
     dependencies:
       clsx: 2.1.1
       runed: 0.23.4(svelte@5.28.2)
       style-to-object: 1.0.8
+      svelte: 5.28.2
+
+  svelte-writable-derived@3.1.1(svelte@5.28.2):
+    dependencies:
       svelte: 5.28.2
 
   svelte2tsx@0.7.36(svelte@5.28.2)(typescript@5.8.3):
