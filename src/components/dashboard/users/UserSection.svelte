@@ -17,6 +17,7 @@
     // import Filter from "@/components/inputs/Filter.svelte";
     import type {
         User,
+        UsersAttributesQuery,
         UsersQuery
     }                       from "@/lib/graphql/users/types";
     import {
@@ -29,7 +30,7 @@
         errorToast,
         successToast
     }                       from '@/config/toast.config';
-    import { USERS_QUERY }  from "@/lib/graphql/users/queries";
+    import { USER_ATTRIBUTES_QUERY, USERS_QUERY }  from "@/lib/graphql/users/queries";
     import { client }       from "@/lib/urql";
 
 
@@ -40,6 +41,13 @@
         orderBy : 'desc',
         keys    : [],
     };
+
+    const userAttributesResult = queryStore<UsersAttributesQuery>({
+        client,
+        query           : USER_ATTRIBUTES_QUERY,
+        variables       : {},
+        requestPolicy   : 'cache-and-network'
+    });
 
 
     const usersResult = queryStore<UsersQuery>({
@@ -107,28 +115,66 @@
     //     return () => stopRefreshInterval();
     // });
 
+    // const columns: ColumnProp[] = [
+    //             { column: 'Avatar',     showColumn: true },
+    //             { column: 'Email',      showColumn: true },
+    //             { column: 'Name',       showColumn: true },
+    //             { column: 'Nickname',   showColumn: true },
+    //             { column: 'Birthday',   showColumn: true },
+    //             { column: 'Phone',      showColumn: true },
+    //             { column: 'Active',     showColumn: true },
+    //             { column: 'Verified',   showColumn: true },
+    //             { column: 'Role',       showColumn: true },
+    //             // { column: 'Last Login', showColumn: true },
+    //             { column: 'Actions',    showColumn: true },
+    //         ];
 
-    const columns: ColumnProp[] = [
-        { column: 'Avatar',     showColumn: true },
-        { column: 'Email',      showColumn: true },
-        { column: 'Name',       showColumn: true },
-        { column: 'Nickname',   showColumn: true },
-        { column: 'Birthday',   showColumn: true },
-        { column: 'Phone',      showColumn: true },
-        { column: 'Active',     showColumn: true },
-        { column: 'Verified',   showColumn: true },
-        { column: 'Role',       showColumn: true },
-        // { column: 'Last Login', showColumn: true },
-        { column: 'Actions',    showColumn: true },
-    ];
+    // Create reactive derived store for user attributes
+    const userAttributes = derived(
+        userAttributesResult,
+        ( $userAttributesResult ) => {
+            const attributes = $userAttributesResult.data?.userAttributes;
+            console.log("🚀 ~ file: UserSection.svelte:116 ~ userAttributes:", attributes);
+            return attributes;
+        }
+    );
+
+    const columns = derived(
+        userAttributes,
+        ( $userAttributes ) => {
+            const baseColumns: ColumnProp[] = [
+                { column: 'Avatar',     showColumn: true },
+                { column: 'Email',      showColumn: true },
+                { column: 'Name',       showColumn: true },
+                { column: 'Nickname',   showColumn: true },
+                { column: 'Birthday',   showColumn: true },
+                { column: 'Phone',      showColumn: true },
+                { column: 'Active',     showColumn: true },
+                { column: 'Verified',   showColumn: true },
+                { column: 'Role',       showColumn: true },
+                // { column: 'Last Login', showColumn: true },
+                { column: 'Actions',    showColumn: true },
+            ];
+
+            if (( $userAttributes?.length ?? 0 ) > 0 ) {
+                baseColumns.pop();
+
+                $userAttributes!.forEach( attribute => {
+                    baseColumns.push( { column: attribute.key, showColumn: true } );
+                });
+
+                baseColumns.push( { column: 'Actions', showColumn: true } );
+            }
+
+            return baseColumns;
+        }
+    );
 
 
     let clicked = $state( 0 );
 
 
     async function handleDeleteUser( id: string ): Promise<void> {
-        console.log("🚀 ~ file: UserSection.svelte:142 ~ id:", id)
-
         const { data, error } = await client.mutation(
             DELETE_USER_MUTATION,
             { removeUserId: id }
@@ -185,7 +231,7 @@
         </div>
     {:else if $filteredUsersResult.data}
         <div class="grid space-y-4">
-            <Table {columns}>
+            <Table columns={$columns}>
                 {#each $filteredUsersResult.data.users as user}
                     <TableRow>
                         <TableData value={ user.avatar } isImg={ true } />
@@ -196,7 +242,7 @@
 
                         <TableData value={ user.nickname } />
 
-                        <TableData value={ user.birthdate as string } />
+                        <TableData value={ user.birthdate } />
 
                         <TableData value={ user.phone } />
 
@@ -204,6 +250,7 @@
 
                         <TableData value={ user.isVerified } />
 
+                        <!-- Role column -->
                         <TableData>
                             {#if user?.roles && user.roles.length > 0}
                                 <span class={`px-2 py-1 text-xs rounded-full ${user.roles[0].name === 'Admin' ? 'bg-red-900/30 text-red-300' : user.roles[0].name === 'Developer' ? 'bg-blue-900/30 text-blue-300' : 'bg-green-900/30 text-green-300'}`}>
@@ -214,8 +261,14 @@
                             {/if}
                         </TableData>
 
-                        <!-- <TableData value={user.lastLogin} /> -->
+                        <!-- Dynamic attribute columns -->
+                        {#if ( $userAttributes )} 
+                            {#each $userAttributes as attribute}
+                                <TableData value={ user.attributes?.find( attr => attr.key === attribute.key )?.value ?? null } />
+                            {/each}
+                        {/if}
 
+                        <!-- Actions column (siempre al final) -->
                         <TableData size="text-sm font-medium" float={ true }>
                             <Action
                                 { clicked }
@@ -235,7 +288,7 @@
                     </TableRow>
                 {:else}
                     <TableEmpty
-                        columns = { columns.length }
+                        columns = { $columns.length }
                         data    = "No users found"
                     />
                 {/each}
