@@ -1,11 +1,13 @@
-import type { DateValue } from "@internationalized/date";
+export interface BaseUserAttribute {
+    key     : string;
+    type    : string;
+    required: boolean;
+}
 
 
 export interface UserAttribute {
     key     : string;
     value   : any | null;
-    type    : string;
-    required: boolean;
 }
 
 // export interface User {
@@ -32,6 +34,11 @@ export type Role = {
 export interface UsersQuery {
     users: User[];
     // total: number;
+}
+
+
+export interface UsersAttributesQuery {
+    userAttributes: BaseUserAttribute[];
 }
 
 export interface User {
