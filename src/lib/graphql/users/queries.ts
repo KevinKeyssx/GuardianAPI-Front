@@ -1,5 +1,17 @@
 import { gql } from 'graphql-request';
 
+
+export const USER_ATTRIBUTES_QUERY = gql`
+    query UserAttributes {
+        userAttributes {
+            key
+            type
+            required
+        }
+    }
+`;
+
+
 export const USERS_QUERY = gql`
     # query Users($page: Int, $each: Int, $field: String, $orderBy: String, $keys: [String!]) {
     #     users {
@@ -46,9 +58,9 @@ export const USERS_QUERY = gql`
             # attributes(keys: $keys) {
             attributes {
                 key
-                type
                 value
-                required
+                # type
+                # required
             }
         }
     }
