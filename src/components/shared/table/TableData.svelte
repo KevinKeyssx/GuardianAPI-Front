@@ -4,7 +4,7 @@
     import noneIcon     from '@/assets/icons/none.svg?raw';
     import userIcon     from '@/assets/icons/user.svg?url';
 
-    type Value = string | number | boolean | undefined | null;
+    type Value = string | number | boolean | null;
 
     export let value        : Value | undefined = undefined;
     export let color        : string    = 'text-white';
@@ -42,7 +42,7 @@
             <img
                 src   = { userIcon }
                 alt   = { 'Avatar' }
-                class = "w-8 h-8 rounded-full mx-auto"
+                class = "w-8 h-8 rounded-full ml-5"
             />
         {:else}
             {@html noneIcon}
