@@ -223,8 +223,8 @@
             <p>Error fetching users</p>
 
             <button
-                class="mt-2 px-3 py-1 bg-red-700/50 hover:bg-red-700/70 rounded-md text-sm"
-                onclick={refetchUsers}
+                class   = "mt-2 px-3 py-1 bg-red-700/50 hover:bg-red-700/70 rounded-md text-sm"
+                onclick = { refetchUsers }
             >
                 Retry
             </button>
@@ -279,7 +279,7 @@
                             >
                                 {#snippet form()}
                                     <UserForm
-                                        bind:clicked    = { clicked }
+                                        bind:clicked={ clicked }
                                         { user }
                                     />
                                 {/snippet}
