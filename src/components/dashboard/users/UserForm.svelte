@@ -45,14 +45,12 @@
     let avatarFile: File | null = $state( null );
 
 
-    // Get maximum date for birthdate (today)
     function getMaxDate(): DateValue {
         const date = new Date();
         return new CalendarDateTime( date.getFullYear(), date.getMonth() + 1, date.getDate() );
     }
 
 
-    // Create new user
     async function onCreateUser(
         input: CreateUserInput, file: File | null
     ): Promise<void> {
@@ -82,7 +80,6 @@
     }
 
 
-    // Update existing user
     async function onUpdateUser(
         input: UpdateUserInput, file: File | null
     ): Promise<void> {
@@ -109,7 +106,6 @@
     }
 
 
-    // Handle form submission
     async function handleFormSubmit( event: Event ): Promise<void> {
         event.preventDefault();
         console.log("🚀 ~ file: UserForm.svelte:117 ~ user:", user)
@@ -140,7 +136,7 @@
 
 <PanelMain>
     <form class="space-y-4" onsubmit={ handleFormSubmit }>
-        <Upload bind:file={ avatarFile } />
+        <Upload bind:file={ avatarFile } avatar={user.avatar} />
 
         <Input
             bind:value={ user.email }
