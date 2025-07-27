@@ -1,8 +1,8 @@
 <script lang="ts">
-    import DatePicker from "@/components/inputs/DatePicker.svelte";
-    import Input from "@/components/inputs/Input.svelte";
-    import Dialog from "@/components/shared/dialog/dialog.svelte";
-    import DateForm from "@/components/shared/show/date-form.svelte";
+    import DatePicker   from "@/components/inputs/DatePicker.svelte";
+    import Input        from "@/components/inputs/Input.svelte";
+    import Dialog       from "@/components/shared/dialog/dialog.svelte";
+    import DateForm     from "@/components/shared/show/date-form.svelte";
 
     interface Secret {
         name: string;
