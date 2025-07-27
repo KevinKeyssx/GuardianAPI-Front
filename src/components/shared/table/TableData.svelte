@@ -1,8 +1,9 @@
 <script lang="ts">
-    import CheckIcon    from '@/icons/CheckIcon.svelte';
-    import NoCheckIcon  from '@/icons/NoCheckIcon.svelte';
-    import noneIcon     from '@/assets/icons/none.svg?raw';
-    import userIcon     from '@/assets/icons/user.svg?url';
+    import CheckIcon        from '@/icons/CheckIcon.svelte';
+    import NoCheckIcon      from '@/icons/NoCheckIcon.svelte';
+    import noneIcon         from '@/assets/icons/none.svg?raw';
+    import userIcon         from '@/assets/icons/user.svg?url';
+    import { CLIENT_ENV }   from '@/lib/env/client';
 
     type Value = string | number | boolean | null;
 
@@ -15,7 +16,14 @@
     export let float        : boolean   = false;
     export let isImg        : boolean   = false;
 
-    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+    let imageError = false;
+
+    const getImageUrl       = ( imagePath: string ): string => `${CLIENT_ENV.PUBLIC_FILE_UPLOAD_URL}${imagePath}`;
+    const handleImageError  = () => imageError = true;
+
+    $: if ( value ) {
+        imageError = false;
+    }
 </script>
 
 <td
@@ -47,8 +55,21 @@
         {:else}
             {@html noneIcon}
         {/if}
-    {:else if urlPattern.test( value )}
-        <img src={value} alt={value} class="w-8 h-8 rounded-full mx-auto" />
+    {:else if isImg && typeof value === 'string'}
+        {#if imageError}
+            <img
+                src   = { userIcon }
+                alt   = { 'Avatar fallback' }
+                class = "w-8 h-8 rounded-full mx-auto"
+            />
+        {:else}
+            <img 
+                src         = { getImageUrl( value )}
+                alt         = { value }
+                class       = "w-8 h-8 rounded-full mx-auto"
+                on:error    = { handleImageError }
+            />
+        {/if}
     {:else}
         <span>{ value }</span>
     {/if}
