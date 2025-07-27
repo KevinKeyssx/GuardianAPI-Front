@@ -1,10 +1,13 @@
 <script lang="ts">
-    import userIcon from '@/assets/icons/user.svg?url';
+    import userIcon         from '@/assets/icons/user.svg?url';
+    import { CLIENT_ENV }   from '@/lib/env/client';
+
 
     type Props = {
-        avatar?: string,
-        file: File | null;
+        avatar? : string    | null,
+        file    : File      | null;
     };
+
 
     let {
         avatar: initialAvatar = $bindable(),
@@ -12,13 +15,19 @@
     }: Props = $props();
 
 
-    let previewUrl = $state( initialAvatar || userIcon );
+    const getUrl = ( image?: string | null ): string =>
+        !image
+            ? userIcon
+            : `${ CLIENT_ENV.PUBLIC_FILE_UPLOAD_URL}${image}`
+
+
+    let previewUrl = $state( getUrl( initialAvatar ));
     let isLoading = $state( false );
     let fileInput: HTMLInputElement;
 
 
     $effect(() => {
-        previewUrl = initialAvatar || userIcon;
+        previewUrl = getUrl( initialAvatar );
         file = null;
     });
 
