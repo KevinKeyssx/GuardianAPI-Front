@@ -24,12 +24,25 @@
     let previewUrl = $state( getUrl( initialAvatar ));
     let isLoading = $state( false );
     let fileInput: HTMLInputElement;
+    let lastInitialAvatar = $state( initialAvatar );
 
 
     $effect(() => {
-        previewUrl = getUrl( initialAvatar );
-        file = null;
+        if ( lastInitialAvatar !== initialAvatar ) {
+            previewUrl = getUrl( initialAvatar );
+
+            if ( lastInitialAvatar !== undefined ) {
+                file = null;
+            }
+
+            lastInitialAvatar = initialAvatar;
+        }
     });
+
+
+    function handleImageError(): void {
+        previewUrl = userIcon;
+    }
 
 
     function handleImageSelect(): void {
@@ -72,6 +85,7 @@
             src     = { previewUrl }
             alt     = "User Avatar"
             class   = "w-full h-full p-5 object-cover"
+            onerror = { handleImageError }
         />
 
         {#if isLoading}
