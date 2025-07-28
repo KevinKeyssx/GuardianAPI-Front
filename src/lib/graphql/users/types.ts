@@ -1,13 +1,22 @@
 export interface BaseUserAttribute {
     key     : string;
-    type    : string;
-    required: boolean;
+    // type    : string;
+    // required: boolean;
 }
 
 
 export interface UserAttribute {
-    key     : string;
-    value   : any | null;
+    key         : string;
+    value       : any | null;
+    type        : string;
+    required    : string;
+    max         : string;
+    min         : string;
+    pattern     : string;
+    minLength   : string;
+    maxLength   : string;
+    minDate     : string;
+    maxDate     : string;
 }
 
 // export interface User {
