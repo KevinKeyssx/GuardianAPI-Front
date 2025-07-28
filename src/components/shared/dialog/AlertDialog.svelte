@@ -9,10 +9,25 @@
         data        : string;
     }
 
-    const { onDelete, type, data  }: Props = $props();
+    let isOpen = $state( false );
+
+    const {
+        onDelete,
+        type,
+        data,
+    }: Props = $props();
+
+
+    function getOpen() {
+        return isOpen;
+    }
+
+    function setOpen(newOpen: boolean) {
+        isOpen = newOpen;
+    }
 </script>
 
-<AlertDialog.Root>
+<AlertDialog.Root bind:open={getOpen, setOpen}>
     <AlertDialog.Trigger class="text-red-500 p-2 hover:bg-neon-blue/20 rounded-md transition-all">
         <DeleteIcon />
     </AlertDialog.Trigger>
@@ -46,6 +61,7 @@
 
                 <AlertDialog.Action
                     class="px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center"
+                    onclick={() => {onDelete(); isOpen = false}}
                 >
                     Continue
                 </AlertDialog.Action>
