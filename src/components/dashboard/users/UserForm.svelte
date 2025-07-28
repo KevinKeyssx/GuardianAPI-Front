@@ -200,6 +200,11 @@
             updatedAt   = { user.updatedAt }
         />
 
+        {#each user?.attributes || [] as attribute }
+            <p> { attribute.key }</p>
+            <p> { attribute.value }</p>
+        {/each}
+
         <PanelFooter>
             <Modal
                 id      = { "add-attribute" }
