@@ -5,11 +5,22 @@ export interface BaseUserAttribute {
 }
 
 
+export enum AttributeType {
+    String      = 'STRING',
+    Number      = 'NUMBER',
+    Boolean     = 'BOOLEAN',
+    Decimal     = 'DECIMAL',
+    List        = 'LIST',
+    Datetime    = 'DATETIME',
+    Json        = 'JSON',
+    UUID        = 'UUID',
+}
+
 export interface UserAttribute {
     key         : string;
     value       : any | null;
-    type        : string;
-    required    : string;
+    type        : AttributeType;
+    required    : boolean;
     max         : string;
     min         : string;
     pattern     : string;
@@ -17,6 +28,9 @@ export interface UserAttribute {
     maxLength   : string;
     minDate     : string;
     maxDate     : string;
+
+
+    isEditing? : boolean;
 }
 
 // export interface User {
