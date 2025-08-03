@@ -10,6 +10,9 @@
         disabled?       : boolean;
         min?            : number;
         max?            : number;
+        step?           : number | string | undefined | null;
+        error?          : string;
+        onInput?        : () => void;
     }
 
 
@@ -24,6 +27,9 @@
         disabled    = false,
         min         = undefined,
         max         = undefined,
+        step        = undefined,
+        error       = undefined,
+        onInput     = undefined,
     }: Props = $props();
 </script>
 
@@ -36,7 +42,7 @@
         bind:value={ value }
         type            = { type }
         placeholder     = { placeholder }
-        class           = "w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue hover:border-neon-blue/60 focus:outline-none text-white placeholder-white/50 transition-colors number-input-custom"
+        class           = "w-full px-4 py-2 bg-space-blue border {error ? 'border-red-500' : 'border-neon-blue/30'} rounded-lg focus:border-neon-blue hover:border-neon-blue/60 focus:outline-none text-white placeholder-white/50 transition-colors number-input-custom"
         data-section    = { id }
         id              = { id }
         name            = { name }
@@ -44,7 +50,13 @@
         disabled        = { disabled }
         min             = { min }
         max             = { max }
+        step            = { step }
+        oninput         = { onInput }
     />
+
+    {#if error}
+        <span class="text-red-400 text-sm mt-1">{error}</span>
+    {/if}
 </div>
 
 <style>
