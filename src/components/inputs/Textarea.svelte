@@ -14,6 +14,8 @@
         maxlength?      : number;
         resize?         : 'none' | 'both' | 'horizontal' | 'vertical';
         onChange?       : (value: string) => void;
+        error?          : string;
+        onInput?        : () => void;
     }
 
     let {
@@ -31,6 +33,8 @@
         maxlength   = undefined,
         resize      = 'vertical',
         onChange,
+        error       = "",
+        onInput,
     }: Props = $props();
 
     function handleChange(event: Event) {
@@ -38,6 +42,9 @@
         value = target.value;
         if (onChange) {
             onChange(target.value);
+        }
+        if (onInput) {
+            onInput();
         }
     }
 </script>
@@ -60,9 +67,13 @@
         {cols}
         {minlength}
         {maxlength}
-        class="w-full px-4 py-3 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue hover:border-neon-blue/60 focus:outline-none text-white placeholder-white/50 transition-colors resize-{resize} min-h-[100px]"
+        class="w-full px-4 py-3 bg-space-blue border {error ? 'border-red-500' : 'border-neon-blue/30'} rounded-lg focus:border-neon-blue hover:border-neon-blue/60 focus:outline-none text-white placeholder-white/50 transition-colors resize-{resize} min-h-[100px]"
         data-section={id}
     ></textarea>
+    
+    {#if error}
+        <span class="text-red-500 text-sm">{error}</span>
+    {/if}
 </div>
 
 <style>
