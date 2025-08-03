@@ -18,6 +18,8 @@
         disabled?   : boolean;
         minDate?    : DateValue;
         maxDate?    : DateValue;
+        error?      : string;
+        onInput?    : () => void;
     }
 
 
@@ -28,6 +30,8 @@
         disabled    = false,
         minDate     = undefined,
         maxDate     = undefined,
+        error       = "",
+        onInput,
     }: Props = $props();
 
 
@@ -44,6 +48,7 @@
     minValue        = { minDate }
     maxValue        = { maxDate }
     disabled        = { disabled }
+    onValueChange   = { onInput }
 >
     <div id={id} class="flex w-full flex-col gap-0.5">
         <DatePicker.Label class="text-sm font-orbitron text-white mb-1">
@@ -51,7 +56,7 @@
         </DatePicker.Label>
 
         <DatePicker.Input
-            class="w-full px-3 py-1 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue hover:border-neon-blue focus:outline-none text-white select-none flex items-center tracking-[0.01em]"
+            class="w-full px-3 py-1 bg-space-blue border {error ? 'border-red-500' : 'border-neon-blue/30'} rounded-lg focus:border-neon-blue hover:border-neon-blue focus:outline-none text-white select-none flex items-center tracking-[0.01em]"
         >
             {#snippet children({ segments })}
                 {#each segments as { part, value }}
@@ -141,5 +146,9 @@
                 {/snippet}
             </DatePicker.Calendar>
         </DatePicker.Content>
+        
+        {#if error}
+            <span class="text-red-500 text-sm mt-1">{error}</span>
+        {/if}
     </div>
 </DatePicker.Root>
