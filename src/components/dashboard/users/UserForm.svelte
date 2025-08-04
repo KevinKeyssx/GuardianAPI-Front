@@ -3,22 +3,23 @@
     import toast                                from 'svelte-french-toast';
     import { z }                                from 'zod';
 
-    import DatePicker   from "@/components/inputs/DatePicker.svelte";
-    import Input        from "@/components/inputs/Input.svelte";
-    import Switch       from "@/components/inputs/Switch.svelte";
-    import Textarea     from "@/components/inputs/Textarea.svelte";
-    import Modal        from "@/components/shared/Modal.svelte";
-    import PanelFooter  from "@/components/shared/panel/PanelFooter.svelte";
-    import PanelMain    from "@/components/shared/panel/PanelMain.svelte";
-    import Upload       from "@/components/inputs/Upload.svelte";
-    import DateForm     from "@/components/shared/show/date-form.svelte";
+    import DatePicker                       from "@/components/inputs/DatePicker.svelte";
+    import Input                            from "@/components/inputs/Input.svelte";
+    import Switch                           from "@/components/inputs/Switch.svelte";
+    import Textarea                         from "@/components/inputs/Textarea.svelte";
+    import Modal                            from "@/components/shared/Modal.svelte";
+    import PanelFooter                      from "@/components/shared/panel/PanelFooter.svelte";
+    import PanelMain                        from "@/components/shared/panel/PanelMain.svelte";
+    import Upload                           from "@/components/inputs/Upload.svelte";
+    import DateForm                         from "@/components/shared/show/date-form.svelte";
+    import { createAttributeValidation }    from "@/components/dashboard/users/userAttributeValidation";
+    import UserAttributeForm                from "@/components/dashboard/users/UserAttributeForm.svelte";
 
     import {
         AttributeType,
         type CreateUserInput,
         type UpdateUserInput,
         type User,
-        type UserAttribute
     }                       from "@/lib/graphql/users/types";
     import {
         CREATE_USER_MUTATION,
@@ -29,9 +30,6 @@
         successToast
     }                       from '@/config/toast.config';
     import { client }       from "@/lib/urql";
-    import CheckIcon        from "@/icons/CheckIcon.svelte";
-    import EditIcon         from "@/icons/EditIcon.svelte";
-    import CancelIcon       from "@/icons/CancelIcon.svelte";
 
 
     type Props = {
@@ -51,32 +49,6 @@
     let user = $state<User>( incomingUser );
     let avatarFile: File | null = $state( null );
     let errors = $state<Record<string, string>>( {} );
-
-
-    // Function to enable editing for a specific attribute
-    function enableAttributeEditing( attribute: UserAttribute ) {
-        attribute.isEditing = true;
-    }
-
-
-    // Function to cancel editing for a specific attribute
-    function cancelAttributeEditing( attribute: UserAttribute ) {
-        attribute.isEditing = false;
-        // Here you could restore the original value if needed
-    }
-
-
-    // Function to save changes for a specific attribute
-    function saveAttributeChanges( attribute: UserAttribute ) {
-        attribute.isEditing = false;
-        updateAttribute( attribute );
-    }
-
-
-    // Function to update attribute (placeholder for now)
-    function updateAttribute( attribute: UserAttribute ) {
-        console.log( 'Updating attribute:', attribute );
-    }
 
 
     // Zod validation schema
@@ -114,6 +86,7 @@
             result.error.errors.forEach( ( error ) => {
                 errors[error.path[0] as string] = error.message;
             } );
+
             isValid = false;
         }
 
@@ -134,9 +107,10 @@
                     attributeSchema.parse( valueToValidate );
                 } catch ( error ) {
                     if ( error instanceof z.ZodError ) {
-                        error.errors.forEach( ( err ) => {
+                        error.errors.forEach( err => {
                             errors[`attribute_${attribute.key}`] = err.message;
-                        } );
+                        });
+
                         isValid = false;
                     }
                 }
@@ -153,147 +127,6 @@
             errors = { ...errors };
             delete errors[field];
         }
-    }
-
-
-    // Create dynamic validation schema for attributes
-    function createAttributeValidation( attribute: UserAttribute ): z.ZodSchema<any> {
-        let schema: z.ZodSchema<any>;
-
-        switch ( attribute.type ) {
-            case AttributeType.String:
-                let stringSchema = z.string();
-
-                if ( attribute.minLength && !isNaN( Number( attribute.minLength ))) {
-                    stringSchema = stringSchema.min( Number( attribute.minLength ), `${attribute.key} must have at least ${attribute.minLength} characters` );
-                }
-
-                if ( attribute.maxLength && !isNaN( Number( attribute.maxLength ))) {
-                    stringSchema = stringSchema.max( Number( attribute.maxLength ), `${attribute.key} must have maximum ${attribute.maxLength} characters` );
-                }
-
-                if ( attribute.pattern ) {
-                    try {
-                        const regex = new RegExp( attribute.pattern );
-                        stringSchema = stringSchema.regex( regex, `${attribute.key} does not meet the required format` );
-                    } catch ( e ) {
-                        console.warn( `Invalid regex pattern for ${attribute.key}:`, attribute.pattern );
-                    }
-                }
-
-                schema = stringSchema;
-            break;
-
-            case AttributeType.Number:
-            case AttributeType.Decimal:
-                let numberSchema = z.number( { message: `${attribute.key} must be a valid number` } );
-
-                if ( attribute.min && !isNaN( Number( attribute.min ))) {
-                    numberSchema = numberSchema.min( Number( attribute.min ), `${attribute.key} must be greater than or equal to ${attribute.min}` );
-                }
-
-                if ( attribute.max && !isNaN( Number( attribute.max ))) {
-                    numberSchema = numberSchema.max( Number( attribute.max ), `${attribute.key} must be less than or equal to ${attribute.max}` );
-                }
-
-                schema = numberSchema;
-            break;
-
-            case AttributeType.Boolean:
-                schema = z.boolean();
-            break;
-
-            case AttributeType.Datetime:
-                let dateSchema: z.ZodSchema<any> = z.union( [z.string(), z.date()] );
-
-                if ( attribute.minDate ) {
-                    const minDate = new Date( attribute.minDate );
-                    if ( !isNaN( minDate.getTime() ) ) {
-                        dateSchema = dateSchema.refine( 
-                            ( val ) => {
-                                const date = typeof val === 'string' ? new Date( val ) : val;
-                                return date >= minDate;
-                            }, 
-                            { message: `${attribute.key} must be after ${attribute.minDate}` }
-                        );
-                    }
-                }
-
-                if ( attribute.maxDate ) {
-                    const maxDate = new Date( attribute.maxDate );
-                    if ( !isNaN( maxDate.getTime() ) ) {
-                        dateSchema = dateSchema.refine( 
-                            ( val ) => {
-                                const date = typeof val === 'string' ? new Date( val ) : val;
-                                return date <= maxDate;
-                            }, 
-                            { message: `${attribute.key} must be before ${attribute.maxDate}` }
-                        );
-                    }
-                }
-
-                schema = dateSchema;
-            break;
-
-            case AttributeType.Json:
-                let jsonSchema: z.ZodSchema<any> = z.string();
-
-                // Apply length validations first
-                if ( attribute.minLength && !isNaN( Number( attribute.minLength ))) {
-                    jsonSchema = ( jsonSchema as z.ZodString ).min( Number( attribute.minLength ), `${attribute.key} must have at least ${attribute.minLength} characters` );
-                }
-
-                if ( attribute.maxLength && !isNaN( Number( attribute.maxLength ))) {
-                    jsonSchema = ( jsonSchema as z.ZodString ).max( Number( attribute.maxLength ), `${attribute.key} must have maximum ${attribute.maxLength} characters` );
-                }
-
-                // Apply JSON validation
-                jsonSchema = jsonSchema.refine( 
-                    ( val ) => {
-                        if ( !val ) return true; // Allow empty for optional fields
-                        try {
-                            JSON.parse( val );
-                            return true;
-                        } catch {
-                            return false;
-                        }
-                    }, 
-                    { message: `${attribute.key} must be a valid JSON` }
-                );
-
-                schema = jsonSchema;
-            break;
-
-            case AttributeType.UUID:
-                schema = z.string().uuid( `${attribute.key} must be a valid UUID` );
-            break;
-
-            default:
-                schema = z.any();
-            break;
-        }
-
-        // Apply required validation if specified
-        if ( attribute.required ) {
-            if ( attribute.type === AttributeType.String || attribute.type === AttributeType.Json || attribute.type === AttributeType.UUID ) {
-                if ( schema instanceof z.ZodString ) {
-                    schema = schema.min( 1, `${attribute.key} is required` );
-                } else {
-                    schema = schema.refine(( val ) => val !== null && val !== undefined && val !== '', { message: `${attribute.key} is required` });
-                }
-            } else if ( attribute.type === AttributeType.Number || attribute.type === AttributeType.Decimal ) {
-                schema = schema.refine(( val ) => val !== null && val !== undefined, { message: `${attribute.key} is required` });
-            } else if ( attribute.type === AttributeType.Boolean ) {
-                schema = schema.refine(( val ) => val !== null && val !== undefined, { message: `${attribute.key} is required` });
-            } else if ( attribute.type === AttributeType.Datetime ) {
-                schema = schema.refine(( val ) => val !== null && val !== undefined && val !== '', { message: `${attribute.key} is required` });
-            }
-        } else {
-            // Make optional if not required
-            schema = schema.optional().or( z.literal( '' ) ).or( z.literal( null ) );
-        }
-
-        return schema;
     }
 
 
@@ -383,7 +216,10 @@
 
 <PanelMain>
     <form class="space-y-4" onsubmit={ handleFormSubmit }>
-        <Upload bind:file={ avatarFile } avatar={user.avatar} />
+        <Upload
+            bind:file   = { avatarFile }
+            avatar      = { user.avatar }
+        />
 
         <Input
             bind:value={ user.email }
@@ -432,331 +268,10 @@
             label       = "Phone"
         />
 
-        <span class="text-neon-blue flex items-center">Attributes</span>
-
-        <div class="max-h-96 overflow-auto space-y-4 pr-1">
-            {#each user?.attributes || [] as attribute }
-                {#if attribute.type === AttributeType.String}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <Input
-                                bind:value={ attribute.value }
-                                placeholder = "Enter value"
-                                id          = { attribute.key }
-                                name        = { attribute.key }
-                                type        = 'text'
-                                label       = { attribute.key }
-                                disabled    = { !attribute.isEditing }
-                                error       = { errors[`attribute_${attribute.key}` ]}
-                                onInput     = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {:else if attribute.type === AttributeType.Number}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <Input
-                                bind:value={ attribute.value }
-                                placeholder = "Enter value"
-                                id          = { attribute.key }
-                                name        = { attribute.key }
-                                type        = 'number'
-                                label       = { attribute.key }
-                                disabled    = { !attribute.isEditing }
-                                error       = { errors[`attribute_${attribute.key}` ]}
-                                onInput     = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {:else if attribute.type === AttributeType.Boolean}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <Switch
-                                bind:checked={ attribute.value }
-                                id           = { attribute.key }
-                                name         = { attribute.key }
-                                label        = { attribute.key }
-                                disabled     = { !attribute.isEditing }
-                                error        = { errors[`attribute_${attribute.key}` ]}
-                                onChange     = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {:else if attribute.type === AttributeType.Decimal}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <Input
-                                bind:value={ attribute.value }
-                                placeholder = "Enter decimal value"
-                                id          = { attribute.key }
-                                name        = { attribute.key }
-                                type        = 'number'
-                                step        = '0.01'
-                                label       = { attribute.key }
-                                disabled    = { !attribute.isEditing }
-                                error       = { errors[`attribute_${attribute.key}` ]}
-                                onInput     = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {:else if attribute.type === AttributeType.Datetime}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <DatePicker
-                                bind:value={ attribute.value }
-                                id         = { attribute.key }
-                                label      = { attribute.key }
-                                disabled   = { !attribute.isEditing }
-                                error      = { errors[`attribute_${attribute.key}` ]}
-                                onInput   = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {:else if attribute.type === AttributeType.Json}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <Textarea
-                                bind:value={ attribute.value }
-                                placeholder = "Enter JSON data"
-                                id          = { attribute.key }
-                                name        = { attribute.key }
-                                label       = { attribute.key }
-                                rows        = { 6 }
-                                disabled    = { !attribute.isEditing }
-                                error       = { errors[`attribute_${attribute.key}`] }
-                                onInput     = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {:else if attribute.type === AttributeType.UUID}
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <Input
-                                bind:value={ attribute.value }
-                                placeholder = "Enter UUID"
-                                id          = { attribute.key }
-                                name        = { attribute.key }
-                                type        = 'text'
-                                label       = { attribute.key }
-                                disabled    = { !attribute.isEditing }
-                                error       = { errors[`attribute_${attribute.key}`] }
-                                onInput     = { () => clearError( `attribute_${attribute.key}` )}
-                            />
-                        </div>
-                        
-                        {#if !attribute.isEditing}
-                            <button
-                                type    = "button"
-                                class   = "p-2 text-neon-blue hover:bg-neon-blue/20 rounded-md transition-colors"
-                                onclick = { () => enableAttributeEditing( attribute )}
-                                title   = "Edit attribute"
-                            >
-                                <EditIcon />
-                            </button>
-                        {:else}
-                            <div class="flex gap-1">
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-green-400 hover:bg-green-400/20 rounded-md transition-colors"
-                                    onclick = { () => saveAttributeChanges( attribute )}
-                                    title   = "Save changes"
-                                >
-                                    <CheckIcon />
-                                </button>
-                                <button
-                                    type    = "button"
-                                    class   = "p-2 text-red-400 hover:bg-red-400/20 rounded-md transition-colors"
-                                    onclick = { () => cancelAttributeEditing( attribute )}
-                                    title   = "Cancel changes"
-                                >
-                                    <CancelIcon />
-                                </button>
-                            </div>
-                        {/if}
-                    </div>
-                {/if}
-            {/each}
-        </div>
+        <UserAttributeForm 
+            attributes  = { user.attributes }
+            clearError  = { clearError }
+        />
 
         <Switch
             bind:checked={ user.isActive }
