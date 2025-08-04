@@ -50,6 +50,14 @@ export default {
                     '0%': { transform: 'translateX(8px)' },
                     '100%': { transform: 'translateX(0)' },
                 },
+                'accordion-down': {
+                    from: { height: '0' },
+                    to: { height: 'var(--bits-accordion-content-height)' },
+                },
+                'accordion-up': {
+                    from: { height: 'var(--bits-accordion-content-height)' },
+                    to: { height: '0' },
+                },
             },
             animation: {
                 'fade-in': 'fade-in 0.2s ease-in-out',
@@ -62,6 +70,8 @@ export default {
                 'slide-in-from-right': 'slide-in-from-right 0.2s ease-in-out',
                 'in': 'fade-in 0.2s ease-in-out, zoom-in 0.2s ease-in-out',
                 'out': 'fade-out 0.2s ease-in-out, zoom-out 0.2s ease-in-out',
+                'accordion-down': 'accordion-down 0.2s ease-out',
+                'accordion-up': 'accordion-up 0.2s ease-out',
             },
         },
     },
