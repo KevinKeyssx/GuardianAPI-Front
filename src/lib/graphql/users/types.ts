@@ -19,6 +19,7 @@ export enum AttributeType {
 export interface UserAttribute {
     key         : string;
     value       : any | null;
+    valueId     : string;
     type        : AttributeType;
     required    : boolean;
     max         : string;
@@ -28,8 +29,6 @@ export interface UserAttribute {
     maxLength   : string;
     minDate     : string;
     maxDate     : string;
-
-
     isEditing? : boolean;
 }
 
