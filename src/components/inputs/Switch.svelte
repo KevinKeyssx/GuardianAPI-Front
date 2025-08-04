@@ -3,13 +3,13 @@
 
 
     type Props = {
-        label?   : string;
-        id?      : string;
-        name?    : string;
-        checked? : boolean | undefined;
-        disabled? : boolean | undefined;
-        error?   : string | undefined;
-        onChange? : ( value: boolean ) => void;
+        label?      : string;
+        id?         : string;
+        name?       : string;
+        checked?    : boolean | undefined;
+        disabled?   : boolean | undefined;
+        error?      : string | undefined;
+        onChange?   : ( value: boolean ) => void;
     }
 
 
