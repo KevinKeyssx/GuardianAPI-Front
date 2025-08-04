@@ -2,6 +2,7 @@
     import { derived, writable } from 'svelte/store';
 
     import toast from 'svelte-french-toast';
+    import { queryStore } from '@urql/svelte';
 
     import {
         Pagination,
@@ -15,6 +16,11 @@
     import TableEmpty   from '@/components/shared/table/TableEmpty.svelte';
     import Action       from '@/components/shared/Action.svelte';
     // import Filter from "@/components/inputs/Filter.svelte";
+
+    import {
+        errorToast,
+        successToast
+    }                       from '@/config/toast.config';
     import type {
         User,
         UsersAttributesQuery,
@@ -23,14 +29,11 @@
     import {
         DELETE_USER_MUTATION
     }                       from '@/lib/graphql/users/mutations';
+
     import {
-        queryStore
-    }                       from '@urql/svelte';
-    import {
-        errorToast,
-        successToast
-    }                       from '@/config/toast.config';
-    import { USER_ATTRIBUTES_QUERY, USERS_QUERY }  from "@/lib/graphql/users/queries";
+        USER_ATTRIBUTES_QUERY,
+        USERS_QUERY
+    }                       from "@/lib/graphql/users/queries";
     import { client }       from "@/lib/urql";
 
 
@@ -160,10 +163,10 @@
                 baseColumns.pop();
 
                 $userAttributes!.forEach( attribute => {
-                    baseColumns.push( { column: attribute.key, showColumn: true } );
+                    baseColumns.push({ column: attribute.key, showColumn: true });
                 });
 
-                baseColumns.push( { column: 'Actions', showColumn: true } );
+                baseColumns.push({ column: 'Actions', showColumn: true });
             }
 
             return baseColumns;
