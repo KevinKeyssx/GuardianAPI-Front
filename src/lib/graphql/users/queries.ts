@@ -27,6 +27,7 @@ export const USERS_QUERY = gql`
                 name
             }
             attributes {
+                id
                 key
                 value
                 valueId
