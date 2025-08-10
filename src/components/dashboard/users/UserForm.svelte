@@ -271,6 +271,7 @@
         <UserAttributeForm 
             attributes  = { user.attributes }
             clearError  = { clearError }
+            { user }
         />
 
         <Switch
