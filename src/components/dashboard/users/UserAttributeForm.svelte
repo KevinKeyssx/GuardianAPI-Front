@@ -9,18 +9,27 @@
 	import Textarea	            from "@/components/inputs/Textarea.svelte";
 	import UserAttributeAction  from "@/components/dashboard/users/UserAttributeAction.svelte";
 
-    import { errorToast, successToast }         from "@/config/toast.config";
-	import { AttributeType, type UserAttribute } from "@/lib/graphql/users/types";
-    import { UPDATE_USER_ATTRIBUTE_MUTATION }   from "@/lib/graphql/users/mutations/user-attritute-mutation";
-    import { client }                           from "@/lib/urql";
+    import {
+        CREATE_USER_ATTRIBUTE_MUTATION,
+        UPDATE_USER_ATTRIBUTE_MUTATION
+    }                       from "@/lib/graphql/users/mutations/user-attritute-mutation";
+	import {
+        AttributeType,
+        type User,
+        type UserAttribute
+    }                       from "@/lib/graphql/users/types";
+    import { client }       from "@/lib/urql";
+
+    import { errorToast, successToast } from "@/config/toast.config";
 
 
 	type Props = {
 		attributes	: UserAttribute[] | undefined;
+        user        : User | undefined;
 		clearError	: ( key: string ) => void;
 	}
 
-	const { attributes, clearError }: Props = $props();
+	const { attributes, clearError, user }: Props = $props();
 
 	let errors = $state<Record<string, string>>( {} );
 
@@ -32,20 +41,46 @@
 
 	function cancelAttributeEditing( attribute: UserAttribute ) {
 		attribute.isEditing = false;
-		// Here you could restore the original value if needed
 	}
 
 
-	function saveAttributeChanges( attribute: UserAttribute ) {
+	function saveAttributeChanges( attribute: UserAttribute ) : Promise<void> {
 		attribute.isEditing = false;
-		// updateAttribute( attribute );
-        onUpdateUserAttribute( attribute );
+
+        if ( !attribute.valueId ) {
+            return onCreateUserAttribute( attribute );
+        }
+
+        return onUpdateUserAttribute( attribute );
 	}
 
 
-	function updateAttribute( attribute: UserAttribute ) {
-		console.log( 'Updating attribute:', attribute );
-	}
+    async function onCreateUserAttribute(
+        input: UserAttribute
+    ): Promise<void> {
+        if ( !user ) return;
+
+        const { data, error } = await client.mutation(
+            CREATE_USER_ATTRIBUTE_MUTATION, {
+                createUserAttributeValueInput: {
+                    userAttributeId : input.id,
+                    userId          : user.id,
+                    value           : input.value
+                },
+            }
+        ).toPromise();
+
+        if ( error ) {
+            console.error( 'Error updating attribute:', error );
+            toast.error( 'Error updating attribute', errorToast() );
+            return;
+        }
+
+        if ( data ) {
+            console.log( 'User updated successfully:', data.updateUser );
+            toast.success( 'User updated successfully', successToast() );
+        }
+    }
 
 
     async function onUpdateUserAttribute(
@@ -103,7 +138,7 @@
                                         placeholder = "Enter value"
                                         id          = { attribute.key }
                                         name        = { attribute.key }
-                                        type        = 'text'
+                                        type        = "text"
                                         label       = { attribute.key }
                                         disabled    = { !attribute.isEditing }
                                         error       = { errors[`attribute_${attribute.key}` ]}
@@ -126,7 +161,7 @@
                                         placeholder = "Enter value"
                                         id          = { attribute.key }
                                         name        = { attribute.key }
-                                        type        = 'number'
+                                        type        = "number"
                                         label       = { attribute.key }
                                         disabled    = { !attribute.isEditing }
                                         error       = { errors[`attribute_${attribute.key}` ]}
@@ -170,8 +205,8 @@
                                         placeholder = "Enter decimal value"
                                         id          = { attribute.key }
                                         name        = { attribute.key }
-                                        type        = 'number'
-                                        step        = '0.01'
+                                        type        = "number"
+                                        step        = "0.01"
                                         label       = { attribute.key }
                                         disabled    = { !attribute.isEditing }
                                         error       = { errors[`attribute_${attribute.key}` ]}
@@ -237,7 +272,7 @@
                                         placeholder = "Enter UUID"
                                         id          = { attribute.key }
                                         name        = { attribute.key }
-                                        type        = 'text'
+                                        type        = "text"
                                         label       = { attribute.key }
                                         disabled    = { !attribute.isEditing }
                                         error       = { errors[`attribute_${attribute.key}`] }
