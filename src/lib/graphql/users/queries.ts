@@ -11,8 +11,20 @@ export const USER_ATTRIBUTES_QUERY = gql`
 
 
 export const USERS_QUERY = gql`
-    query Users {
-        users {
+    query Users(
+        # $page: Int!,
+        # $each: Int!,
+        # $field: String!,
+        $orderBy: String!,
+        # $search: String,
+    ) {
+        users(
+            # page: $page,
+            # each: $each,
+            # field: $field,
+            # search: $search,
+            orderBy: $orderBy,
+        ) {
             id
             avatar
             email
@@ -21,6 +33,7 @@ export const USERS_QUERY = gql`
             birthdate
             phone
             isActive
+            isVerified
             createdAt
             updatedAt
             roles {
