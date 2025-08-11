@@ -1,8 +1,9 @@
 import { gql } from 'graphql-request';
 
 export const ATTRIBUTES_QUERY = gql`
-    query UserAttributes($keys: [String!]) {
-        userAttributes(keys: $keys) {
+    query UserAttributes {
+        userAttributes {
+            id
             key
             defaultValue
             type
