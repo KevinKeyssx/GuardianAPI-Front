@@ -88,7 +88,7 @@
 {#if isPanelOpen}
     <div
         bind:this   = { panelContainer }
-        class       = "fixed inset-0 bg-space-blue/10 backdrop-blur-sm flex items-end justify-end sm:items-center sm:justify-end z-[9999] opacity-0 transition-all duration-300 ease-in-out"
+        class       = "fixed inset-0 bg-space-blue/10 backdrop-blur-sm flex items-end justify-end sm:items-center sm:justify-end z-[999] opacity-0 transition-all duration-300 ease-in-out"
         style       = "display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;"
         onclick     = {( e ) => e.target === panelContainer && closePanel()}
         onkeydown   = {( e ) => e.key === 'Escape' && closePanel()}
