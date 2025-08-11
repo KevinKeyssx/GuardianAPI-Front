@@ -1,8 +1,6 @@
 <script lang="ts">
-    import { derived, writable } from 'svelte/store';
-
-    import toast from 'svelte-french-toast';
-    import { queryStore } from '@urql/svelte';
+    import toast            from 'svelte-french-toast';
+    import { queryStore }   from '@urql/svelte';
 
     import {
         Pagination,
@@ -15,7 +13,7 @@
     import UserForm     from "@/components/dashboard/users/UserForm.svelte";
     import TableEmpty   from '@/components/shared/table/TableEmpty.svelte';
     import Action       from '@/components/shared/Action.svelte';
-    // import Filter from "@/components/inputs/Filter.svelte";
+    import Filter       from "@/components/inputs/Filter.svelte";
 
     import {
         errorToast,
@@ -36,14 +34,10 @@
     }                       from "@/lib/graphql/users/queries";
     import { client }       from "@/lib/urql";
 
-
-    const queryParams = {
-        page    : 0,
-        each    : 10,
-        field   : 'createdAt',
-        orderBy : 'desc',
-        keys    : [],
-    };
+    let currentPage     = $state( 1 );
+    let itemsPerPage    = $state( 10 );
+    let deletedUserIds  = $state<string[]>( [] );
+    let searchTerm      = $state( "" );
 
     const userAttributesResult = queryStore<UsersAttributesQuery>({
         client,
@@ -56,122 +50,75 @@
     const usersResult = queryStore<UsersQuery>({
         client,
         query           : USERS_QUERY,
-        variables       : queryParams,
-        requestPolicy   : 'cache-and-network'
-        // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
+        requestPolicy   : 'cache-and-network',
+        variables       : {
+            orderBy: 'asc',
+        },
     });
 
 
-    const deletedUserIds = writable<string[]>( [] );
+    const allUsers = $derived(( $usersResult.data?.users || [] ).filter( user => {
+        if ( deletedUserIds.includes( user.id )) return false;
+
+        if ( !searchTerm.trim() ) return true;
+
+        const searchLower = searchTerm.toLowerCase();
+
+        return (
+            user.email?.toLowerCase().includes( searchLower ) ||
+            user.name?.toLowerCase().includes( searchLower ) ||
+            user.nickname?.toLowerCase().includes( searchLower ) ||
+            user.phone?.toLowerCase().includes( searchLower )
+        );
+    }));
 
 
-    const filteredUsersResult = derived(
-        [usersResult, deletedUserIds],
-        ([ $usersResult, $deletedUserIds ]) => {
-            if ( !$usersResult.data?.users ) return $usersResult;
+    const paginatedUsers = $derived((() => {
+        const startIndex    = ( currentPage - 1 ) * itemsPerPage;
+        const endIndex      = startIndex + itemsPerPage;
+        return allUsers.slice( startIndex, endIndex );
+    })());
 
-            return {
-                ...$usersResult,
-                data: {
-                    users: $usersResult.data.users.filter( user => !$deletedUserIds.includes( user.id ) )
-                }
-            };
-        }
-    );
+
+    const totalUsers = $derived( allUsers.length );
 
 
     function refetchUsers(): void {
         usersResult.reexecute({ requestPolicy: 'network-only' });
-        deletedUserIds.set( [] );
+        deletedUserIds = [];
     }
 
 
-    // Handle successful form operations (create/update)
-    // function handleFormSuccess(): void {
-    //     refetchUsers();
-    // }
+    const userAttributes = $derived( $userAttributesResult.data?.userAttributes );
 
 
-    // let refreshInterval: ReturnType<typeof setInterval> | undefined;
+    const columns = $derived((() => {
+        const baseColumns: ColumnProp[] = [
+            { column: 'Avatar',     showColumn: true },
+            { column: 'Email',      showColumn: true },
+            { column: 'Name',       showColumn: true },
+            { column: 'Nickname',   showColumn: true },
+            { column: 'Birthday',   showColumn: true },
+            { column: 'Phone',      showColumn: true },
+            { column: 'Active',     showColumn: true },
+            { column: 'Verified',   showColumn: true },
+            { column: 'Role',       showColumn: true },
+            // { column: 'Last Login', showColumn: true },
+            { column: 'Actions',    showColumn: true },
+        ];
 
+        if (( userAttributes?.length ?? 0 ) > 0 ) {
+            baseColumns.pop();
 
-    // function startRefreshInterval( intervalMs = 1000 * 60 * 30 ) {
-    //     if ( refreshInterval ) clearInterval( refreshInterval );
+            userAttributes!.forEach( attribute => {
+                baseColumns.push({ column: attribute.key, showColumn: true });
+            });
 
-    //     refreshInterval = setInterval(() => {
-    //         console.log( 'Actualizando datos de usuarios...' );
-    //         refetchUsers();
-    //     }, intervalMs );
-    // }
-
-
-    // function stopRefreshInterval() {
-    //     if ( refreshInterval ) {
-    //         clearInterval( refreshInterval );
-    //         refreshInterval = undefined;
-    //     }
-    // }
-
-
-    // onMount(() => {
-    //     startRefreshInterval();
-    //     return () => stopRefreshInterval();
-    // });
-
-    // const columns: ColumnProp[] = [
-    //             { column: 'Avatar',     showColumn: true },
-    //             { column: 'Email',      showColumn: true },
-    //             { column: 'Name',       showColumn: true },
-    //             { column: 'Nickname',   showColumn: true },
-    //             { column: 'Birthday',   showColumn: true },
-    //             { column: 'Phone',      showColumn: true },
-    //             { column: 'Active',     showColumn: true },
-    //             { column: 'Verified',   showColumn: true },
-    //             { column: 'Role',       showColumn: true },
-    //             // { column: 'Last Login', showColumn: true },
-    //             { column: 'Actions',    showColumn: true },
-    //         ];
-
-    // Create reactive derived store for user attributes
-    const userAttributes = derived(
-        userAttributesResult,
-        ( $userAttributesResult ) => {
-            const attributes = $userAttributesResult.data?.userAttributes;
-            console.log("🚀 ~ file: UserSection.svelte:116 ~ userAttributes:", attributes);
-            return attributes;
+            baseColumns.push({ column: 'Actions', showColumn: true });
         }
-    );
 
-    const columns = derived(
-        userAttributes,
-        ( $userAttributes ) => {
-            const baseColumns: ColumnProp[] = [
-                { column: 'Avatar',     showColumn: true },
-                { column: 'Email',      showColumn: true },
-                { column: 'Name',       showColumn: true },
-                { column: 'Nickname',   showColumn: true },
-                { column: 'Birthday',   showColumn: true },
-                { column: 'Phone',      showColumn: true },
-                { column: 'Active',     showColumn: true },
-                { column: 'Verified',   showColumn: true },
-                { column: 'Role',       showColumn: true },
-                // { column: 'Last Login', showColumn: true },
-                { column: 'Actions',    showColumn: true },
-            ];
-
-            if (( $userAttributes?.length ?? 0 ) > 0 ) {
-                baseColumns.pop();
-
-                $userAttributes!.forEach( attribute => {
-                    baseColumns.push({ column: attribute.key, showColumn: true });
-                });
-
-                baseColumns.push({ column: 'Actions', showColumn: true });
-            }
-
-            return baseColumns;
-        }
-    );
+        return baseColumns;
+    })());
 
 
     let clicked = $state( 0 );
@@ -191,9 +138,25 @@
 
         if ( data ) {
             console.log( 'User deleted successfully:', id, data );
-            toast.success( 'Usuario eliminado correctamente', successToast() );
-            deletedUserIds.update( ids => [...ids, id] );
+            toast.success( 'User deleted successfully', successToast() );
+            deletedUserIds = [...deletedUserIds, id];
         }
+    }
+
+
+    function handlePageChange( page: number ): void {
+        currentPage = page;
+    }
+
+
+    function handlePerPageChange( perPage: number ): void {
+        itemsPerPage = perPage;
+        currentPage = 1;
+    }
+
+    function handleSearchChange( value: string ): void {
+        searchTerm = value;
+        currentPage = 1;
     }
 </script>
 
@@ -201,7 +164,12 @@
     <h1 class="text-2xl font-orbitron text-white mb-6">Users</h1>
 
     <div class="flex justify-between items-center mb-4 gap-2 sm:gap-4">
-        <!-- <Filter /> -->
+        <Filter 
+            placeholder="Search users"
+            name="userSearch"
+            bind:value={searchTerm}
+            onChange={handleSearchChange}
+        />
 
         <Panel
             title           = "Add User"
@@ -217,11 +185,11 @@
         </Panel>
     </div>
 
-    {#if $filteredUsersResult.fetching}
+    {#if $usersResult.fetching}
         <div class="flex justify-center items-center py-8">
             <p class="text-white">Loading users...</p>
         </div>
-    {:else if $filteredUsersResult.error}
+    {:else if $usersResult.error}
         <div class="bg-red-900/30 text-red-300 p-4 rounded-lg mb-4">
             <p>Error fetching users</p>
 
@@ -232,10 +200,10 @@
                 Retry
             </button>
         </div>
-    {:else if $filteredUsersResult.data}
+    {:else if $usersResult.data}
         <div class="grid space-y-4">
-            <Table columns={$columns}>
-                {#each $filteredUsersResult.data.users as user}
+            <Table columns={columns}>
+                {#each paginatedUsers as user}
                     <TableRow>
                         <TableData value={ user.avatar } isImg={ true } />
 
@@ -245,7 +213,7 @@
 
                         <TableData value={ user.nickname } />
 
-                        <TableData value={ user.birthdate } />
+                        <TableData value={ user.birthdate } isDate={ true } />
 
                         <TableData value={ user.phone } />
 
@@ -265,8 +233,8 @@
                         </TableData>
 
                         <!-- Dynamic attribute columns -->
-                        {#if ( $userAttributes )} 
-                            {#each $userAttributes as attribute}
+                        {#if userAttributes} 
+                            {#each userAttributes as attribute}
                                 <TableData value={ user.attributes?.find( attr => attr.key === attribute.key )?.value ?? null } />
                             {/each}
                         {/if}
@@ -291,19 +259,18 @@
                     </TableRow>
                 {:else}
                     <TableEmpty
-                        columns = { $columns.length }
+                        columns = { columns.length }
                         data    = "No users found"
                     />
                 {/each}
             </Table>
 
             <Pagination
-                count           = { $filteredUsersResult.data.users.length }
-                currentPage     = { queryParams.page + 1 }
-                onPageChange    = { ( page ) => {
-                    queryParams.page = page - 1;
-                    usersResult.reexecute( { variables: queryParams } );
-                } }
+                count           = { totalUsers }
+                currentPage     = { currentPage }
+                perPage         = { itemsPerPage }
+                onPageChange    = { handlePageChange }
+                onPerPageChange = { handlePerPageChange }
             />
         </div>
     {:else}
