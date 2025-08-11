@@ -12,7 +12,7 @@ const baseStyle = `
 
 
 const baseToastConfig: ToastOptions = {
-	position    : "bottom-right",
+	position    : "bottom-center",
 	duration    : 4000,
 	className   : "shadow-lg",
 };
