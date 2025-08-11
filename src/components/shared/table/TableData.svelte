@@ -1,11 +1,15 @@
 <script lang="ts">
+    import { format } from "@formkit/tempo";
+
     import CheckIcon        from '@/icons/CheckIcon.svelte';
     import NoCheckIcon      from '@/icons/NoCheckIcon.svelte';
     import noneIcon         from '@/assets/icons/none.svg?raw';
     import userIcon         from '@/assets/icons/user.svg?url';
     import { CLIENT_ENV }   from '@/lib/env/client';
 
+
     type Value = string | number | boolean | null;
+
 
     export let value        : Value | undefined = undefined;
     export let color        : string    = 'text-white';
@@ -15,6 +19,7 @@
     export let className    : string    = '';
     export let float        : boolean   = false;
     export let isImg        : boolean   = false;
+    export let isDate       : boolean   = false;
 
     let imageError = false;
 
@@ -45,6 +50,8 @@
         {/if}
     {:else if typeof value === 'number'}
         <span class="text-neon-blue">{value}</span>
+    {:else if isDate && typeof value === 'string'}
+        <span class="text-indigo-300">{ format( value, "ddd MMM D, YYYY", 'en-US')}</span>
     {:else if value === null}
         {#if isImg}
             <img
