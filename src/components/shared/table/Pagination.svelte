@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Pagination } from "bits-ui";
-	import CaretLeft from "phosphor-svelte/lib/CaretLeft";
-	import CaretRight from "phosphor-svelte/lib/CaretRight";
-	import Select from "../../inputs/Select.svelte";
+	import { Pagination }               from "bits-ui";
+	import { CaretLeft, CaretRight }    from "phosphor-svelte";
 
-	// Props interface for the component
+    import Select from "@/components/inputs/Select.svelte";
+
 	type Props = {
 		count               : number;
 		perPage?            : number;
