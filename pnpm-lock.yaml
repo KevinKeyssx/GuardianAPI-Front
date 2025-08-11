@@ -29,6 +29,9 @@ importers:
       '@fontsource/orbitron':
         specifier: ^5.2.5
         version: 5.2.5
+      '@formkit/tempo':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@internationalized/date':
         specifier: ^3.8.0
         version: 3.8.0
@@ -419,6 +422,9 @@ packages:
 
   '@fontsource/orbitron@5.2.5':
     resolution: {integrity: sha512-e3164ITI9u27irFN4tszwj/OIA9q/TIGKWJ6NUEDvziRO3/9RfnJjioBRyLW6lpslu+oV6US/17bNGlMfZqr5A==}
+
+  '@formkit/tempo@0.1.2':
+    resolution: {integrity: sha512-jNPPbjL8oj7hK3eHX++CwbR6X4GKQt+x00/q4yeXkwynXHGKL27dylYhpEgwrmediPP4y7s0XtN1if/M/JYujg==}
 
   '@graphql-typed-document-node/core@3.2.0':
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
@@ -2906,6 +2912,8 @@ snapshots:
   '@fontsource/inter@5.2.5': {}
 
   '@fontsource/orbitron@5.2.5': {}
+
+  '@formkit/tempo@0.1.2': {}
 
   '@graphql-typed-document-node/core@3.2.0(graphql@16.11.0)':
     dependencies:

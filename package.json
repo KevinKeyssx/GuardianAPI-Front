@@ -16,6 +16,7 @@
     "@auth/core": "^0.37.4",
     "@fontsource/inter": "^5.2.5",
     "@fontsource/orbitron": "^5.2.5",
+    "@formkit/tempo": "^0.1.2",
     "@internationalized/date": "^3.8.0",
     "@urql/svelte": "^4.2.3",
     "astro": "^5.5.3",
