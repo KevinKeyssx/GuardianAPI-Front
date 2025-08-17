@@ -13,6 +13,7 @@
     // import SecretForm       from "@/components/dashboard/secrets/SecretForm.astro";
     // import SearchIcon       from "@/icons/SearchIcon.astro";
     import { client }               from "@/lib/urql";
+    import type { Secret }          from "@/lib/graphql/secrets/types";
     import { queryStore }           from '@urql/svelte';
     import { SECRETS_QUERY }        from "@/lib/graphql/secrets/queries";
     import type { SecretsQuery }    from "@/lib/graphql/secrets/types";
@@ -96,7 +97,11 @@
         title   = "Add Secret"
     >
         {#snippet form()}
-            <SecretForm id="add-secret" secret={{} as SecretForm} />
+            <SecretForm
+                secret      = { {} as Secret }
+                clicked     = { 0 }
+                onSuccess   = {()=>{}}
+            />
         {/snippet}
     </Modal>
 
