@@ -1,23 +1,38 @@
 <script lang="ts">
-    import DatePicker   from "@/components/inputs/DatePicker.svelte";
+    import DatePickerP from "@/components/inputs/DatePickerP.svelte";
+
     import Input        from "@/components/inputs/Input.svelte";
     import Dialog       from "@/components/shared/dialog/dialog.svelte";
     import DateForm     from "@/components/shared/show/date-form.svelte";
+    import type { Secret } from "@/lib/graphql/secrets/types";
 
-    interface Secret {
-        name: string;
-        willExpireAt: string;
-    }
+    import { CalendarDateTime, type DateValue } from "@internationalized/date";
 
     interface Props {
-        id: string;
-        secret?: Secret;
+        secret      : Secret;
+        clicked     : number;
+        onSuccess?  : () => void;
     }
 
-    const { id, secret } = $props();
+
+    const {
+        secret: secretData,
+        clicked = $bindable(),
+        onSuccess
+    }: Props = $props();
+
+
+    let secret = $state<Secret>(secretData);
+
+        function getMaxDate(): DateValue {
+        const date = new Date();
+        return new CalendarDateTime( date.getFullYear(), date.getMonth() + 1, date.getDate() );
+    }
+
 </script>
 
-<form class="space-y-4" {id}>
+<form class="space-y-4" id="secret-form">
+
     <Input
         bind:value  = { secret.name }
         label       = "Name"
@@ -27,11 +42,12 @@
         type        = 'text'
     />
 
-    <DatePicker
-        bind:value    = { secret.willExpireAt }
-        id            = "will-expire-at"
-        label         = "Will expire at"
-    />
+    <DatePickerP
+        bind:value={ secret.willExpireAt }
+        id      = "will-expire-at"
+        label   = "Will expire at"
+        minDate = {new Date()}
+    /> 
 
     <!-- <DateForm
         id            = "will-expire-at"
