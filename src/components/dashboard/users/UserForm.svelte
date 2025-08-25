@@ -1,12 +1,10 @@
 <script lang="ts">
-    import { CalendarDateTime, type DateValue } from "@internationalized/date";
-    import toast                                from 'svelte-french-toast';
-    import { z }                                from 'zod';
+    import toast    from 'svelte-french-toast';
+    import { z }    from 'zod';
 
     import DatePicker                       from "@/components/inputs/DatePicker.svelte";
     import Input                            from "@/components/inputs/Input.svelte";
     import Switch                           from "@/components/inputs/Switch.svelte";
-    import Textarea                         from "@/components/inputs/Textarea.svelte";
     import Modal                            from "@/components/shared/Modal.svelte";
     import PanelFooter                      from "@/components/shared/panel/PanelFooter.svelte";
     import PanelMain                        from "@/components/shared/panel/PanelMain.svelte";
@@ -61,12 +59,6 @@
         nickname    : z.string().optional(),
         phone       : z.string().optional(),
     });
-
-
-    function getMaxDate(): DateValue {
-        const date = new Date();
-        return new CalendarDateTime( date.getFullYear(), date.getMonth() + 1, date.getDate() );
-    }
 
 
     // Validate form data
@@ -254,9 +246,9 @@
 
         <DatePicker
             bind:value={ user.birthdate }
-            label   = "Birthdate"
             id      = "birthdate"
-            maxDate = { getMaxDate() }
+            label   = "Birthdate"
+            maxDate = { new Date() }
         />
 
         <Input
