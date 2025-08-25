@@ -12,3 +12,18 @@ export interface Secret {
 export interface SecretsQuery {
     secret: Secret[];
 }
+
+
+export interface CreateSecretInput {
+    id? : string;
+    name            : string;
+    willExpireAt?   : string | null;
+}
+
+
+export interface UpdateSecretInput {
+    id? : string;
+
+    name?           : string;
+    willExpireAt?   : string | null;
+}
