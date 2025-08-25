@@ -45,16 +45,16 @@
         onChange: onchange,
     }: Props = $props();
 
+
     const selectedLabel = $derived(
         value
             ? options.find((option) => option.value === value)?.label
             : placeholder
     );
 
-    function handleChange(value: string) {
-        if (onchange) {
-            onchange(value);
-        }
+
+    function handleChange( value: string ): void {
+        if ( onchange ) onchange( value );
     }
 </script>
 
@@ -62,16 +62,17 @@
     {#if label}
         <label for={id} class="text-sm font-orbitron text-white mb-1">{label}</label>
     {/if}
-    
+
     <Select.Root 
-        type="single" 
-        onValueChange={(v) => {
+        type    = "single" 
+        items   = { options }
+        { name }
+        { disabled }
+        { required }
+        onValueChange={( v ) => {
             value = v;
-            handleChange(v);
+            handleChange( v );
         }} 
-        items={options}
-        {disabled}
-        {required}
     >
         <Select.Trigger
             class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue hover:border-neon-blue focus:outline-none text-white flex items-center transition-colors {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
@@ -81,7 +82,9 @@
             {#if icon}
                 {@render icon()}
             {/if}
-            <span class="ml-2 flex-1 text-left">{selectedLabel}</span>
+
+            <span class="ml-2 flex-1 text-left">{ selectedLabel }</span>
+
             <CaretUpDown class="text-neon-blue ml-auto size-5" />
         </Select.Trigger>
 
@@ -97,13 +100,13 @@
                 <Select.Viewport class="p-1">
                     {#each options as option, i (i + option.value)}
                         <Select.Item
-                            class="rounded-md hover:bg-neon-blue/20 data-highlighted:bg-neon-blue/30 data-highlighted:text-white outline-hidden data-disabled:opacity-30 flex h-10 w-full select-none items-center py-2 px-3 text-sm text-white capitalize transition-colors duration-150"
-                            value={option.value}
-                            label={option.label}
-                            disabled={option.disabled}
+                            class       = "rounded-md hover:bg-neon-blue/20 data-highlighted:bg-neon-blue/30 data-highlighted:text-white outline-hidden data-disabled:opacity-30 flex h-10 w-full select-none items-center py-2 px-3 text-sm text-white capitalize transition-colors duration-150"
+                            value       = { option.value }
+                            label       = { option.label }
+                            disabled    = { option.disabled }
                         >
                             {#snippet children({ selected })}
-                                {option.label}
+                                { option.label }
 
                                 {#if selected}
                                     <div class="ml-auto text-neon-blue">
