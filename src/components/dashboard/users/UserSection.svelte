@@ -34,10 +34,13 @@
     }                       from "@/lib/graphql/users/queries";
     import { client }       from "@/lib/urql";
 
+
     let currentPage     = $state( 1 );
     let itemsPerPage    = $state( 10 );
     let deletedUserIds  = $state<string[]>( [] );
     let searchTerm      = $state( "" );
+    let clicked         = $state( 0 );
+
 
     const userAttributesResult = queryStore<UsersAttributesQuery>({
         client,
@@ -80,16 +83,14 @@
     })());
 
 
-    const totalUsers = $derived( allUsers.length );
+    const totalUsers        = $derived( allUsers.length );
+    const userAttributes    = $derived( $userAttributesResult.data?.userAttributes );
 
 
     function refetchUsers(): void {
         usersResult.reexecute({ requestPolicy: 'network-only' });
         deletedUserIds = [];
     }
-
-
-    const userAttributes = $derived( $userAttributesResult.data?.userAttributes );
 
 
     const columns = $derived((() => {
@@ -121,9 +122,6 @@
     })());
 
 
-    let clicked = $state( 0 );
-
-
     async function handleDeleteUser( id: string ): Promise<void> {
         const { data, error } = await client.mutation(
             DELETE_USER_MUTATION,
@@ -150,12 +148,13 @@
 
 
     function handlePerPageChange( perPage: number ): void {
-        itemsPerPage = perPage;
-        currentPage = 1;
+        itemsPerPage    = perPage;
+        currentPage     = 1;
     }
 
+
     function handleSearchChange( value: string ): void {
-        searchTerm = value;
+        searchTerm  = value;
         currentPage = 1;
     }
 </script>
@@ -165,10 +164,10 @@
 
     <div class="flex justify-between items-center mb-4 gap-2 sm:gap-4">
         <Filter 
-            placeholder="Search users"
-            name="userSearch"
-            bind:value={searchTerm}
-            onChange={handleSearchChange}
+            bind:value={ searchTerm }
+            placeholder = "Search users"
+            name        = "userSearch"
+            onChange    = { handleSearchChange }
         />
 
         <Panel
