@@ -1,17 +1,19 @@
 <script lang="ts">
     import { onMount, type Snippet } from 'svelte';
 
+    import EditIcon     from '@/icons/EditIcon.svelte';
+    import CreateIcon   from '@/icons/CreateIcon.svelte';
+
+
     const {
         id,
-        type,
         title,
         buttonText  = 'Open',
-        buttonClass = 'px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center',
+        buttonClass = "p-2 rounded-md hover:bg-opacity-80 transition-colors duration-300 flex items-center",
         isEdit      = false,
         form
     } = $props<{
         id              : string;
-        type            : 'user' | 'attribute' | 'secret' | 'role';
         title           : string;
         buttonText?     : string;
         buttonClass?    : string;
@@ -30,14 +32,11 @@
     function openModal() {
         isModalOpen = true;
 
-        // Necesitamos esperar a que el DOM se actualice
         setTimeout(() => {
             if ( !modalContainer ) return;
-            // Mover el modal al body para asegurar que esté fuera de cualquier contenedor
             document.body.appendChild( modalContainer );
             modalContainer.style.display = 'flex';
 
-            // Iniciar animación
             setTimeout(() => {
                 modalContainer.classList.add( 'opacity-100' );
                 modalContainer.classList.add( 'bg-space-blue/10' );
@@ -75,12 +74,8 @@
         const event = new CustomEvent( 'itemUpdated', {
             detail: {
                 id,
-                type
             }
         });
-
-        // document.dispatchEvent( event );
-        // closeModal();
     }
 
 
@@ -90,7 +85,7 @@
         }
     }
 
-    // Exponer funciones globalmente para uso programático
+
     onMount(() => {
         if ( !id ) return;
 
@@ -104,24 +99,22 @@
     });
 </script>
 
-<!-- Botón para abrir el modal -->
 <button 
-    class       = { `edit-item-btn h-10 gap-1 ${buttonClass}` }
+    class       = { `edit-item-btn h-10 gap-1 ${buttonClass} ${ isEdit ? 'text-neon-blue': ' text-dark-blue bg-neon-blue'} hover:bg-neon-blue/20 transition-all p-2 rounded-md` }
     data-id     = { id }
-    data-type   = { type }
     onclick     = { openModal }
 >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-    </svg>
+    {#if isEdit}
+        <EditIcon />
+    {:else}
+        <CreateIcon />
+    {/if}
 
     <span class="hidden sm:block">
         { buttonText }
     </span>
 </button>
 
-<!-- El modal -->
 {#if isModalOpen}
     <section
         bind:this   = { modalContainer }
