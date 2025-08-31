@@ -1,9 +1,9 @@
 <script lang="ts">
-    import toast    from 'svelte-french-toast';
+    import toast from 'svelte-french-toast';
+    import { z } from 'zod';
 
     import DatePicker   from "@/components/inputs/DatePicker.svelte";
     import Input        from "@/components/inputs/Input.svelte";
-    import DateForm     from "@/components/shared/show/date-form.svelte";
 
     import {
         GENERATE_SECRET_MUTATION,
@@ -37,6 +37,15 @@
 
 
     let secret = $state<Secret>( secretData );
+    let errors = $state<Record<string, string>>( {} );
+
+
+    const secretSchema = z.object({
+        willExpireAt    : z.string().nullable().optional(),
+        name            : z.string()
+            .min( 1, 'Name is required' )
+            .max( 100, 'Name must be less than 100 characters' ),
+    });
 
 
     async function onCreateSecret(
@@ -50,18 +59,20 @@
         ).toPromise();
 
         if ( error ) {
-            console.error( 'Error creating user:', error );
-            toast.error( 'Error creating user', errorToast() );
+            console.error( 'Error creating secret:', error );
+            toast.error( 'Error creating secret', errorToast() );
 
             return;
         }
 
         if ( data ) {
             console.log("🚀 ~ file: SecretForm.svelte:60 ~ data:", data)
-            console.log( 'User created successfully:', data.createUser );
-            toast.success( 'User created successfully', successToast() );
+            console.log( 'Secret created successfully:', data.createSecret );
+            toast.success( 'Secret created successfully', successToast() );
 
             secret = {} as Secret;
+
+            ( window as any )[`closeModal_add-secret`]?.();
 
             onSuccess?.();
         }
@@ -73,7 +84,7 @@
     ): Promise<void> {
         const { data, error } = await client.mutation(
             UPDDATE_SECRET_MUTATION, {
-                updateUserInput: input,
+                updateSecretInput: input,
             }
         ).toPromise();
 
@@ -87,13 +98,40 @@
             console.log( 'Secret updated successfully:', data.updateSecret );
             toast.success( 'Secret updated successfully', successToast() );
 
+            ( window as any )[`closeModal_edit-secret`]?.();
+
             onSuccess?.();
         }
     }
 
 
+    // Clear error for specific field
+    function clearError( field: string ): void {
+        if ( errors[field] ) {
+            errors = { ...errors };
+            delete errors[field];
+        }
+    }
+
+
     function validateForm(): boolean {
-        return false;
+        errors = {};
+        let isValid = true;
+
+        const result = secretSchema.safeParse({
+            name            : secret.name || '',
+            willExpireAt    : secret.willExpireAt || null
+        });
+
+        if ( !result.success ) {
+            result.error.errors.forEach( ( error ) => {
+                const field = error.path[0] as string;
+                errors[field] = error.message;
+            });
+            isValid = false;
+        }
+
+        return isValid;
     }
 
 
@@ -101,11 +139,9 @@
         event.preventDefault();
         console.log("🚀 ~ file: UserForm.svelte:117 ~ user:", secret)
 
-        // Validate form before submission
-        // if ( !validateForm() ) {
-        //     toast.error( 'Please correct the errors in the form', errorToast() );
-        //     return;
-        // }
+        if ( !validateForm() ) {
+            return;
+        }
 
         const input: CreateSecretInput | UpdateSecretInput = {
             id              : secret.id,
@@ -137,6 +173,8 @@
         id          = "name"
         name        = "name"
         type        = 'text'
+        error       = { errors.name }
+        onInput     = { () => clearError( 'name' ) }
     />
 
     <DatePicker
