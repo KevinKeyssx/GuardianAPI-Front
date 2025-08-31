@@ -287,7 +287,6 @@
         <PanelFooter>
             <Modal
                 id      = { "add-attribute" }
-                type    = "attribute"
                 title   = "Add Attribute"
             />
 
