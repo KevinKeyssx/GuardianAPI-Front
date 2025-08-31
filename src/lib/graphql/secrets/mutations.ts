@@ -17,6 +17,7 @@ export const UPDDATE_SECRET_MUTATION = gql`
     mutation ExpiresAtSecret($updateSecretInput: UpdateSecretInput!) {
         expiresAtSecret(updateSecretInput: $updateSecretInput) {
             name
+            expiresAt
             id
         }
     }
@@ -24,7 +25,7 @@ export const UPDDATE_SECRET_MUTATION = gql`
 
 
 export const DELETE_SECRET_MUTATION = gql`
-    mutation DeleteSecret($deleteSecretId: ID!) {
-        deleteSecret(id: $deleteSecretId)
+    mutation RemoveSecret($removeSecretId: ID!) {
+        removeSecret(id: $removeSecretId)
     }
 `;
