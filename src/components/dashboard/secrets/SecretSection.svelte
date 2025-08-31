@@ -1,5 +1,5 @@
 <script lang="ts">
-    // import { onMount } from 'svelte';
+    import toast from 'svelte-french-toast';
 
     import Table        from "@/components/shared/table/Table.svelte";
     import TableData    from "@/components/shared/table/TableData.svelte";
@@ -8,54 +8,41 @@
     import Modal        from '@/components/shared/Modal.svelte';
     import SecretForm   from '@/components/dashboard/secrets/SecretForm.svelte';
     import Filter       from '@/components/inputs/Filter.svelte';
+    import Action       from "@/components/shared/Action.svelte";
 
-    import { client }               from "@/lib/urql";
-    import type { Secret }          from "@/lib/graphql/secrets/types";
-    import { queryStore }           from '@urql/svelte';
-    import { SECRETS_QUERY }        from "@/lib/graphql/secrets/queries";
-    import type { SecretsQuery }    from "@/lib/graphql/secrets/types";
+    import { client }                   from "@/lib/urql";
+    import type { Secret }              from "@/lib/graphql/secrets/types";
+    import { queryStore }               from '@urql/svelte';
+    import { SECRETS_QUERY }            from "@/lib/graphql/secrets/queries";
+    import type { SecretsQuery }        from "@/lib/graphql/secrets/types";
+    import { DELETE_SECRET_MUTATION }   from "@/lib/graphql/secrets/mutations";
+
+    import {
+        errorToast,
+        successToast
+    } from '@/config/toast.config';
 
 
     const secretsResult = queryStore<SecretsQuery>({
         client,
         query           : SECRETS_QUERY,
         requestPolicy   : 'cache-and-network'
-        // Usar cache-and-network para cargar desde cache y actualizar en segundo plano
     });
 
 
-    // function refetchUsers() {
-    //     secretsResult.reexecute({ requestPolicy: 'network-only' });
-    // }
-
-    // // Configurar intervalo para refrescar datos cada cierto tiempo (ej: cada 30 segundos)
-    // let refreshInterval: ReturnType<typeof setInterval> | undefined;
-
-    // Función para iniciar el intervalo de actualización
-    // function startRefreshInterval( intervalMs = 1000 * 60 * 30 ) { // 30 minutos por defecto
-    //     // Limpiar intervalo existente si hay alguno
-    //     if ( refreshInterval ) clearInterval( refreshInterval );
-
-    //     // Crear nuevo intervalo
-    //     refreshInterval = setInterval(() => {
-    //         console.log( 'Actualizando datos de usuarios...' );
-    //         refetchUsers();
-    //     }, intervalMs );
-    // }
-
-    // // Función para detener el intervalo
-    // function stopRefreshInterval() {
-    //     if ( refreshInterval ) {
-    //         clearInterval( refreshInterval );
-    //         refreshInterval = undefined;
-    //     }
-    // }
+    let deletedSecretIds    = $state<string[]>( [] );
+    let searchTerm          = $state( "" );
 
 
-    // onMount(() => {
-    //     startRefreshInterval();
-    //     return () => stopRefreshInterval();
-    // });
+    const filteredSecrets = $derived(( $secretsResult.data?.secret || [] ).filter( secret => {
+        if ( deletedSecretIds.includes( secret.id! ) ) return false;
+
+        if ( !searchTerm.trim() ) return true;
+
+        const searchLower = searchTerm.toLowerCase();
+
+        return secret.name?.toLowerCase().includes( searchLower );
+    }));
 
 
     const columns = [
@@ -69,13 +56,28 @@
     ];
 
 
-    let searchTerm      = $state( "" );
-    let currentPage     = $state( 1 );
-
-
     function handleSearchChange( value: string ): void {
-        searchTerm = value;
-        currentPage = 1;
+        searchTerm  = value;
+    }
+
+
+    async function handleDeleteSecret( id: string ): Promise<void> {
+        const { data, error } = await client.mutation(
+            DELETE_SECRET_MUTATION,
+            { removeSecretId: id }
+        ).toPromise();
+
+        if ( error ) {
+            console.error( 'Error deleting secret:', error );
+            toast.error( 'Error deleting secret', errorToast() );
+            return;
+        }
+
+        if ( data ) {
+            console.log( 'Secret deleted successfully:', id, data );
+            toast.success( 'Secret deleted successfully', successToast() );
+            deletedSecretIds = [...deletedSecretIds, id];
+        }
     }
 </script>
 
@@ -85,21 +87,20 @@
     <div class="flex justify-between items-center mb-4">
         <Filter 
             bind:value={ searchTerm }
-            placeholder = "Search users"
-            name        = "userSearch"
+            placeholder = "Search secrets"
+            name        = "secretSearch"
             onChange    = { handleSearchChange }
         />
 
         <Modal
-            id      = { 'add-secret' }
-            type    = "secret"
-            title   = "Add Secret"
+            id          = "add-secret"
+            title       = "Add Secret"
+            buttonText  = "Add Secret"
         >
             {#snippet form()}
                 <SecretForm
                     secret      = { {} as Secret }
                     clicked     = { 0 }
-                    onSuccess   = { () => {} }
                 />
             {/snippet}
         </Modal>
@@ -111,7 +112,7 @@
         <p>Error: {$secretsResult.error.message}</p>
     {:else if $secretsResult.data}
         <Table {columns}>
-            {#each $secretsResult.data.secret as secret}
+            {#each filteredSecrets as secret}
                 <TableRow>
                     <TableData value={ secret.name } />
 
@@ -126,19 +127,21 @@
                     <TableData value={ secret.updatedAt } />
 
                     <TableData size="text-sm font-medium" float={ true }>
-                        <Modal
-                            id      = { 'add-secret' }
-                            type    = "secret"
-                            title   = "Add Secret"
-                        >
-                            {#snippet form()}
-                                <SecretForm
-                                    secret      = { secret }
-                                    clicked     = { 0 }
-                                    onSuccess   = { () => {} }
-                                />
-                            {/snippet}
-                        </Modal>
+                            <Action
+                                clicked     = {0}
+                                titleEdit   = "Edit Secret"
+                                isModal     = { true }
+                                onDelete    = { () => handleDeleteSecret( secret.id! )}
+                                type        = { 'the secret' }
+                                data        = { secret.name || 'secret' }
+                            >
+                                {#snippet form()}
+                                    <SecretForm
+                                        secret      = { secret }
+                                        clicked     = { 0 }
+                                    />
+                                {/snippet}
+                            </Action>
                     </TableData>
                 </TableRow>
             {:else}
