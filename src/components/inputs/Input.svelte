@@ -8,8 +8,8 @@
         type?           : 'text' | 'email' | 'password' | 'number' | 'search';
         required?       : boolean;
         disabled?       : boolean;
-        min?            : number;
-        max?            : number;
+        min?            : number | string | undefined | null;
+        max?            : number | string | undefined | null;
         step?           : number | string | undefined | null;
         error?          : string;
         onInput?        : () => void;
