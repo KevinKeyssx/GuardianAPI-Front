@@ -3,14 +3,14 @@
     import toast            from 'svelte-french-toast';
     import { z }            from 'zod';
 
-    import DatePicker   from "@/components/inputs/DatePicker.svelte";
-    import Input        from "@/components/inputs/Input.svelte";
-    import Select       from "@/components/inputs/Select.svelte";
-    import Switch       from "@/components/inputs/Switch.svelte";
-    import Textarea     from "@/components/inputs/Textarea.svelte";
-    import PanelFooter  from "@/components/shared/panel/PanelFooter.svelte";
-    import PanelMain    from "@/components/shared/panel/PanelMain.svelte";
-    import DateForm     from "@/components/shared/show/date-form.svelte";
+    import DatePicker       from "@/components/inputs/DatePicker.svelte";
+    import Input            from "@/components/inputs/Input.svelte";
+    import Select           from "@/components/inputs/Select.svelte";
+    import Switch           from "@/components/inputs/Switch.svelte";
+    import PanelFooter      from "@/components/shared/panel/PanelFooter.svelte";
+    import PanelMain        from "@/components/shared/panel/PanelMain.svelte";
+    import DateForm         from "@/components/shared/show/date-form.svelte";
+    import JsonGenerator    from "@/components/dashboard/attributes/JSONGenerator.svelte";
 
     import type {
         Attribute,
@@ -27,6 +27,7 @@
         successToast
     }                           from '@/config/toast.config';
     import { client }           from "@/lib/urql";
+    import PatternIcon          from "@/icons/PatternIcon.svelte";
 
 
     type Props = {
@@ -60,10 +61,12 @@
         minDate         : nullToUndefined( incomingAttribute.minDate ),
         maxDate         : nullToUndefined( incomingAttribute.maxDate ),
         pattern         : nullToUndefined( incomingAttribute.pattern ),
+        canChangeAll    : incomingAttribute.canChangeAll ?? false,
     });
 
 
-    let errors = $state<Record<string, string>>( {} );
+    let errors  = $state<Record<string, string>>( {} );
+    let isReset = $state<boolean>( false );
 
 
     const options = [
@@ -74,7 +77,18 @@
         { label: 'List',        value: 'LIST' },
         { label: 'Json',        value: 'JSON' },
         { label: 'Datetime',    value: 'DATETIME' },
-        { label: 'UUID',        value: 'UUID' },
+    ];
+
+
+    const patternOptions = [
+        { label: 'Email (user@domain.com)', value: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
+        { label: 'URL (https://example.com)', value: '^(https?:\\/\\/)?([\\w-]+\\.)+[\\w-]+(\\/[\\w-./?%&=]*)?$' },
+        { label: 'UUID (123e4567-e89b-12d3-a456-426614174000)', value: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' },
+        { label: 'Credit Card (1234-5678-9012-3456)', value: '^\\d{4}-?\\d{4}-?\\d{4}-?\\d{4}$' },
+        { label: 'IPv4 Address (192.168.1.1)', value: '^(\\d{1,3}\\.){3}\\d{1,3}$' },
+        { label: 'Hex Color (#FFFFFF)', value: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$' },
+        { label: 'Time (HH:MM 24h) (23:59)', value: '^([01]\\d|2[0-3]):[0-5]\\d$' },
+        { label: 'Custom', value: '' },
     ];
 
 
@@ -95,7 +109,8 @@
         minDate         : z.string().optional().nullable(),
         maxDate         : z.string().optional().nullable(),
         pattern         : z.string().optional().nullable(),
-        isActive        : z.boolean().default( true )
+        isActive        : z.boolean().default( true ),
+        canChangeAll    : z.boolean().default( false )
     }).refine( ( data ) => {
         const { minLength, maxLength } = data;
 
@@ -131,15 +146,15 @@
             key             : attribute.key || '',
             type            : attribute.type as Type,
             defaultValue    : attribute.defaultValue,
-            required        : attribute.required ?? false,
-            min             : attribute.min || undefined,
-            max             : attribute.max || undefined,
-            minLength       : attribute.minLength || undefined,
-            maxLength       : attribute.maxLength || undefined,
-            minDate         : attribute.minDate || undefined,
-            maxDate         : attribute.maxDate || undefined,
-            pattern         : attribute.pattern || undefined,
-            isActive        : attribute.isActive ?? true,
+            required        : attribute.required    ?? false,
+            min             : attribute.min         || undefined,
+            max             : attribute.max         || undefined,
+            minLength       : attribute.minLength   || undefined,
+            maxLength       : attribute.maxLength   || undefined,
+            minDate         : attribute.minDate     || undefined,
+            maxDate         : attribute.maxDate     || undefined,
+            pattern         : attribute.pattern     || undefined,
+            isActive        : attribute.isActive    ?? true,
         });
 
         if ( !result.success ) {
@@ -219,21 +234,31 @@
             key             : attribute.key!,
             type            : attribute.type!,
             defaultValue    : attribute.defaultValue === null ? undefined : attribute.defaultValue,
-            required        : attribute.required ?? false,
-            min             : attribute.min || undefined,
-            max             : attribute.max || undefined,
-            minLength       : attribute.minLength || undefined,
-            maxLength       : attribute.maxLength || undefined,
-            minDate         : attribute.minDate || undefined,
-            maxDate         : attribute.maxDate || undefined,
-            pattern         : attribute.pattern || undefined,
-            isActive        : attribute.isActive ?? true,
+            required        : attribute.required    ?? false,
+            min             : attribute.min         || undefined,
+            max             : attribute.max         || undefined,
+            minLength       : attribute.minLength   || undefined,
+            maxLength       : attribute.maxLength   || undefined,
+            minDate         : attribute.minDate     || undefined,
+            maxDate         : attribute.maxDate     || undefined,
+            pattern         : attribute.pattern     || undefined,
+            isActive        : attribute.isActive    ?? true,
         };
 
         if ( attribute.id ) {
             ( input as UpdateUserAttributeInput ).id = attribute.id;
+            ( input as UpdateUserAttributeInput ).canChangeAll = attribute.canChangeAll;
+
+            if ( isReset ) {
+                input.defaultValue = null;
+                input.canChangeAll = true;
+            }
+
+            console.log("🚀 ~ file: AttributeForm.svelte:221 update ~ input:", input)
+
             await onUpdateAttribute( input as UpdateUserAttributeInput );
         } else {
+            console.log("🚀 ~ file: AttributeForm.svelte:221 create ~ input:", input)
             await onCreateAttribute( input as CreateUserAttributeInput );
         }
     }
@@ -244,8 +269,9 @@
         <div class="flex flex-col gap-4">
             <div class="flex items-center gap-2">
                 <PuzzlePiece size={20} />
+
                 <h2 class="text-lg font-semibold">
-                    {attribute.id ? 'Edit Attribute' : 'Create Attribute'}
+                    { attribute.id ? 'Edit Attribute' : 'Create Attribute' }
                 </h2>
             </div>
 
@@ -257,12 +283,12 @@
                 name        = "key"
                 type        = 'text'
                 error       = { errors.key }
-                onInput     = { () => clearError( 'key' ) }
+                onInput     = {() => clearError( 'key' )}
             />
 
             <Select
                 bind:value  = { attribute.type }
-                onChange    = { () => { attribute.defaultValue = null; clearError( 'type' ); } }  
+                onChange    = { () => { attribute.defaultValue = null; clearError( 'type' );}}
                 label       = "Type"
                 placeholder = "Select type"
                 id          = "type"
@@ -281,18 +307,21 @@
                     placeholder = "Enter default value"
                     id          = "default-value"
                     name        = "default-value"
-                    type        = 'number'
+                    type        = "number"
+                    step        = { attribute.type === 'DECIMAL' ? '0.1' : '1' }
+                    min         = { attribute.min }
+                    max         = { attribute.max }
                     error       = { errors.defaultValue }
                     onInput     = { () => clearError( 'defaultValue' ) }
                 />
-            {:else if attribute.type === 'STRING' || attribute.type === 'UUID'}
+            {:else if attribute.type === 'STRING'}
                 <Input
                     bind:value  = { attribute.defaultValue }
                     label       = "Default Value"
                     placeholder = "Enter default value"
                     id          = "default-value"
                     name        = "default-value"
-                    type        = 'text'
+                    type        = "text"
                     error       = { errors.defaultValue }
                     onInput     = { () => clearError( 'defaultValue' ) }
                 />
@@ -311,15 +340,7 @@
                     id              = "default-value"
                 />
             {:else if attribute.type === 'JSON'}
-                <Textarea
-                    bind:value  = { attribute.defaultValue }
-                    label       = "Default Value"
-                    placeholder = "Enter default value"
-                    id          = "default-value"
-                    name        = "default-value"
-                    error       = { errors.defaultValue }
-                    onInput     = { () => clearError( 'defaultValue' ) }
-                />
+                <JsonGenerator bind:value={attribute.defaultValue} />
             {:else if attribute.type === 'LIST'}
                 <Input
                     bind:value  = { attribute.defaultValue }
@@ -333,6 +354,20 @@
                 />
             {/if}
 
+            {#if attribute.id }
+                <Switch
+                    bind:checked    = { attribute.canChangeAll }
+                    label           = "Updates All Users"
+                    id              = "can-change-all"
+                />
+
+                <Switch
+                    bind:checked    = { isReset }
+                    label           = "Reset Value"
+                    id              = "reset-value"
+                />
+            {/if}
+
             <div class="grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
                 {#if attribute.type === 'NUMBER' || attribute.type === 'DECIMAL'}
                     <Input
@@ -342,6 +377,7 @@
                         id          = "min-value"
                         name        = "min-value"
                         type        = 'number'
+                        step        = { attribute.type === 'DECIMAL' ? '0.1' : '1' }
                         error       = { errors.min }
                         onInput     = { () => clearError( 'min' ) }
                     />
@@ -353,6 +389,7 @@
                         id          = "max-value"
                         name        = "max-value"
                         type        = 'number'
+                        step        = { attribute.type === 'DECIMAL' ? '0.1' : '1' }
                         error       = { errors.max }
                         onInput     = { () => clearError( 'max' ) }
                     />
@@ -379,7 +416,20 @@
                         onInput     = { () => clearError( 'maxLength' ) }
                     />
 
-                    <div class="grid col-span-2">
+                    <div class="grid col-span-2 gap-4">
+                        <Select
+                            bind:value  = { attribute.pattern }
+                            label       = "Pattern Type"
+                            placeholder = "Select Pattern"
+                            id          = "pattern-type"
+                            name        = "pattern-type"
+                            options     = { patternOptions }
+                        >
+                            {#snippet icon()}
+                                <PatternIcon />
+                            {/snippet}
+                        </Select>
+
                         <Input
                             bind:value  = { attribute.pattern }
                             label       = "Pattern"
