@@ -14,6 +14,7 @@ export interface BaseAttributeFields {
 	maxDate?        : string;
 	pattern?        : string;
 	isActive?       : boolean;
+	canChangeAll?   : boolean;
 }
 
 export interface BaseEntity {
@@ -32,12 +33,12 @@ export interface AttributesQuery {
 }
 
 export interface CreateUserAttributeInput extends Omit<BaseAttributeFields, 'key' | 'type'> {
-	key             : string;
-	type            : Type;
+	key     : string;
+	type    : Type;
 }
 
 export interface UpdateUserAttributeInput extends BaseEntity, BaseAttributeFields {
-	id              : string;
+	id: string;
 }
 
 export interface DeleteUserAttributeInput extends Required<Pick<BaseEntity, 'id'>> {}
