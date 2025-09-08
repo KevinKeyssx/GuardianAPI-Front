@@ -22,7 +22,7 @@ export const CREATE_ATTRIBUTE_MUTATION = gql`
 
 export const UPDATE_ATTRIBUTE_MUTATION = gql`
     mutation UpdateUserAttribute($updateUserAttributeInput: UpdateUserAttributeInput!) {
-        updateUserAttribute(updateUserAttributeInput: $updateUserAttributeInput) {
+        updateUserAttribute( updateUserAttributeInput: $updateUserAttributeInput ) {
             id
             key
             defaultValue
