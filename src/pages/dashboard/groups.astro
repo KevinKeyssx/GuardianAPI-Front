@@ -1,0 +1,16 @@
+---
+import { getSession } from 'auth-astro/server';
+
+import DashboarLayout from '@/layouts/DashboarLayout.astro';
+import GroupSection from '@/components/dashboard/roles/GroupSection.svelte';
+
+const session = await getSession(Astro.request);
+
+if (!session) {
+    return Astro.redirect('/signin');
+}
+---
+
+<DashboarLayout title="Groups - GuardianApi">
+    <GroupSection client:only="svelte" />
+</DashboarLayout>
