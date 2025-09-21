@@ -1,27 +1,28 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    // import Paginations                  from "@/components/shared/table/Pagination.svelte";
-    // import Panel                from "@/components/shared/panel/Panel.svelte";
-    import {
-        Table,
-        TableData,
-        TableRow,
-        type ColumnProp
-    }                           from "@/components/shared/table";
-    // import RoleForm             from "./RoleForm.svelte";
-    import type { RolesQuery }  from "@/lib/graphql/roles/types";
-    import { PERMISSIONS_QUERY, ROLES_QUERY }      from "@/lib/graphql/roles/queries";
-    import { client }           from "@/lib/urql";
-    import { queryStore }       from '@urql/svelte';
-    import TableEmpty from '@/components/shared/table/TableEmpty.svelte';
+	import {
+		Table,
+		TableData,
+		TableRow,
+		type ColumnProp
+	}						from "@/components/shared/table";
+	import Modal				from "@/components/shared/Modal.svelte";
+	import RoleForm				from "./RoleForm.svelte";
+	import TableEmpty			from '@/components/shared/table/TableEmpty.svelte';
+	import Action				from "@/components/shared/Action.svelte";
+
+	import type { RolesQuery }	from "@/lib/graphql/roles/types";
+	import { PERMISSIONS_QUERY, ROLES_QUERY }	from "@/lib/graphql/roles/queries";
+	import { client }			from "@/lib/urql";
+	import { queryStore }		from '@urql/svelte';
 
 
     const queryParams = {
         page    : 0,
         each    : 10,
-        field   : 'name',
-        orderBy : 'desc',
+        // field   : 'name',
+        // orderBy : 'desc',
     };
 
 
@@ -79,6 +80,8 @@
         { column: 'Name',           showColumn: true },
         { column: 'Description',    showColumn: true },
         { column: 'Created At' ,    showColumn: true },
+        { column: 'Updated At' ,    showColumn: true },
+        { column: 'Active' ,        showColumn: true },
         { column: 'Actions',        showColumn: true }
     ];
 
@@ -86,6 +89,8 @@
         { column: 'Name',           showColumn: true },
         { column: 'Description',    showColumn: true },
         { column: 'Created At' ,    showColumn: true },
+        { column: 'Updated At' ,    showColumn: true },
+        { column: 'Active' ,        showColumn: true },
         { column: 'Actions',        showColumn: true }
     ];
 
@@ -105,14 +110,19 @@
             </div>
         </div>
 
-        <!-- <Panel
-            id              = "add-role"
-            title           = "Add Role"
-            saveButtonText  = "Add"
-            buttonText      = "Add Role"
+        <Modal
+            id          = "add-role"
+            title       = "Add Role"
+            buttonText  = "Add Role"
         >
-            <RoleForm id="add-role" />
-        </Panel> -->
+            {#snippet form()}
+                <RoleForm
+                    data        = { {} as any }
+                    isRole      = { true }
+                    clicked     = { 0 }
+                />
+            {/snippet}
+        </Modal>
     </div>
 
     {#if $roleResult.fetching}
@@ -126,16 +136,25 @@
                     <TableData value={role.name} />
                     <TableData value={role.description} />
                     <TableData value={ role.createdAt } />
-                    <TableData size="text-sm font-medium" float={true}>
-                        Panel
-                        <!-- <Panel
-                            buttonText      = ""
-                            buttonClass     = ""
-                            isEdit          = { true }
-                            bind:clicked={ clicked }
+                    <TableData value={ role.updatedAt } />
+                    <TableData value={ role.isActive } />
+                    <TableData size="text-sm font-medium" float={ true }>
+                        <Action
+                            clicked     = { 0 }
+                            titleEdit   = "Edit Role"
+                            isModal     = { true }
+                            onDelete    = { () => console.log( 'Delete role:', role.id ) }
+                            type        = { 'role' }
+                            data        = { role.name || 'role' }
                         >
-                            <RoleForm role={role} />
-                        </Panel> -->
+                            {#snippet form()}
+                                <RoleForm
+                                    data        = { role }
+                                    isRole      = { true }
+                                    clicked     = { 0 }
+                                />
+                            {/snippet}
+                        </Action>
                     </TableData>
                 </TableRow>
             {:else}
@@ -160,14 +179,19 @@
             </div>
         </div>
 
-        <!-- <Panel
-            id              = "add-role"
-            title           = "Add Role"
-            saveButtonText  = "Add"
-            buttonText      = "Add Role"
+        <Modal
+            id          = "add-permission"
+            title       = "Add Permission"
+            buttonText  = "Add Permission"
         >
-            <RoleForm id="add-role" />
-        </Panel> -->
+            {#snippet form()}
+                <RoleForm
+                    data        = { {} as any }
+                    isRole      = { false }
+                    clicked     = { 0 }
+                />
+            {/snippet}
+        </Modal>
     </div>
 
     {#if $permissionResult.fetching}
@@ -181,16 +205,25 @@
                     <TableData value={permission.name} />
                     <TableData value={permission.description} />
                     <TableData value={ permission.createdAt } />
-                    <TableData size="text-sm font-medium" float={true}>
-                        Panel
-                        <!-- <Panel
-                            buttonText      = ""
-                            buttonClass     = ""
-                            isEdit          = { true }
-                            bind:clicked={ clicked }
+                    <TableData value={ permission.updatedAt } />
+                    <TableData value={ permission.isActive } />
+                    <TableData size="text-sm font-medium" float={ true }>
+                        <Action
+                            clicked     = { 0 }
+                            titleEdit   = "Edit Permission"
+                            isModal     = { true }
+                            onDelete    = { () => console.log( 'Delete permission:', permission.id ) }
+                            type        = { 'permission' }
+                            data        = { permission.name || 'permission' }
                         >
-                            <RoleForm role={role} />
-                        </Panel> -->
+                            {#snippet form()}
+                                <RoleForm
+                                    data        = { permission }
+                                    isRole      = { false }
+                                    clicked     = { 0 }
+                                />
+                            {/snippet}
+                        </Action>
                     </TableData>
                 </TableRow>
             {:else}
