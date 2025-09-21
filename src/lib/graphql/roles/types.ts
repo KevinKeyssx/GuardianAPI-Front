@@ -5,6 +5,7 @@ export type Role = {
     userId?         : string;
     createdAt?      : string;
     updatedAt?      : string;
+    isActive?       : boolean;
 }
 
 
