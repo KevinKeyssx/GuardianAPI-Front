@@ -1,85 +1,227 @@
 <script lang="ts">
-    import Modal from "@/components/shared/Modal.svelte";
+	import toast from 'svelte-french-toast';
+	import { z } from 'zod';
 
-    type Role = {
-        name: string;
-        description: string;
-        permissions: string[];
-    };
+	import Input		from "@/components/inputs/Input.svelte";
+	import Textarea		from "@/components/inputs/Textarea.svelte";
+	import Switch		from "@/components/inputs/Switch.svelte";
 
-    let role: Role = $props();
+	import {
+		errorToast,
+		successToast
+	}					from '@/config/toast.config';
 
-    // export interface Props {
-    //     id: string;
-    //     role?: Role;
-    // }
+	// Define types for Role and Permission
+	type RolePermissionData = {
+		id?			: string;
+		name?		: string;
+		description?	: string;
+		isActive?		: boolean;
+	};
 
-    // const { id, role } = Astro.props;
+	interface Props {
+		data		: RolePermissionData;
+		isRole		: boolean;	// true for Role, false for Permission
+		clicked		: number;
+		onSuccess?	: () => void;
+	}
+
+
+	const {
+		data: itemData,
+		isRole,
+		clicked = $bindable(),
+		onSuccess
+	}: Props = $props();
+
+
+	let item = $state<RolePermissionData>( itemData );
+	let errors = $state<Record<string, string>>( {} );
+
+	// Schema validation with Zod
+	const itemSchema = z.object({
+		name			: z.string()
+					.min( 1, 'Name is required' )
+					.max( 100, 'Name must be less than 100 characters' ),
+		description		: z.string().optional(),
+	});
+
+	// Function to create a new role
+	async function onCreateRole( input: any ): Promise<void> {
+		// TODO: Implement GraphQL mutation for creating role
+		console.log( "Creating role:", input );
+		
+		// Simulate API call
+		await new Promise( resolve => setTimeout( resolve, 1000 ) );
+		
+		toast.success( 'Role created successfully', successToast() );
+		item = {} as RolePermissionData;
+		( window as any )[`closeModal_add-role`]?.();
+		onSuccess?.();
+	}
+
+
+	// Function to update an existing role
+	async function onUpdateRole( input: any ): Promise<void> {
+		// TODO: Implement GraphQL mutation for updating role
+		console.log( "Updating role:", input );
+		
+		// Simulate API call
+		await new Promise( resolve => setTimeout( resolve, 1000 ) );
+		
+		toast.success( 'Role updated successfully', successToast() );
+		( window as any )[`closeModal_edit-role`]?.();
+		onSuccess?.();
+	}
+
+
+	// Function to create a new permission
+	async function onCreatePermission( input: any ): Promise<void> {
+		// TODO: Implement GraphQL mutation for creating permission
+		console.log( "Creating permission:", input );
+		
+		// Simulate API call
+		await new Promise( resolve => setTimeout( resolve, 1000 ) );
+		
+		toast.success( 'Permission created successfully', successToast() );
+		item = {} as RolePermissionData;
+		( window as any )[`closeModal_add-permission`]?.();
+		onSuccess?.();
+	}
+
+
+	// Function to update an existing permission
+	async function onUpdatePermission( input: any ): Promise<void> {
+		// TODO: Implement GraphQL mutation for updating permission
+		console.log( "Updating permission:", input );
+		
+		// Simulate API call
+		await new Promise( resolve => setTimeout( resolve, 1000 ) );
+		
+		toast.success( 'Permission updated successfully', successToast() );
+		( window as any )[`closeModal_edit-permission`]?.();
+		onSuccess?.();
+	}
+
+
+	// Clear error for specific field
+	function clearError( field: string ): void {
+		if ( errors[field] ) {
+			errors = { ...errors };
+			delete errors[field];
+		}
+	}
+
+	// Validate form using Zod schema
+	function validateForm(): boolean {
+		errors = {};
+		let isValid = true;
+
+		const result = itemSchema.safeParse({
+			name			: item.name || '',
+			description		: item.description || ''
+		});
+
+		if ( !result.success ) {
+			result.error.errors.forEach( ( error ) => {
+				const field = error.path[0] as string;
+				errors[field] = error.message;
+			});
+			isValid = false;
+		}
+
+		return isValid;
+	}
+
+
+	// Handle form submission
+	async function handleFormSubmit( event: Event ): Promise<void> {
+		event.preventDefault();
+		console.log( "Form data:", item, "isRole:", isRole );
+
+		if ( !validateForm() ) {
+			return;
+		}
+
+		const input = {
+			id				: item.id,
+			name			: item.name,
+			description		: item.description,
+			isActive		: item.isActive
+		};
+
+		console.log( "Submitting input:", input );
+
+		if ( isRole ) {
+			// Handle Role operations
+			if ( item.id ) {
+				await onUpdateRole( input );
+			} else {
+				await onCreateRole( input );
+			}
+		} else {
+			// Handle Permission operations
+			if ( item.id ) {
+				await onUpdatePermission( input );
+			} else {
+				await onCreatePermission( input );
+			}
+		}
+	}
+
+	// Initialize isActive for editing mode
+	$effect(() => {
+		if ( item.id && item.isActive === undefined ) {
+			item.isActive = true;
+		}
+	});
 </script>
 
+<form
+	class		= "space-y-4"
+	id			= "{ isRole ? 'role' : 'permission' }-form"
+	onsubmit	= { handleFormSubmit }
+>
+	<!-- Name Field -->
+	<Input
+		bind:value	= { item.name }
+		label		= "Name"
+		placeholder	= "Enter { isRole ? 'role' : 'permission' } name"
+		id			= "name"
+		name		= "name"
+		type		= 'text'
+		required	= { true }
+		error		= { errors.name }
+		onInput		= { () => clearError( 'name' ) }
+	/>
 
-<div class="space-y-4">
+	<!-- Description Field -->
+	<Textarea
+		bind:value	= { item.description }
+		label		= "Description"
+		placeholder	= "Enter { isRole ? 'role' : 'permission' } description (optional)"
+		id			= "description"
+		name		= "description"
+		rows		= { 3 }
+		error		= { errors.description }
+		onInput		= { () => clearError( 'description' ) }
+	/>
 
-    <!-- {role && (
-        <Modal id={id} type="role" />
-    )} -->
+	<!-- Active Switch (only for editing) -->
+	{#if item.id}
+		<Switch
+			bind:checked	= { item.isActive }
+			label			= "Active"
+			id				= "isActive"
+			name			= "isActive"
+		/>
+	{/if}
 
-    <div class="flex flex-col">
-        <label
-            for="name"
-            class="text-sm font-orbitron text-white mb-1"
-        >
-            Name
-        </label>
-
-        <input
-            type="text"
-            name="name"
-            placeholder="Enter role name"
-            id="name"
-            class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white"
-            required
-            value={role?.name}
-        />
-    </div>
-
-    <div class="flex flex-col">
-        <label for="type" class="text-sm font-orbitron text-white mb-1">Type</label>
-        <div class="relative">
-            <select 
-                id="type" 
-                class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white appearance-none"
-                required
-            >
-                <option value="string">String</option>
-                <option value="number">Number</option>
-                <option value="boolean">Boolean</option>
-                <option value="object">Object</option>
-                <option value="array">Array</option>
-            </select>
-            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <svg class="w-4 h-4 text-neon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- <div class="flex flex-col">
-        <label
-            for="description"
-            class="text-sm font-orbitron text-white mb-1"
-        >
-            Description
-        </label>
-
-        <textarea
-            id="description"
-            class="w-full px-4 py-2 bg-space-blue border border-neon-blue/30 rounded-lg focus:border-neon-blue focus:outline-none text-white"
-            rows="3"
-            required
-            value={role?.description}
-        ></textarea>
-    </div> -->
-</div>
+	<!-- Submit Button -->
+	<button 
+		type	= "submit"
+		class	= "w-full px-4 py-2 bg-neon-blue text-dark-blue rounded-md hover:bg-opacity-80 transition-colors duration-300 font-orbitron font-medium"
+	>
+		{ item.id ? 'Update' : 'Create' } { isRole ? 'Role' : 'Permission' }
+	</button>
+</form>
