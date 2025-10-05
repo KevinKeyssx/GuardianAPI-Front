@@ -6,12 +6,13 @@
 		TableData,
 		TableRow,
 		type ColumnProp
-	}						from "@/components/shared/table";
-	import Modal				from "@/components/shared/Modal.svelte";
-	import RoleForm				from "./RoleForm.svelte";
-	import GroupSection			from "./GroupSection.svelte";
-	import TableEmpty			from '@/components/shared/table/TableEmpty.svelte';
-	import Action				from "@/components/shared/Action.svelte";
+	}					            from "@/components/shared/table";
+	import Modal			        from "@/components/shared/Modal.svelte";
+	import RoleForm					from "@/components/dashboard/roles/RoleForm.svelte";
+	import GroupSection				from "@/components/dashboard/roles/GroupSection.svelte";
+	import MassAssignmentSection    from "@/components/dashboard/roles/MassAssignmentSection.svelte";
+	import TableEmpty				from '@/components/shared/table/TableEmpty.svelte';
+	import Action			        from "@/components/shared/Action.svelte";
 
 	import type { RolesQuery, PermissionsQuery }	from "@/lib/graphql/roles/types";
 	import { PERMISSIONS_QUERY, ROLES_QUERY }	from "@/lib/graphql/roles/queries";
@@ -98,14 +99,15 @@
     let clicked = $state( 0 );
 
     // Tab state
-    type TabType = 'roles' | 'permissions' | 'overview';
+    type TabType = 'roles' | 'permissions' | 'overview' | 'assignments';
     let activeTab = $state<TabType>('overview');
 
     // Tab configuration
     const tabs = [
         { id: 'overview', label: 'Overview', icon: '📊' },
         { id: 'roles', label: 'Roles', icon: '👥' },
-        { id: 'permissions', label: 'Permissions', icon: '🔐' }
+        { id: 'permissions', label: 'Permissions', icon: '🔐' },
+        { id: 'assignments', label: 'Assignments', icon: '🎯' }
     ] as const;
 </script>
 
@@ -433,6 +435,12 @@
                         {/each}
                     </Table>
                 {/if}
+            </div>
+
+        {:else if activeTab === 'assignments'}
+            <!-- Assignments Tab -->
+            <div>
+                <MassAssignmentSection />
             </div>
         {/if}
     </div>
