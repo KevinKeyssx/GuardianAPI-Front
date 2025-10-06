@@ -6,21 +6,17 @@
 	import type { RolesQuery, PermissionsQuery, Role, Permission, Group } from '@/lib/graphql/roles/types';
 	import { errorToast, successToast } from '@/config/toast.config';
 
-	// Assignment type selector
-	type AssignmentType = 'role' | 'permission' | 'group';
-	let assignmentType = $state<AssignmentType>( 'role' );
-
 	// Selected elements to assign (multiple selection)
 	let selectedRoleIds = $state<Set<string>>( new Set() );
 	let selectedPermissionIds = $state<Set<string>>( new Set() );
 	let selectedGroupIds = $state<Set<string>>( new Set() );
-
-	// Search terms
-	let elementSearchTerm = $state( '' );
-	let userSearchTerm = $state( '' );
-
-	// Selected users
 	let selectedUserIds = $state<Set<string>>( new Set() );
+
+	// Search terms for each column
+	let roleSearchTerm = $state( '' );
+	let permissionSearchTerm = $state( '' );
+	let groupSearchTerm = $state( '' );
+	let userSearchTerm = $state( '' );
 
 	// Mock users data - replace with actual user query
 	const availableUsers = [
@@ -55,33 +51,28 @@
 		{ id: '3', name: 'Guest Group', description: 'Limited access', isActive: true },
 	];
 
-	// Get available elements based on assignment type
-	let availableElements = $derived( () => {
-		if ( assignmentType === 'role' ) {
-			return $rolesResult.data?.roles || [];
-		} else if ( assignmentType === 'permission' ) {
-			return $permissionsResult.data?.permissions || [];
-		} else {
-			return mockGroups;
-		}
-	});
-
-	// Get current selected IDs based on type
-	let currentSelectedIds = $derived( () => {
-		if ( assignmentType === 'role' ) return selectedRoleIds;
-		if ( assignmentType === 'permission' ) return selectedPermissionIds;
-		return selectedGroupIds;
-	});
-
-	// Filter elements by search term
-	let filteredElements = $derived(
-		availableElements().filter( element => 
-			element.name?.toLowerCase().includes( elementSearchTerm.toLowerCase() ) ||
-			element.description?.toLowerCase().includes( elementSearchTerm.toLowerCase() )
+	// Filtered lists
+	let filteredRoles = $derived(
+		( $rolesResult.data?.roles || [] ).filter( role => 
+			role.name?.toLowerCase().includes( roleSearchTerm.toLowerCase() ) ||
+			role.description?.toLowerCase().includes( roleSearchTerm.toLowerCase() )
 		)
 	);
 
-	// Filter users by search term
+	let filteredPermissions = $derived(
+		( $permissionsResult.data?.permissions || [] ).filter( permission => 
+			permission.name?.toLowerCase().includes( permissionSearchTerm.toLowerCase() ) ||
+			permission.description?.toLowerCase().includes( permissionSearchTerm.toLowerCase() )
+		)
+	);
+
+	let filteredGroups = $derived(
+		mockGroups.filter( group => 
+			group.name?.toLowerCase().includes( groupSearchTerm.toLowerCase() ) ||
+			group.description?.toLowerCase().includes( groupSearchTerm.toLowerCase() )
+		)
+	);
+
 	let filteredUsers = $derived(
 		availableUsers.filter( user => 
 			user.name.toLowerCase().includes( userSearchTerm.toLowerCase() ) ||
@@ -116,57 +107,35 @@
 		selectedRoleIds.size + selectedPermissionIds.size + selectedGroupIds.size
 	);
 
-	// Toggle element selection
-	function toggleElementSelection( elementId: string ) {
-		const currentSet = currentSelectedIds();
-		if ( currentSet.has( elementId ) ) {
-			currentSet.delete( elementId );
+	// Toggle functions for each type
+	function toggleRole( roleId: string ) {
+		if ( selectedRoleIds.has( roleId ) ) {
+			selectedRoleIds.delete( roleId );
 		} else {
-			currentSet.add( elementId );
+			selectedRoleIds.add( roleId );
 		}
-		
-		// Trigger reactivity
-		if ( assignmentType === 'role' ) {
-			selectedRoleIds = new Set( selectedRoleIds );
-		} else if ( assignmentType === 'permission' ) {
-			selectedPermissionIds = new Set( selectedPermissionIds );
-		} else {
-			selectedGroupIds = new Set( selectedGroupIds );
-		}
+		selectedRoleIds = new Set( selectedRoleIds );
 	}
 
-	// Select all filtered elements
-	function selectAllElements() {
-		filteredElements.forEach( element => {
-			if ( element.id ) currentSelectedIds().add( element.id );
-		});
-		
-		// Trigger reactivity
-		if ( assignmentType === 'role' ) {
-			selectedRoleIds = new Set( selectedRoleIds );
-		} else if ( assignmentType === 'permission' ) {
-			selectedPermissionIds = new Set( selectedPermissionIds );
+	function togglePermission( permissionId: string ) {
+		if ( selectedPermissionIds.has( permissionId ) ) {
+			selectedPermissionIds.delete( permissionId );
 		} else {
-			selectedGroupIds = new Set( selectedGroupIds );
+			selectedPermissionIds.add( permissionId );
 		}
+		selectedPermissionIds = new Set( selectedPermissionIds );
 	}
 
-	// Deselect all elements of current type
-	function deselectAllElements() {
-		currentSelectedIds().clear();
-		
-		// Trigger reactivity
-		if ( assignmentType === 'role' ) {
-			selectedRoleIds = new Set( selectedRoleIds );
-		} else if ( assignmentType === 'permission' ) {
-			selectedPermissionIds = new Set( selectedPermissionIds );
+	function toggleGroup( groupId: string ) {
+		if ( selectedGroupIds.has( groupId ) ) {
+			selectedGroupIds.delete( groupId );
 		} else {
-			selectedGroupIds = new Set( selectedGroupIds );
+			selectedGroupIds.add( groupId );
 		}
+		selectedGroupIds = new Set( selectedGroupIds );
 	}
 
-	// Toggle user selection
-	function toggleUserSelection( userId: string ) {
+	function toggleUser( userId: string ) {
 		if ( selectedUserIds.has( userId ) ) {
 			selectedUserIds.delete( userId );
 		} else {
@@ -175,15 +144,48 @@
 		selectedUserIds = new Set( selectedUserIds );
 	}
 
-	// Select all filtered users
-	function selectAllUsers() {
-		filteredUsers.forEach( user => selectedUserIds.add( user.id ) );
-		selectedUserIds = new Set( selectedUserIds );
+	// Toggle all functions
+	function toggleAllRoles() {
+		if ( selectedRoleIds.size === filteredRoles.length && filteredRoles.length > 0 ) {
+			// Deselect all
+			filteredRoles.forEach( role => role.id && selectedRoleIds.delete( role.id ) );
+		} else {
+			// Select all
+			filteredRoles.forEach( role => role.id && selectedRoleIds.add( role.id ) );
+		}
+		selectedRoleIds = new Set( selectedRoleIds );
 	}
 
-	// Deselect all users
-	function deselectAllUsers() {
-		selectedUserIds.clear();
+	function toggleAllPermissions() {
+		if ( selectedPermissionIds.size === filteredPermissions.length && filteredPermissions.length > 0 ) {
+			// Deselect all
+			filteredPermissions.forEach( perm => perm.id && selectedPermissionIds.delete( perm.id ) );
+		} else {
+			// Select all
+			filteredPermissions.forEach( perm => perm.id && selectedPermissionIds.add( perm.id ) );
+		}
+		selectedPermissionIds = new Set( selectedPermissionIds );
+	}
+
+	function toggleAllGroups() {
+		if ( selectedGroupIds.size === filteredGroups.length && filteredGroups.length > 0 ) {
+			// Deselect all
+			filteredGroups.forEach( group => group.id && selectedGroupIds.delete( group.id ) );
+		} else {
+			// Select all
+			filteredGroups.forEach( group => group.id && selectedGroupIds.add( group.id ) );
+		}
+		selectedGroupIds = new Set( selectedGroupIds );
+	}
+
+	function toggleAllUsers() {
+		if ( selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0 ) {
+			// Deselect all
+			filteredUsers.forEach( user => selectedUserIds.delete( user.id ) );
+		} else {
+			// Select all
+			filteredUsers.forEach( user => selectedUserIds.add( user.id ) );
+		}
 		selectedUserIds = new Set( selectedUserIds );
 	}
 
@@ -225,7 +227,9 @@
 			selectedGroupIds = new Set( selectedGroupIds );
 			selectedUserIds = new Set( selectedUserIds );
 			
-			elementSearchTerm = '';
+			roleSearchTerm = '';
+			permissionSearchTerm = '';
+			groupSearchTerm = '';
 			userSearchTerm = '';
 
 		} catch ( error ) {
@@ -234,299 +238,333 @@
 	}
 </script>
 
-<div class="space-y-6">
-	<!-- Header -->
-	<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-6">
-		<h2 class="text-xl font-semibold text-white mb-2">Mass Assignment</h2>
-		<p class="text-sm text-gray-400">
-			Assign roles, permissions, or groups to multiple users at once
-		</p>
-	</div>
-
-	<!-- Assignment Configuration -->
-	<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-6 space-y-6">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-semibold text-white">1. Select What to Assign</h3>
-			<div class="flex items-center space-x-2">
+<!-- 4 Column Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 w-full">
+		<!-- Column 1: Roles -->
+		<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-4 space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center space-x-2">
+					<span class="text-2xl">👥</span>
+					<h3 class="text-lg font-semibold text-white">Roles</h3>
+					{#if selectedRoleIds.size > 0}
+						<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full font-medium">
+							{selectedRoleIds.size}
+						</span>
+					{/if}
+				</div>
 				<button
 					type="button"
-					onclick={selectAllElements}
-					class="text-xs px-3 py-1 bg-neon-blue/20 text-neon-blue rounded hover:bg-neon-blue/30 transition-colors"
+					onclick={toggleAllRoles}
+					class="text-xs px-2 py-1 bg-neon-blue/20 text-neon-blue rounded hover:bg-neon-blue/30 transition-colors"
+					title={selectedRoleIds.size === filteredRoles.length && filteredRoles.length > 0 ? 'Deselect All' : 'Select All'}
 				>
-					Select All
-				</button>
-				<button
-					type="button"
-					onclick={deselectAllElements}
-					class="text-xs px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors"
-				>
-					Deselect All
+					{selectedRoleIds.size === filteredRoles.length && filteredRoles.length > 0 ? '✓ All' : 'Select'}
 				</button>
 			</div>
-		</div>
 
-		<!-- Type Selector -->
-		<div class="space-y-3">
-			<p class="text-sm font-medium text-gray-300">Assignment Type</p>
-			<div class="grid grid-cols-3 gap-4">
-				<button
-					type="button"
-					onclick={() => assignmentType = 'role'}
-					class="p-4 border-2 rounded-lg transition-all {
-						assignmentType === 'role'
-							? 'border-neon-blue bg-neon-blue/10 text-white'
-							: 'border-neon-blue/20 bg-dark-blue/50 text-gray-400 hover:border-neon-blue/40'
-					}"
+			<!-- Search -->
+			<div class="relative">
+				<input
+					bind:value={roleSearchTerm}
+					type="text"
+					placeholder="Search roles..."
+					class="w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-8 pr-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60"
 				>
-					<div class="flex flex-col items-center space-y-2">
-						<span class="text-2xl">👥</span>
-						<span class="font-medium">Role</span>
-						{#if selectedRoleIds.size > 0}
-							<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full">
-								{selectedRoleIds.size}
-							</span>
-						{/if}
-					</div>
-				</button>
-
-				<button
-					type="button"
-					onclick={() => assignmentType = 'permission'}
-					class="p-4 border-2 rounded-lg transition-all {
-						assignmentType === 'permission'
-							? 'border-neon-blue bg-neon-blue/10 text-white'
-							: 'border-neon-blue/20 bg-dark-blue/50 text-gray-400 hover:border-neon-blue/40'
-					}"
-				>
-					<div class="flex flex-col items-center space-y-2">
-						<span class="text-2xl">🔐</span>
-						<span class="font-medium">Permission</span>
-						{#if selectedPermissionIds.size > 0}
-							<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full">
-								{selectedPermissionIds.size}
-							</span>
-						{/if}
-					</div>
-				</button>
-
-				<button
-					type="button"
-					onclick={() => assignmentType = 'group'}
-					class="p-4 border-2 rounded-lg transition-all {
-						assignmentType === 'group'
-							? 'border-neon-blue bg-neon-blue/10 text-white'
-							: 'border-neon-blue/20 bg-dark-blue/50 text-gray-400 hover:border-neon-blue/40'
-					}"
-				>
-					<div class="flex flex-col items-center space-y-2">
-						<span class="text-2xl">📦</span>
-						<span class="font-medium">Group</span>
-						{#if selectedGroupIds.size > 0}
-							<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full">
-								{selectedGroupIds.size}
-							</span>
-						{/if}
-					</div>
-				</button>
+				<div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+				</div>
 			</div>
-		</div>
 
-		<!-- Search Input for Elements -->
-		<div class="relative">
-			<input
-				bind:value={elementSearchTerm}
-				type="text"
-				placeholder="Search {assignmentType}s..."
-				class="w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-3 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60"
-			>
-			<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="11" cy="11" r="8"></circle>
-					<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-				</svg>
-			</div>
-		</div>
-
-		<!-- Selection Summary -->
-		<div class="bg-space-blue/20 border border-neon-blue/20 rounded-lg p-4">
-			<h4 class="text-sm font-medium text-neon-blue mb-2">Selection Summary</h4>
-			<p class="text-sm text-gray-300">
-				{currentSelectedIds().size} {assignmentType}{currentSelectedIds().size !== 1 ? 's' : ''} selected
-			</p>
-		</div>
-
-		<!-- Elements List with Checkboxes -->
-		<div class="space-y-3 max-h-96 overflow-y-auto">
-			<h4 class="text-sm font-medium text-white sticky top-0 bg-dark-blue/90 py-2 z-10">
-				Available {assignmentType === 'role' ? 'Roles' : assignmentType === 'permission' ? 'Permissions' : 'Groups'} ({filteredElements.length})
-			</h4>
-			
-			{#if assignmentType === 'role' && $rolesResult.fetching}
-				<p class="text-gray-400 text-sm">Loading roles...</p>
-			{:else if assignmentType === 'permission' && $permissionsResult.fetching}
-				<p class="text-gray-400 text-sm">Loading permissions...</p>
-			{:else}
-				{#each filteredElements as element}
-					<div class="flex items-center justify-between p-3 bg-dark-blue/50 border border-neon-blue/20 rounded-lg hover:bg-dark-blue/70 transition-colors">
-						<div class="flex items-center space-x-3 flex-1">
-							<span class="text-2xl">
-								{assignmentType === 'role' ? '👥' : assignmentType === 'permission' ? '🔐' : '📦'}
-							</span>
-							<div class="flex-1">
-								<p class="font-medium text-white">{element.name}</p>
-								{#if element.description}
-									<p class="text-sm text-gray-400">{element.description}</p>
+			<!-- List -->
+			<div class="space-y-2 max-h-[500px] overflow-y-auto">
+				{#if $rolesResult.fetching}
+					<p class="text-gray-400 text-sm text-center py-4">Loading...</p>
+				{:else}
+					{#each filteredRoles as role}
+						<div class="flex items-center justify-between p-2 bg-dark-blue/50 border border-neon-blue/20 rounded hover:bg-dark-blue/70 transition-colors">
+							<div class="flex-1 min-w-0 pr-2">
+								<p class="font-medium text-white text-sm truncate">{role.name}</p>
+								{#if role.description}
+									<p class="text-xs text-gray-400 truncate">{role.description}</p>
 								{/if}
 							</div>
+							<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+								<input
+									type="checkbox"
+									checked={role.id ? selectedRoleIds.has( role.id ) : false}
+									onchange={() => role.id && toggleRole( role.id )}
+									class="sr-only peer"
+								>
+								<div class="w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neon-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neon-blue"></div>
+							</label>
 						</div>
+					{:else}
+						<p class="text-gray-400 text-sm text-center py-4">
+							{roleSearchTerm ? 'No roles found' : 'No roles available'}
+						</p>
+					{/each}
+				{/if}
+			</div>
+		</div>
 
-						<label class="relative inline-flex items-center cursor-pointer">
+		<!-- Column 2: Permissions -->
+		<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-4 space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center space-x-2">
+					<span class="text-2xl">🔐</span>
+					<h3 class="text-lg font-semibold text-white">Permissions</h3>
+					{#if selectedPermissionIds.size > 0}
+						<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full font-medium">
+							{selectedPermissionIds.size}
+						</span>
+					{/if}
+				</div>
+				<button
+					type="button"
+					onclick={toggleAllPermissions}
+					class="text-xs px-2 py-1 bg-neon-blue/20 text-neon-blue rounded hover:bg-neon-blue/30 transition-colors"
+					title={selectedPermissionIds.size === filteredPermissions.length && filteredPermissions.length > 0 ? 'Deselect All' : 'Select All'}
+				>
+					{selectedPermissionIds.size === filteredPermissions.length && filteredPermissions.length > 0 ? '✓ All' : 'Select'}
+				</button>
+			</div>
+
+			<!-- Search -->
+			<div class="relative">
+				<input
+					bind:value={permissionSearchTerm}
+					type="text"
+					placeholder="Search permissions..."
+					class="w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-8 pr-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60"
+				>
+				<div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+				</div>
+			</div>
+
+			<!-- List -->
+			<div class="space-y-2 max-h-[500px] overflow-y-auto">
+				{#if $permissionsResult.fetching}
+					<p class="text-gray-400 text-sm text-center py-4">Loading...</p>
+				{:else}
+					{#each filteredPermissions as permission}
+						<div class="flex items-center justify-between p-2 bg-dark-blue/50 border border-neon-blue/20 rounded hover:bg-dark-blue/70 transition-colors">
+							<div class="flex-1 min-w-0 pr-2">
+								<p class="font-medium text-white text-sm truncate">{permission.name}</p>
+								{#if permission.description}
+									<p class="text-xs text-gray-400 truncate">{permission.description}</p>
+								{/if}
+							</div>
+							<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+								<input
+									type="checkbox"
+									checked={permission.id ? selectedPermissionIds.has( permission.id ) : false}
+									onchange={() => permission.id && togglePermission( permission.id )}
+									class="sr-only peer"
+								>
+								<div class="w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neon-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neon-blue"></div>
+							</label>
+						</div>
+					{:else}
+						<p class="text-gray-400 text-sm text-center py-4">
+							{permissionSearchTerm ? 'No permissions found' : 'No permissions available'}
+						</p>
+					{/each}
+				{/if}
+			</div>
+		</div>
+
+		<!-- Column 3: Groups -->
+		<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-4 space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center space-x-2">
+					<span class="text-2xl">📦</span>
+					<h3 class="text-lg font-semibold text-white">Groups</h3>
+					{#if selectedGroupIds.size > 0}
+						<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full font-medium">
+							{selectedGroupIds.size}
+						</span>
+					{/if}
+				</div>
+				<button
+					type="button"
+					onclick={toggleAllGroups}
+					class="text-xs px-2 py-1 bg-neon-blue/20 text-neon-blue rounded hover:bg-neon-blue/30 transition-colors"
+					title={selectedGroupIds.size === filteredGroups.length && filteredGroups.length > 0 ? 'Deselect All' : 'Select All'}
+				>
+					{selectedGroupIds.size === filteredGroups.length && filteredGroups.length > 0 ? '✓ All' : 'Select'}
+				</button>
+			</div>
+
+			<!-- Search -->
+			<div class="relative">
+				<input
+					bind:value={groupSearchTerm}
+					type="text"
+					placeholder="Search groups..."
+					class="w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-8 pr-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60"
+				>
+				<div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+				</div>
+			</div>
+
+			<!-- List -->
+			<div class="space-y-2 max-h-[500px] overflow-y-auto">
+				{#each filteredGroups as group}
+					<div class="flex items-center justify-between p-2 bg-dark-blue/50 border border-neon-blue/20 rounded hover:bg-dark-blue/70 transition-colors">
+						<div class="flex-1 min-w-0 pr-2">
+							<p class="font-medium text-white text-sm truncate">{group.name}</p>
+							{#if group.description}
+								<p class="text-xs text-gray-400 truncate">{group.description}</p>
+							{/if}
+						</div>
+						<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
 							<input
 								type="checkbox"
-								checked={element.id ? currentSelectedIds().has( element.id ) : false}
-								onchange={() => element.id && toggleElementSelection( element.id )}
+								checked={group.id ? selectedGroupIds.has( group.id ) : false}
+								onchange={() => group.id && toggleGroup( group.id )}
 								class="sr-only peer"
 							>
-							<div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+							<div class="w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neon-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neon-blue"></div>
 						</label>
 					</div>
 				{:else}
-					<div class="text-center py-8">
-						<p class="text-gray-400">
-							{elementSearchTerm ? `No ${assignmentType}s found matching your search` : `No ${assignmentType}s available`}
-						</p>
-					</div>
-				{/each}
-			{/if}
-		</div>
-	</div>
-
-	<!-- User Selection -->
-	<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-6 space-y-6">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-semibold text-white">2. Select Users</h3>
-			<div class="flex items-center space-x-2">
-				<button
-					type="button"
-					onclick={selectAllUsers}
-					class="text-xs px-3 py-1 bg-neon-blue/20 text-neon-blue rounded hover:bg-neon-blue/30 transition-colors"
-				>
-					Select All
-				</button>
-				<button
-					type="button"
-					onclick={deselectAllUsers}
-					class="text-xs px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors"
-				>
-					Deselect All
-				</button>
-			</div>
-		</div>
-
-		<!-- Search Input -->
-		<div class="relative">
-			<input
-				bind:value={userSearchTerm}
-				type="text"
-				placeholder="Search users by name or email..."
-				class="w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-3 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60"
-			>
-			<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="11" cy="11" r="8"></circle>
-					<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-				</svg>
-			</div>
-		</div>
-
-		<!-- Selected Users Summary -->
-		<div class="bg-space-blue/20 border border-neon-blue/20 rounded-lg p-4">
-			<h4 class="text-sm font-medium text-neon-blue mb-2">Selection Summary</h4>
-			<p class="text-sm text-gray-300">
-				{selectedUserIds.size} user{selectedUserIds.size !== 1 ? 's' : ''} selected
-			</p>
-		</div>
-
-		<!-- Users List -->
-		<div class="space-y-3 max-h-96 overflow-y-auto">
-			<h4 class="text-sm font-medium text-white sticky top-0 bg-dark-blue/90 py-2 z-10">
-				Available Users ({filteredUsers.length})
-			</h4>
-			
-			{#each filteredUsers as user}
-				<div class="flex items-center justify-between p-3 bg-dark-blue/50 border border-neon-blue/20 rounded-lg hover:bg-dark-blue/70 transition-colors">
-					<div class="flex items-center space-x-3">
-						{#if user.avatar}
-							<img src={user.avatar} alt={user.name} class="w-10 h-10 rounded-full">
-						{:else}
-							<div class="w-10 h-10 bg-neon-blue/20 rounded-full flex items-center justify-center">
-								<span class="text-neon-blue font-medium text-sm">
-									{user.name.charAt( 0 ).toUpperCase()}
-								</span>
-							</div>
-						{/if}
-						<div>
-							<p class="font-medium text-white">{user.name}</p>
-							<p class="text-sm text-gray-400">{user.email}</p>
-						</div>
-					</div>
-
-					<label class="relative inline-flex items-center cursor-pointer">
-						<input
-							type="checkbox"
-							checked={selectedUserIds.has( user.id )}
-							onchange={() => toggleUserSelection( user.id )}
-							class="sr-only peer"
-						>
-						<div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
-					</label>
-				</div>
-			{:else}
-				<div class="text-center py-8">
-					<p class="text-gray-400">
-						{userSearchTerm ? 'No users found matching your search' : 'No users available'}
+					<p class="text-gray-400 text-sm text-center py-4">
+						{groupSearchTerm ? 'No groups found' : 'No groups available'}
 					</p>
-				</div>
-			{/each}
+				{/each}
+			</div>
 		</div>
-	</div>
 
-	<!-- Assignment Preview & Submit -->
-	<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-6 space-y-6">
-		<h3 class="text-lg font-semibold text-white">3. Review & Assign</h3>
+		<!-- Column 4: Users -->
+		<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-4 space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center space-x-2">
+					<span class="text-2xl">👤</span>
+					<h3 class="text-lg font-semibold text-white">Users</h3>
+					{#if selectedUserIds.size > 0}
+						<span class="text-xs bg-neon-blue text-dark-blue px-2 py-0.5 rounded-full font-medium">
+							{selectedUserIds.size}
+						</span>
+					{/if}
+				</div>
+				<button
+					type="button"
+					onclick={toggleAllUsers}
+					class="text-xs px-2 py-1 bg-neon-blue/20 text-neon-blue rounded hover:bg-neon-blue/30 transition-colors"
+					title={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0 ? 'Deselect All' : 'Select All'}
+				>
+					{selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0 ? '✓ All' : 'Select'}
+				</button>
+			</div>
 
-		{#if totalSelectedElements > 0 && selectedUserIds.size > 0}
-			<div class="bg-neon-blue/10 border border-neon-blue/30 rounded-lg p-4 space-y-4">
+			<!-- Search -->
+			<div class="relative">
+				<input
+					bind:value={userSearchTerm}
+					type="text"
+					placeholder="Search users..."
+					class="w-full bg-dark-blue/30 border border-neon-blue/30 rounded-md py-2 pl-8 pr-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-neon-blue/60"
+				>
+				<div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+				</div>
+			</div>
+
+			<!-- List -->
+			<div class="space-y-2 max-h-[500px] overflow-y-auto">
+				{#each filteredUsers as user}
+					<div class="flex items-center justify-between p-2 bg-dark-blue/50 border border-neon-blue/20 rounded hover:bg-dark-blue/70 transition-colors">
+						<div class="flex items-center space-x-2 flex-1 min-w-0">
+							{#if user.avatar}
+								<img src={user.avatar} alt={user.name} class="w-8 h-8 rounded-full flex-shrink-0">
+							{:else}
+								<div class="w-8 h-8 bg-neon-blue/20 rounded-full flex items-center justify-center flex-shrink-0">
+									<span class="text-neon-blue font-medium text-xs">
+										{user.name.charAt( 0 ).toUpperCase()}
+									</span>
+								</div>
+							{/if}
+							<div class="flex-1 min-w-0">
+								<p class="font-medium text-white text-sm truncate">{user.name}</p>
+								<p class="text-xs text-gray-400 truncate">{user.email}</p>
+							</div>
+						</div>
+						<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+							<input
+								type="checkbox"
+								checked={selectedUserIds.has( user.id )}
+								onchange={() => toggleUser( user.id )}
+								class="sr-only peer"
+							>
+							<div class="w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neon-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neon-blue"></div>
+						</label>
+					</div>
+				{:else}
+					<p class="text-gray-400 text-sm text-center py-4">
+						{userSearchTerm ? 'No users found' : 'No users available'}
+					</p>
+				{/each}
+			</div>
+		</div>
+</div>
+
+<!-- Assignment Preview & Submit -->
+{#if totalSelectedElements > 0 && selectedUserIds.size > 0}
+		<div class="bg-dark-blue/30 border border-neon-blue/20 rounded-lg p-6 space-y-4">
+			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-2">
 					<span class="text-neon-blue text-xl">✓</span>
 					<p class="text-sm text-white">
 						Ready to assign <strong>{totalSelectedElements}</strong> item(s) to <strong>{selectedUserIds.size}</strong> user(s)
 					</p>
 				</div>
+				<button
+					type="button"
+					onclick={handleSubmit}
+					class="px-6 py-2 bg-neon-blue text-dark-blue font-medium rounded-md hover:bg-neon-blue/80 transition-colors"
+				>
+					Assign Now
+				</button>
+			</div>
 
-				<!-- Selected Elements Preview -->
+			<div class="grid grid-cols-2 gap-4">
+				<!-- Selected Items -->
 				<div class="space-y-2">
-					<p class="text-xs font-medium text-gray-400 uppercase">Selected Items:</p>
+					<p class="text-xs font-medium text-gray-400 uppercase">Selected Items ({totalSelectedElements}):</p>
 					<div class="flex flex-wrap gap-2">
-						{#each allSelectedElements().slice( 0, 8 ) as item}
+						{#each allSelectedElements().slice( 0, 10 ) as item}
 							<span class="inline-flex items-center px-2 py-1 bg-space-blue/50 border border-neon-blue/20 rounded text-xs text-gray-300">
 								{item.type === 'role' ? '👥' : item.type === 'permission' ? '🔐' : '📦'}
 								{item.element.name}
 							</span>
 						{/each}
-						{#if totalSelectedElements > 8}
+						{#if totalSelectedElements > 10}
 							<span class="inline-flex items-center px-2 py-1 bg-space-blue/50 border border-neon-blue/20 rounded text-xs text-gray-400">
-								+{totalSelectedElements - 8} more
+								+{totalSelectedElements - 10} more
 							</span>
 						{/if}
 					</div>
 				</div>
 
-				<!-- Selected Users Preview -->
+				<!-- Selected Users -->
 				<div class="space-y-2">
-					<p class="text-xs font-medium text-gray-400 uppercase">Selected Users:</p>
+					<p class="text-xs font-medium text-gray-400 uppercase">Selected Users ({selectedUserIds.size}):</p>
 					<div class="flex flex-wrap gap-2">
-						{#each Array.from( selectedUserIds ).slice( 0, 8 ) as userId}
+						{#each Array.from( selectedUserIds ).slice( 0, 10 ) as userId}
 							{@const user = availableUsers.find( u => u.id === userId )}
 							{#if user}
 								<span class="inline-flex items-center px-2 py-1 bg-space-blue/50 border border-neon-blue/20 rounded text-xs text-gray-300">
@@ -534,30 +572,13 @@
 								</span>
 							{/if}
 						{/each}
-						{#if selectedUserIds.size > 8}
+						{#if selectedUserIds.size > 10}
 							<span class="inline-flex items-center px-2 py-1 bg-space-blue/50 border border-neon-blue/20 rounded text-xs text-gray-400">
-								+{selectedUserIds.size - 8} more
+								+{selectedUserIds.size - 10} more
 							</span>
 						{/if}
 					</div>
 				</div>
 			</div>
-
-			<button
-				type="button"
-				onclick={handleSubmit}
-				class="w-full px-6 py-3 bg-neon-blue text-dark-blue font-medium rounded-md hover:bg-neon-blue/80 transition-colors"
-			>
-				Assign {totalSelectedElements} Item(s) to {selectedUserIds.size} User(s)
-			</button>
-		{:else}
-			<div class="text-center py-8 border-2 border-dashed border-neon-blue/20 rounded-lg">
-				<p class="text-gray-400 text-sm">
-					{totalSelectedElements === 0 
-						? 'Select roles, permissions, or groups and users to continue' 
-						: 'Select at least one user to continue'}
-				</p>
-			</div>
-		{/if}
-	</div>
-</div>
+		</div>
+{/if}
